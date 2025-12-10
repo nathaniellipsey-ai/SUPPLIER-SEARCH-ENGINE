@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inbox - Walmart Vendor Hub</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800&family=Space+Grotesk:wght@500;700&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --walmart-blue: #0071ce;
+            --walmart-dark-blue: #004c91;
+            --walmart-yellow: #ffc220;
+            --walmart-red: #e02020;
+            --heading-font: 'Bebas Neue', sans-serif;
+            --body-font: 'Inter', sans-serif;
+            --accent-font: 'Space Grotesk', sans-serif;
+        }
+
+        body {
+            font-family: var(--body-font);
+            background: #f5f7fa;
+            font-size: 13px;
+            line-height: 1.4;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: var(--walmart-blue);
+            color: white;
+            padding: 20px;
+            border-bottom: 4px solid var(--walmart-yellow);
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-family: var(--heading-font);
+            font-size: 2rem;
+            letter-spacing: 2px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .back-btn, .compose-btn {
+            background: white;
+            color: var(--walmart-blue);
+            border: 2px solid white;
+            padding: 10px 20px;
+            font-family: var(--accent-font);
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .compose-btn {
+            background: var(--walmart-yellow);
+            color: black;
+            border-color: var(--walmart-yellow);
+        }
+
+        .back-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .compose-btn:hover {
+            background: #e6a800;
+        }
+
+        .inbox-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: white;
+            border-right: 2px solid #ddd;
+            padding: 20px;
+        }
+
+        .filter-section {
+            margin-bottom: 20px;
+        }
+
+        .filter-title {
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-option {
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .filter-option:hover {
+            background: #f0f8ff;
+            border-left-color: var(--walmart-blue);
+        }
+
+        .filter-option.active {
+            background: #e7f3ff;
+            border-left-color: var(--walmart-blue);
+            font-weight: 600;
+        }
+
+        .unread-badge {
+            background: var(--walmart-blue);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .toolbar {
+            background: white;
+            padding: 15px 20px;
+            border-bottom: 2px solid #ddd;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .bulk-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .bulk-action-btn {
+            padding: 6px 12px;
+            border: 2px solid var(--walmart-blue);
+            background: white;
+            color: var(--walmart-blue);
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .bulk-action-btn:hover {
+            background: var(--walmart-blue);
+            color: white;
+        }
+
+        .bulk-action-btn.danger {
+            border-color: var(--walmart-red);
+            color: var(--walmart-red);
+        }
+
+        .bulk-action-btn.danger:hover {
+            background: var(--walmart-red);
+            color: white;
+        }
+
+        .select-all-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-right: 15px;
+            border-right: 2px solid #ddd;
+        }
+
+        .select-all-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .search-box {
+            flex: 1;
+            padding: 8px 15px;
+            border: 2px solid #ddd;
+            font-size: 0.9rem;
+            font-family: var(--body-font);
+        }
+
+        .toolbar-select {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            font-size: 0.85rem;
+        }
+
+        .message-list {
+            flex: 1;
+            overflow-y: auto;
+            background: white;
+        }
+
+        .message-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .message-item:hover {
+            background: #f8f9fa;
+        }
+
+        .message-item.unread {
+            background: #f0f8ff;
+            border-left: 4px solid var(--walmart-blue);
+        }
+
+        .message-checkbox {
+            margin-top: 2px;
+        }
+
+        .message-content {
+            flex: 1;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .sender {
+            font-weight: 700;
+            color: #333;
+        }
+
+        .message-item.unread .sender {
+            color: var(--walmart-blue);
+        }
+
+        .timestamp {
+            color: #999;
+            font-size: 0.8rem;
+        }
+
+        .subject {
+            font-weight: 600;
+            margin-bottom: 3px;
+            color: #555;
+        }
+
+        .preview {
+            color: #888;
+            font-size: 0.85rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .vendor-tag {
+            background: var(--walmart-yellow);
+            color: black;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 5px;
+            display: inline-block;
+        }
+
+        .compose-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .compose-modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border: 4px solid var(--walmart-blue);
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            background: var(--walmart-blue);
+            color: white;
+            padding: 20px;
+            font-family: var(--heading-font);
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            font-family: var(--body-font);
+            font-size: 0.9rem;
+        }
+
+        .form-group textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 2px solid #ddd;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--accent-font);
+        }
+
+        .btn-primary {
+            background: var(--walmart-blue);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #ddd;
+            color: #333;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state h2 {
+            font-family: var(--heading-font);
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .thread-view {
+            padding: 20px;
+            display: none;
+        }
+
+        .thread-view.active {
+            display: block;
+        }
+
+        .thread-message {
+            background: white;
+            border: 2px solid #ddd;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .thread-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--walmart-yellow);
+        }
+
+        .thread-sender {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .thread-body {
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .message-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+            padding: 20px;
+        }
+
+        .message-modal.active {
+            display: flex;
+        }
+
+        .message-modal-content {
+            background: white;
+            border: 4px solid var(--walmart-blue);
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-modal-header {
+            background: var(--walmart-blue);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 4px solid var(--walmart-yellow);
+        }
+
+        .message-modal-title {
+            font-family: var(--heading-font);
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+        }
+
+        .message-modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .message-modal-body {
+            padding: 30px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .message-detail-header {
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .message-detail-row {
+            display: flex;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .message-detail-label {
+            font-weight: 700;
+            width: 100px;
+            color: #666;
+        }
+
+        .message-detail-value {
+            flex: 1;
+            color: #333;
+        }
+
+        .message-detail-subject {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--walmart-blue);
+            margin-bottom: 15px;
+        }
+
+        .message-detail-body {
+            background: #f9f9f9;
+            padding: 20px;
+            border-left: 4px solid var(--walmart-blue);
+            line-height: 1.8;
+            white-space: pre-wrap;
+            font-size: 0.95rem;
+        }
+
+        .message-modal-footer {
+            padding: 20px;
+            border-top: 2px solid #ddd;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .reply-btn {
+            background: var(--walmart-blue);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--accent-font);
+        }
+
+        .reply-btn:hover {
+            background: var(--walmart-dark-blue);
+        }
+
+        .close-btn {
+            background: #ddd;
+            color: #333;
+            border: none;
+            padding: 10px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--accent-font);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>VENDOR INBOX</h1>
+            <div class="header-actions">
+                <button class="compose-btn" onclick="openCompose()">COMPOSE</button>
+                <a href="supplier-search-engine.html" class="back-btn">BACK TO SEARCH</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="inbox-container">
+        <div class="sidebar">
+            <div class="filter-section">
+                <div class="filter-title">Folders</div>
+                <div class="filter-option active" onclick="filterMessages('all')">
+                    All Messages <span class="unread-badge" id="allCount">0</span>
+                </div>
+                <div class="filter-option" onclick="filterMessages('unread')">
+                    Unread <span class="unread-badge" id="unreadCount">0</span>
+                </div>
+                <div class="filter-option" onclick="filterMessages('sent')">
+                    Sent
+                </div>
+                <div class="filter-option" onclick="filterMessages('archived')">
+                    Archived
+                </div>
+            </div>
+            <div class="filter-section">
+                <div class="filter-title">Vendors</div>
+                <div id="vendorFilters"></div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="toolbar">
+                <div class="select-all-container">
+                    <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
+                    <label class="select-all-label" for="selectAllCheckbox">Select All</label>
+                </div>
+                <div class="bulk-actions" id="bulkActions">
+                    <button class="bulk-action-btn" onclick="markSelectedAsRead()">Mark Read</button>
+                    <button class="bulk-action-btn" onclick="markSelectedAsUnread()">Mark Unread</button>
+                    <button class="bulk-action-btn danger" onclick="deleteSelected()">Delete</button>
+                </div>
+                <input type="text" id="searchBox" class="search-box" placeholder="Search messages..." oninput="filterMessages()">
+                <select class="toolbar-select" id="sortSelect" onchange="filterMessages()">
+                    <option value="date-desc">Newest First</option>
+                    <option value="date-asc">Oldest First</option>
+                    <option value="sender">By Sender</option>
+                </select>
+            </div>
+
+            <div class="message-list" id="messageList"></div>
+        </div>
+    </div>
+
+    <div id="messageModal" class="message-modal">
+        <div class="message-modal-content">
+            <div class="message-modal-header">
+                <div class="message-modal-title">MESSAGE</div>
+                <button class="message-modal-close" onclick="closeMessageModal()">&times;</button>
+            </div>
+            <div class="message-modal-body">
+                <div class="message-detail-subject" id="modalSubject"></div>
+                <div class="message-detail-header">
+                    <div class="message-detail-row">
+                        <div class="message-detail-label">From:</div>
+                        <div class="message-detail-value" id="modalFrom"></div>
+                    </div>
+                    <div class="message-detail-row">
+                        <div class="message-detail-label">Vendor:</div>
+                        <div class="message-detail-value" id="modalVendor"></div>
+                    </div>
+                    <div class="message-detail-row">
+                        <div class="message-detail-label">Date:</div>
+                        <div class="message-detail-value" id="modalDate"></div>
+                    </div>
+                </div>
+                <div class="message-detail-body" id="modalBody"></div>
+            </div>
+            <div class="message-modal-footer">
+                <button class="reply-btn" onclick="replyToMessage()">REPLY</button>
+                <button class="close-btn" onclick="closeMessageModal()">CLOSE</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="composeModal" class="compose-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                NEW MESSAGE
+                <button class="close-modal" onclick="closeCompose()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>To (Vendor)</label>
+                    <select id="vendorSelect">
+                        <option value="">Select a vendor...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Subject</label>
+                    <input type="text" id="subjectInput" placeholder="Enter subject...">
+                </div>
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea id="messageInput" placeholder="Type your message..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="sendMessage()">SEND</button>
+                <button class="btn btn-secondary" onclick="closeCompose()">CANCEL</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get user data
+        const currentUser = localStorage.getItem('currentUser');
+        if (!currentUser) {
+            window.location.href = 'supplier-auth-system.html';
+        }
+
+        const users = JSON.parse(localStorage.getItem('supplierPortalUsers') || '{}');
+        let userData = users[currentUser];
+
+        if (!userData) {
+            window.location.href = 'supplier-auth-system.html';
+        }
+
+        // Initialize inbox data if not exists
+        if (!userData.inbox) {
+            userData.inbox = generateSampleMessages();
+            users[currentUser] = userData;
+            localStorage.setItem('supplierPortalUsers', JSON.stringify(users));
+        }
+
+        let currentFilter = 'all';
+        let filteredMessages = [];
+
+        function generateSampleMessages() {
+            const vendors = ['Acme Steel Corp', 'BuildRight Concrete', 'Premier Lumber Co', 'Elite Electrical Supply', 'ProPlumb Solutions'];
+            const messages = [];
+            
+            for (let i = 0; i < 15; i++) {
+                const vendor = vendors[Math.floor(Math.random() * vendors.length)];
+                const isUnread = Math.random() > 0.6;
+                const daysAgo = Math.floor(Math.random() * 14);
+                
+                messages.push({
+                    id: i + 1,
+                    vendor: vendor,
+                    sender: `${vendor} <${vendor.toLowerCase().replace(/\s+/g, '')}@example.com>`,
+                    subject: ['Quote Request Follow-up', 'Order Confirmation', 'Delivery Update', 'Product Availability', 'Payment Terms Discussion'][Math.floor(Math.random() * 5)],
+                    preview: 'Thank you for your inquiry. We wanted to follow up regarding your recent request...',
+                    body: `Dear ${userData.name},\n\nThank you for your inquiry. We wanted to follow up regarding your recent request for our products/services.\n\nWe have reviewed your requirements and are pleased to provide you with the information you requested. Our team is standing by to assist you with any questions you may have.\n\nPlease don't hesitate to reach out if you need any additional information.\n\nBest regards,\n${vendor} Team`,
+                    timestamp: new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000).toISOString(),
+                    unread: isUnread,
+                    archived: false,
+                    sent: false
+                });
+            }
+            
+            return messages;
+        }
+
+        function loadInbox() {
+            // Populate vendor filter
+            const vendors = [...new Set(userData.inbox.map(m => m.vendor))];
+            const vendorFilters = document.getElementById('vendorFilters');
+            vendorFilters.innerHTML = vendors.map(v => `
+                <div class="filter-option" onclick="filterByVendor('${v}')">${v}</div>
+            `).join('');
+
+            // Populate vendor select in compose
+            const vendorSelect = document.getElementById('vendorSelect');
+            vendorSelect.innerHTML = '<option value="">Select a vendor...</option>' +
+                vendors.map(v => `<option value="${v}">${v}</option>`).join('');
+
+            filterMessages();
+        }
+
+        function filterMessages(type) {
+            if (type) currentFilter = type;
+            
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            const sortBy = document.getElementById('sortSelect').value;
+            
+            // Update active filter
+            document.querySelectorAll('.sidebar .filter-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            
+            filteredMessages = userData.inbox.filter(msg => {
+                if (currentFilter === 'unread' && !msg.unread) return false;
+                if (currentFilter === 'sent' && !msg.sent) return false;
+                if (currentFilter === 'archived' && !msg.archived) return false;
+                if (currentFilter !== 'all' && currentFilter !== 'unread' && currentFilter !== 'sent' && currentFilter !== 'archived' && msg.vendor !== currentFilter) return false;
+                
+                const matchesSearch = !searchTerm || 
+                    msg.sender.toLowerCase().includes(searchTerm) ||
+                    msg.subject.toLowerCase().includes(searchTerm) ||
+                    msg.preview.toLowerCase().includes(searchTerm);
+                
+                return matchesSearch;
+            });
+
+            // Sort
+            if (sortBy === 'date-desc') {
+                filteredMessages.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            } else if (sortBy === 'date-asc') {
+                filteredMessages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            } else if (sortBy === 'sender') {
+                filteredMessages.sort((a, b) => a.sender.localeCompare(b.sender));
+            }
+
+            renderMessages();
+            updateCounts();
+        }
+
+        function filterByVendor(vendor) {
+            currentFilter = vendor;
+            filterMessages();
+        }
+
+        function renderMessages() {
+            const messageList = document.getElementById('messageList');
+            
+            if (filteredMessages.length === 0) {
+                messageList.innerHTML = `
+                    <div class="empty-state">
+                        <h2>No Messages</h2>
+                        <p>Your inbox is empty or no messages match your filter.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            messageList.innerHTML = filteredMessages.map(msg => {
+                const date = new Date(msg.timestamp);
+                const timeStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                return `
+                    <div class="message-item ${msg.unread ? 'unread' : ''}" onclick="openMessage(${msg.id})">
+                        <input type="checkbox" class="message-checkbox" id="msg-${msg.id}" data-msg-id="${msg.id}" onclick="event.stopPropagation(); updateSelectAllState();">
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="sender">${msg.sender}</span>
+                                <span class="timestamp">${timeStr}</span>
+                            </div>
+                            <div class="subject">${msg.subject}</div>
+                            <div class="preview">${msg.preview}</div>
+                            <span class="vendor-tag">${msg.vendor}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateCounts() {
+            const allCount = userData.inbox.filter(m => !m.archived).length;
+            const unreadCount = userData.inbox.filter(m => m.unread && !m.archived).length;
+            
+            document.getElementById('allCount').textContent = allCount;
+            document.getElementById('unreadCount').textContent = unreadCount;
+        }
+
+        let currentMessageId = null;
+
+        function openMessage(msgId) {
+            const message = userData.inbox.find(m => m.id === msgId);
+            if (!message) return;
+
+            currentMessageId = msgId;
+
+            // Mark as read
+            message.unread = false;
+            users[currentUser] = userData;
+            localStorage.setItem('supplierPortalUsers', JSON.stringify(users));
+
+            // Populate modal
+            document.getElementById('modalSubject').textContent = message.subject;
+            document.getElementById('modalFrom').textContent = message.sender;
+            document.getElementById('modalVendor').textContent = message.vendor;
+            
+            const date = new Date(message.timestamp);
+            document.getElementById('modalDate').textContent = date.toLocaleString();
+            
+            document.getElementById('modalBody').textContent = message.body;
+
+            // Show modal
+            document.getElementById('messageModal').classList.add('active');
+            
+            // Refresh list to show as read
+            filterMessages();
+        }
+
+        function closeMessageModal() {
+            document.getElementById('messageModal').classList.remove('active');
+            currentMessageId = null;
+        }
+
+        function replyToMessage() {
+            const message = userData.inbox.find(m => m.id === currentMessageId);
+            if (!message) return;
+
+            closeMessageModal();
+            
+            // Open compose with vendor pre-selected and subject
+            document.getElementById('vendorSelect').value = message.vendor;
+            document.getElementById('subjectInput').value = 'Re: ' + message.subject;
+            document.getElementById('messageInput').value = '';
+            
+            openCompose();
+        }
+
+        function openCompose() {
+            document.getElementById('composeModal').classList.add('active');
+        }
+
+        function closeCompose() {
+            document.getElementById('composeModal').classList.remove('active');
+            document.getElementById('vendorSelect').value = '';
+            document.getElementById('subjectInput').value = '';
+            document.getElementById('messageInput').value = '';
+        }
+
+        function sendMessage() {
+            const vendor = document.getElementById('vendorSelect').value;
+            const subject = document.getElementById('subjectInput').value.trim();
+            const body = document.getElementById('messageInput').value.trim();
+
+            if (!vendor || !subject || !body) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            const newMessage = {
+                id: userData.inbox.length + 1,
+                vendor: vendor,
+                sender: 'You',
+                subject: subject,
+                preview: body.substring(0, 100) + '...',
+                body: body,
+                timestamp: new Date().toISOString(),
+                unread: false,
+                archived: false,
+                sent: true
+            };
+
+            userData.inbox.push(newMessage);
+            users[currentUser] = userData;
+            localStorage.setItem('supplierPortalUsers', JSON.stringify(users));
+
+            closeCompose();
+            filterMessages();
+            
+            alert('Message sent successfully!');
+        }
+
+        // Bulk Actions
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAllCheckbox');
+            const checkboxes = document.querySelectorAll('.message-checkbox');
+            
+            checkboxes.forEach(cb => {
+                cb.checked = selectAll.checked;
+            });
+        }
+
+        function updateSelectAllState() {
+            const checkboxes = document.querySelectorAll('.message-checkbox');
+            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const selectAll = document.getElementById('selectAllCheckbox');
+            
+            if (checkedCount === 0) {
+                selectAll.checked = false;
+                selectAll.indeterminate = false;
+            } else if (checkedCount === checkboxes.length) {
+                selectAll.checked = true;
+                selectAll.indeterminate = false;
+            } else {
+                selectAll.checked = false;
+                selectAll.indeterminate = true;
+            }
+        }
+
+        function getSelectedMessageIds() {
+            const checkboxes = document.querySelectorAll('.message-checkbox:checked');
+            return Array.from(checkboxes).map(cb => parseInt(cb.dataset.msgId));
+        }
+
+        function markSelectedAsRead() {
+            const selectedIds = getSelectedMessageIds();
+            
+            if (selectedIds.length === 0) {
+                alert('Please select at least one message');
+                return;
+            }
+
+            selectedIds.forEach(id => {
+                const message = userData.inbox.find(m => m.id === id);
+                if (message) message.unread = false;
+            });
+
+            users[currentUser] = userData;
+            localStorage.setItem('supplierPortalUsers', JSON.stringify(users));
+
+            // Uncheck all and refresh
+            document.getElementById('selectAllCheckbox').checked = false;
+            filterMessages();
+            
+            alert(`Marked ${selectedIds.length} message(s) as read`);
+        }
+
+        function markSelectedAsUnread() {
+            const selectedIds = getSelectedMessageIds();
+            
+            if (selectedIds.length === 0) {
+                alert('Please select at least one message');
+                return;
+            }
+
+            selectedIds.forEach(id => {
+                const message = userData.inbox.find(m => m.id === id);
+                if (message) message.unread = true;
+            });
+
+            users[currentUser] = userData;
+            localStorage.setItem('supplierPortalUsers', JSON.stringify(users));
+
+            // Uncheck all and refresh
+            document.getElementById('selectAllCheckbox').checked = false;
+            filterMessages();
+            
+            alert(`Marked ${selectedIds.length} message(s) as unread`);
+        }
+
+        function deleteSelected() {
+            const selectedIds = getSelectedMessageIds();
+            
+            if (selectedIds.length === 0) {
+                alert('Please select at least one message');
+                return;
+            }
+
+            if (!confirm(`Delete ${selectedIds.length} message(s)? This cannot be undone.`)) {
+                return;
+            }
+
+            // Remove messages from inbox
+            userData.inbox = userData.inbox.filter(m => !selectedIds.includes(m.id));
+            users[currentUser] = userData;
+            localStorage.setItem('supplierPortalUsers', JSON.stringify(users));
+
+            // Uncheck all and refresh
+            document.getElementById('selectAllCheckbox').checked = false;
+            filterMessages();
+            
+            alert(`Deleted ${selectedIds.length} message(s)`);
+        }
+
+        // Initialize
+        loadInbox();
+    </script>
+</body>
+</html>

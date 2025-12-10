@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration & Login - Walmart Supplier Portal</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800&family=Space+Grotesk:wght@500;700&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --walmart-blue: #0071ce;
+            --walmart-dark-blue: #004c91;
+            --walmart-yellow: #ffc220;
+            --walmart-red: #e02020;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--walmart-blue) 0%, var(--walmart-dark-blue) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            background: white;
+            width: 100%;
+            max-width: 450px;
+            border: 4px solid var(--walmart-yellow);
+            box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .auth-header {
+            background: var(--walmart-blue);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-bottom: 4px solid var(--walmart-yellow);
+        }
+
+        .auth-header h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .auth-header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .auth-body {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--walmart-blue);
+            box-shadow: 3px 3px 0 rgba(0, 113, 206, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background: var(--walmart-blue);
+            color: white;
+            border: 3px solid var(--walmart-dark-blue);
+            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translate(0, 0);
+            box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--walmart-blue);
+            border: 2px solid var(--walmart-blue);
+            margin-top: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f8ff;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+            font-size: 0.9rem;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border-color: var(--walmart-red);
+            color: #721c24;
+        }
+
+        .toggle-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .toggle-link a {
+            color: var(--walmart-blue);
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .toggle-link a:hover {
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .logo-box {
+            width: 60px;
+            height: 60px;
+            background: var(--walmart-yellow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            border: 3px solid white;
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--walmart-blue);
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <!-- Login Form -->
+        <div id="loginForm">
+            <div class="auth-header">
+                <div class="logo-box">W</div>
+                <h1>SUPPLIER PORTAL</h1>
+                <p>Login to access your account</p>
+            </div>
+            <div class="auth-body">
+                <div id="loginError" class="alert alert-error hidden"></div>
+                <div id="loginSuccess" class="alert alert-success hidden"></div>
+                
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="loginEmail">EMAIL ADDRESS</label>
+                        <input type="email" id="loginEmail" required placeholder="your.email@walmart.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">PASSWORD</label>
+                        <input type="password" id="loginPassword" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn btn-primary">🔐 LOGIN</button>
+                </form>
+                
+                <div class="toggle-link">
+                    Don't have an account? <a onclick="showRegister()">Register here</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registration Form -->
+        <div id="registerForm" class="hidden">
+            <div class="auth-header">
+                <div class="logo-box">W</div>
+                <h1>CREATE ACCOUNT</h1>
+                <p>Register for Walmart Supplier Portal</p>
+            </div>
+            <div class="auth-body">
+                <div id="registerError" class="alert alert-error hidden"></div>
+                <div id="registerSuccess" class="alert alert-success hidden"></div>
+                
+                <form onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label for="registerName">FULL NAME</label>
+                        <input type="text" id="registerName" required placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">EMAIL ADDRESS</label>
+                        <input type="email" id="registerEmail" required placeholder="your.email@walmart.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">PASSWORD</label>
+                        <input type="password" id="registerPassword" required minlength="6" placeholder="Minimum 6 characters">
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPasswordConfirm">CONFIRM PASSWORD</label>
+                        <input type="password" id="registerPasswordConfirm" required placeholder="Re-enter password">
+                    </div>
+                    <button type="submit" class="btn btn-primary">✅ CREATE ACCOUNT</button>
+                </form>
+                
+                <div class="toggle-link">
+                    Already have an account? <a onclick="showLogin()">Login here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple localStorage-based authentication system
+        
+        function showRegister() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+            clearMessages();
+        }
+
+        function showLogin() {
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+            clearMessages();
+        }
+
+        function clearMessages() {
+            document.querySelectorAll('.alert').forEach(el => el.classList.add('hidden'));
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            clearMessages();
+
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+
+            // Validation
+            if (password !== passwordConfirm) {
+                showError('registerError', 'Passwords do not match!');
+                return;
+            }
+
+            // Check if user already exists
+            const users = JSON.parse(localStorage.getItem('supplierPortalUsers') || '{}');
+            if (users[email]) {
+                showError('registerError', 'An account with this email already exists!');
+                return;
+            }
+
+            // Create user account
+            users[email] = {
+                name: name,
+                email: email,
+                password: password, // In production, this would be hashed!
+                createdAt: new Date().toISOString(),
+                favorites: [],
+                notes: {}
+            };
+
+            localStorage.setItem('supplierPortalUsers', JSON.stringify(users));
+
+            showSuccess('registerSuccess', '✅ Account created successfully! Redirecting to supplier portal...');
+            
+            // Auto-login and redirect
+            setTimeout(() => {
+                localStorage.setItem('currentUser', email);
+                window.location.href = 'supplier-search-engine.html';
+            }, 2000);
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            clearMessages();
+
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const users = JSON.parse(localStorage.getItem('supplierPortalUsers') || '{}');
+            const user = users[email];
+
+            if (!user) {
+                showError('loginError', 'No account found with this email!');
+                return;
+            }
+
+            if (user.password !== password) {
+                showError('loginError', 'Incorrect password!');
+                return;
+            }
+
+            // Successful login
+            localStorage.setItem('currentUser', email);
+            showSuccess('loginSuccess', '✅ Login successful! Redirecting...');
+            
+            setTimeout(() => {
+                window.location.href = 'supplier-search-engine.html';
+            }, 1000);
+        }
+
+        function showError(elementId, message) {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.classList.remove('hidden');
+        }
+
+        function showSuccess(elementId, message) {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.classList.remove('hidden');
+        }
+
+        // Check if already logged in
+        if (localStorage.getItem('currentUser')) {
+            showSuccess('loginSuccess', 'Already logged in! Redirecting...');
+            setTimeout(() => {
+                window.location.href = 'supplier-search-engine.html';
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

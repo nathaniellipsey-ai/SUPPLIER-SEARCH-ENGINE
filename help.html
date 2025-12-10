@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help - Supplier Hub</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800&family=Space+Grotesk:wght@500;700&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --walmart-blue: #0071ce;
+            --walmart-red: #e02020;
+            --walmart-yellow: #ffc220;
+            --walmart-dark-blue: #004c91;
+            --light-bg: #f8f9fa;
+            --border: #e0e0e0;
+            --heading-font: 'Bebas Neue', 'Impact', sans-serif;
+            --body-font: 'Inter', 'Helvetica Neue', sans-serif;
+            --accent-font: 'Space Grotesk', 'Helvetica', sans-serif;
+        }
+        
+        body {
+            font-family: var(--body-font);
+            background: #ffffff;
+            background-image: 
+                linear-gradient(90deg, rgba(0, 113, 206, 0.03) 1px, transparent 1px),
+                linear-gradient(rgba(0, 113, 206, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .header {
+            background: var(--walmart-blue);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 5px solid var(--walmart-yellow);
+        }
+        
+        .header h1 {
+            font-family: var(--heading-font);
+            font-size: 3rem;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            background: var(--walmart-blue);
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            transition: all 0.2s;
+            font-family: var(--accent-font);
+            letter-spacing: 0.5px;
+        }
+        
+        .back-btn:hover {
+            background: var(--walmart-dark-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 113, 206, 0.3);
+        }
+        
+        .toc {
+            background: var(--light-bg);
+            border: 3px solid var(--walmart-blue);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .toc h2 {
+            font-family: var(--heading-font);
+            font-size: 1.8rem;
+            color: var(--walmart-blue);
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+        
+        .topic-selector {
+            width: 100%;
+            padding: 15px 20px;
+            font-family: var(--accent-font);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--walmart-blue);
+            background: white;
+            border: 3px solid var(--walmart-blue);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><path fill="%230071ce" d="M5 8l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            padding-right: 45px;
+        }
+        
+        .topic-selector:hover {
+            border-color: var(--walmart-dark-blue);
+            box-shadow: 0 4px 12px rgba(0, 113, 206, 0.2);
+        }
+        
+        .topic-selector:focus {
+            outline: none;
+            border-color: var(--walmart-red);
+            box-shadow: 0 0 0 3px rgba(224, 32, 32, 0.1);
+        }
+        
+        .view-all-btn {
+            width: 100%;
+            margin-top: 15px;
+            padding: 12px 20px;
+            background: white;
+            border: 2px solid var(--walmart-blue);
+            color: var(--walmart-blue);
+            font-family: var(--accent-font);
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .view-all-btn:hover {
+            background: var(--walmart-blue);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 113, 206, 0.2);
+        }
+        
+        .section {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .section h2 {
+            font-family: var(--heading-font);
+            font-size: 2.2rem;
+            color: var(--walmart-blue);
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            border-bottom: 3px solid var(--walmart-yellow);
+            padding-bottom: 10px;
+        }
+        
+        .section h3 {
+            font-family: var(--accent-font);
+            font-size: 1.4rem;
+            color: var(--walmart-dark-blue);
+            margin: 25px 0 15px;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: var(--light-bg);
+            border: 2px solid var(--walmart-blue);
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0, 113, 206, 0.2);
+        }
+        
+        .feature-card h4 {
+            font-family: var(--accent-font);
+            font-size: 1.1rem;
+            color: var(--walmart-blue);
+            margin-bottom: 10px;
+        }
+        
+        .step {
+            background: #f0f8ff;
+            border-left: 5px solid var(--walmart-blue);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 6px;
+        }
+        
+        .step-number {
+            background: var(--walmart-blue);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 12px;
+            font-size: 1.1rem;
+        }
+        
+        .highlight {
+            background: var(--walmart-yellow);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        
+        .tip {
+            background: #d4edda;
+            border-left: 5px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 6px;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 6px;
+        }
+        
+        .ai-score-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        
+        .ai-score-box h3 {
+            color: white;
+            margin-top: 0;
+        }
+        
+        .score-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .score-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .score-item strong {
+            display: block;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: var(--walmart-red);
+        }
+        
+        kbd {
+            background: #333;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            border: 1px solid #666;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid var(--border);
+        }
+        
+        th {
+            background: var(--walmart-blue);
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:nth-child(even) {
+            background: var(--light-bg);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            border-top: 3px solid var(--walmart-yellow);
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📚 SUPPLIER HUB HELP CENTER</h1>
+        <p>Your complete guide to navigating and using the Supplier Discovery Dashboard</p>
+    </div>
+    
+    <div class="container">
+        <a href="supplier-search-engine.html" class="back-btn">← BACK TO SUPPLIER HUB</a>
+        
+        <div class="toc">
+            <h2>📑 SELECT A TOPIC</h2>
+            <select id="topicSelector" class="topic-selector" onchange="showTopic(this.value)" aria-label="Select help topic">
+                <option value="">Choose a topic to learn about...</option>
+                <option value="overview">🎯 Overview</option>
+                <option value="getting-started">🚀 Getting Started</option>
+                <option value="navigation">🧭 Navigation</option>
+                <option value="search-filter">🔍 Search & Filtering</option>
+                <option value="ai-score">🤖 Understanding AI Score</option>
+                <option value="features">⭐ Key Features</option>
+                <option value="comparison">⚖️ Comparing Suppliers</option>
+                <option value="favorites-notes">❤️ Favorites & Notes</option>
+                <option value="tips">💡 Pro Tips & Tricks</option>
+            </select>
+            <button class="view-all-btn" onclick="viewAllTopics()">📜 View All Topics</button>
+        </div>
+        
+        <div id="welcomeMessage" class="section" style="display: block; text-align: center; padding: 60px 30px;">
+            <h2 style="font-family: var(--heading-font); font-size: 2.5rem; color: var(--walmart-blue); letter-spacing: 2px; margin-bottom: 20px;">👋 WELCOME TO THE HELP CENTER!</h2>
+            <p style="font-size: 1.2rem; color: #666; margin-bottom: 30px;">Select a topic from the dropdown above to get started.</p>
+            <div style="background: var(--light-bg); border: 3px solid var(--walmart-blue); border-radius: 12px; padding: 30px; max-width: 600px; margin: 0 auto;">
+                <p style="font-size: 1.1rem; color: var(--walmart-dark-blue); font-weight: 600; margin-bottom: 15px;">💡 Quick Tips:</p>
+                <ul style="text-align: left; color: #555; font-size: 1rem;">
+                    <li style="margin: 10px 0;">✅ Use the dropdown to navigate between topics</li>
+                    <li style="margin: 10px 0;">✅ Each topic covers a specific feature or concept</li>
+                    <li style="margin: 10px 0;">✅ Start with "Overview" for a general introduction</li>
+                    <li style="margin: 10px 0;">✅ Check "Pro Tips" for advanced techniques</li>
+                </ul>
+            </div>
+        </div>
+        
+        <section id="overview" class="section">
+            <h2>🎯 OVERVIEW</h2>
+            <p>The Supplier Hub is a powerful tool designed to help you discover, evaluate, and manage supplier relationships. With over <strong>5,000 suppliers</strong> across multiple categories, you can find the perfect partners for your construction and retail needs.</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🏢 5,000+ Suppliers</h4>
+                    <p>Access a comprehensive database of verified suppliers across all categories</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🤖 AI-Powered Scoring</h4>
+                    <p>Smart algorithms rank suppliers based on performance, reliability, and fit</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔍 Advanced Filtering</h4>
+                    <p>Filter by category, region, certification, price range, and more</p>
+                </div>
+                <div class="feature-card">
+                    <h4>⚖️ Side-by-Side Comparison</h4>
+                    <p>Compare up to 5 suppliers at once across key metrics</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="getting-started" class="section">
+            <h2>🚀 GETTING STARTED</h2>
+            
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>Log In</strong><br>
+                Access the dashboard with your Walmart credentials. You'll be redirected to the login page if not authenticated.
+            </div>
+            
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>Review the Dashboard</strong><br>
+                The main dashboard displays all suppliers by default. Check the top stats to see the total count.
+            </div>
+            
+            <div class="step">
+                <span class="step-number">3</span>
+                <strong>Start Filtering</strong><br>
+                Use the left sidebar to filter suppliers by your specific needs (category, region, certifications, etc.)
+            </div>
+            
+            <div class="step">
+                <span class="step-number">4</span>
+                <strong>Explore Supplier Details</strong><br>
+                Click on any supplier name to view detailed information, contact details, and performance metrics.
+            </div>
+        </section>
+        
+        <section id="navigation" class="section">
+            <h2>🧭 NAVIGATION</h2>
+            
+            <h3>Top Navigation Bar</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Button</th>
+                        <th>Function</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>HOME</strong></td>
+                        <td>Reload the dashboard and reset view</td>
+                    </tr>
+                    <tr>
+                        <td><strong>EXPORT</strong></td>
+                        <td>Download current results to Excel/CSV</td>
+                    </tr>
+                    <tr>
+                        <td><strong>PRINT</strong></td>
+                        <td>Print current supplier list</td>
+                    </tr>
+                    <tr>
+                        <td><strong>RESET</strong></td>
+                        <td>Clear all active filters</td>
+                    </tr>
+                    <tr>
+                        <td><strong>COMPARE</strong></td>
+                        <td>View side-by-side comparison of selected suppliers</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>User Menu (Top Right)</h3>
+            <ul>
+                <li><strong>Inbox</strong> - View messages from suppliers</li>
+                <li><strong>My Favorites</strong> - Quick access to saved suppliers</li>
+                <li><strong>My Notes</strong> - Review all your supplier notes</li>
+                <li><strong>Logout</strong> - Sign out of the dashboard</li>
+            </ul>
+            
+            <h3>View Modes</h3>
+            <p>Switch between three different viewing layouts:</p>
+            <ul>
+                <li><strong>List View</strong> - Detailed list with full information</li>
+                <li><strong>Grid View</strong> - Compact card layout</li>
+                <li><strong>Catalog View</strong> - Visual catalog-style cards</li>
+            </ul>
+        </section>
+        
+        <section id="search-filter" class="section">
+            <h2>🔍 SEARCH & FILTERING</h2>
+            
+            <h3>Quick Search</h3>
+            <p>Use the search bar in the header to quickly find suppliers or products:</p>
+            <ul>
+                <li>Type at least <strong>2 characters</strong> to see autocomplete suggestions</li>
+                <li>Search by <strong>supplier name</strong> or <strong>product type</strong></li>
+                <li>Click a suggestion or press <kbd>Enter</kbd> to search</li>
+                <li>Clear search with the <strong>✕</strong> button</li>
+            </ul>
+            
+            <h3>Filter Panel (Left Sidebar)</h3>
+            <p>Apply multiple filters to narrow down suppliers:</p>
+            
+            <h4>📦 By Category</h4>
+            <p>Filter by product categories like Concrete & Masonry, Electrical Systems, HVAC Equipment, etc.</p>
+            
+            <h4>🗺️ By Region</h4>
+            <ul>
+                <li>Northeast</li>
+                <li>Southeast</li>
+                <li>Midwest</li>
+                <li>Southwest</li>
+                <li>West</li>
+                <li>National</li>
+            </ul>
+            
+            <h4>🏆 By Certification</h4>
+            <p>Find suppliers with specific certifications:</p>
+            <ul>
+                <li>ISO 9001 - Quality Management</li>
+                <li>LEED - Green Building</li>
+                <li>MBE - Minority Business Enterprise</li>
+                <li>WBE - Women's Business Enterprise</li>
+                <li>OSHA Certified - Safety Standards</li>
+                <li>Energy Star Partner - Energy Efficiency</li>
+            </ul>
+            
+            <h4>💰 By Price Range</h4>
+            <ul>
+                <li>Budget ($)</li>
+                <li>Standard ($$)</li>
+                <li>Premium ($$$)</li>
+                <li>Enterprise ($$$$)</li>
+            </ul>
+            
+            <h4>🏢 By Company Size</h4>
+            <ul>
+                <li>Small (1-50 employees)</li>
+                <li>Medium (51-500 employees)</li>
+                <li>Large (500+ employees)</li>
+            </ul>
+            
+            <div class="tip">
+                <strong>💡 Pro Tip:</strong> Use multiple filters together to find exactly what you need. For example, filter by "Midwest" + "ISO 9001" + "Medium size" to find regional certified suppliers.
+            </div>
+        </section>
+        
+        <section id="ai-score" class="section">
+            <h2>🤖 UNDERSTANDING AI SCORE</h2>
+            
+            <div class="ai-score-box">
+                <h3>What is the AI Score?</h3>
+                <p>The AI Score is a <strong>proprietary algorithm</strong> that evaluates suppliers on multiple dimensions to help you make informed decisions. Scores range from <strong>70-100</strong>, with higher scores indicating better overall performance and fit.</p>
+                
+                <div class="score-breakdown">
+                    <div class="score-item">
+                        <strong>90-100</strong>
+                        <p>Exceptional - Top tier suppliers with outstanding track records</p>
+                    </div>
+                    <div class="score-item">
+                        <strong>80-89</strong>
+                        <p>Excellent - Highly reliable and recommended suppliers</p>
+                    </div>
+                    <div class="score-item">
+                        <strong>70-79</strong>
+                        <p>Good - Solid performers suitable for most projects</p>
+                    </div>
+                </div>
+            </div>
+            
+            <h3>AI Score Factors</h3>
+            <p>The algorithm considers multiple weighted factors:</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Factor</th>
+                        <th>Weight</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Performance History</strong></td>
+                        <td>30%</td>
+                        <td>On-time delivery, quality consistency, project completion rate</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Customer Ratings</strong></td>
+                        <td>25%</td>
+                        <td>Average rating from verified Walmart buyers</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Reliability</strong></td>
+                        <td>20%</td>
+                        <td>Years in business, financial stability, response time</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Certifications</strong></td>
+                        <td>15%</td>
+                        <td>Industry certifications, compliance standards</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pricing</strong></td>
+                        <td>10%</td>
+                        <td>Competitive pricing relative to market rates</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="tip">
+                <strong>💡 How to Use AI Score:</strong> While a high AI Score is a good indicator, always review the supplier's detailed profile, certifications, and customer reviews before making a final decision. The AI Score is a starting point, not the only criterion.
+            </div>
+        </section>
+        
+        <section id="features" class="section">
+            <h2>⭐ KEY FEATURES</h2>
+            
+            <h3>Supplier Details Modal</h3>
+            <p>Click any supplier name to open a detailed modal with:</p>
+            <ul>
+                <li>Full company description</li>
+                <li>Contact information (website, email, phone)</li>
+                <li>Physical address</li>
+                <li>Key metrics (AI Score, rating, years in business, employees)</li>
+                <li>Products and services offered</li>
+                <li>Certifications</li>
+                <li>Payment terms and minimum order requirements</li>
+            </ul>
+            
+            <h3>Sorting Options</h3>
+            <p>Sort suppliers by:</p>
+            <ul>
+                <li><strong>AI Score (High to Low)</strong> - Recommended</li>
+                <li><strong>AI Score (Low to High)</strong></li>
+                <li><strong>Name (A-Z)</strong></li>
+                <li><strong>Name (Z-A)</strong></li>
+                <li><strong>Customer Rating</strong></li>
+            </ul>
+            
+            <h3>Quick Filters</h3>
+            <p>Use the stat cards at the top to quickly filter:</p>
+            <ul>
+                <li><strong>All Suppliers</strong> - Show everything</li>
+                <li><strong>Walmart Verified</strong> - Only verified suppliers</li>
+                <li><strong>By Categories</strong> - Group by category</li>
+                <li><strong>By Products</strong> - Sort by product count</li>
+            </ul>
+        </section>
+        
+        <section id="comparison" class="section">
+            <h2>⚖️ COMPARING SUPPLIERS</h2>
+            
+            <p>The comparison feature lets you evaluate multiple suppliers side-by-side:</p>
+            
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>Select Suppliers</strong><br>
+                Check the box next to each supplier you want to compare (up to 5)
+            </div>
+            
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>Click COMPARE</strong><br>
+                Click the "COMPARE" button in the toolbar once you've selected at least 2 suppliers
+            </div>
+            
+            <div class="step">
+                <span class="step-number">3</span>
+                <strong>Review Comparison</strong><br>
+                A side-by-side table shows all key metrics for easy comparison
+            </div>
+            
+            <h3>Comparison Metrics</h3>
+            <ul>
+                <li>AI Score</li>
+                <li>Customer Rating</li>
+                <li>Location</li>
+                <li>Years in Business</li>
+                <li>Projects Completed</li>
+                <li>Company Size</li>
+                <li>Price Range</li>
+                <li>Response Time</li>
+                <li>Certifications</li>
+                <li>Payment Terms</li>
+            </ul>
+            
+            <div class="warning">
+                <strong>⚠️ Note:</strong> You can compare a maximum of 5 suppliers at once. To compare different suppliers, close the comparison modal and select new ones.
+            </div>
+        </section>
+        
+        <section id="favorites-notes" class="section">
+            <h2>❤️ FAVORITES & NOTES</h2>
+            
+            <h3>Adding Favorites</h3>
+            <ol>
+                <li>Click the <strong>❤️ heart icon</strong> next to any supplier</li>
+                <li>The heart turns red to indicate it's favorited</li>
+                <li>Access all favorites via <strong>User Menu → My Favorites</strong></li>
+                <li>Click the heart again to remove from favorites</li>
+            </ol>
+            
+            <h3>Adding Notes</h3>
+            <ol>
+                <li>Click the <strong>NOTE</strong> button next to any supplier</li>
+                <li>Type your notes in the text area</li>
+                <li>Click <strong>SAVE NOTE</strong></li>
+                <li>Suppliers with notes show a highlighted NOTE button</li>
+                <li>Access all notes via <strong>User Menu → My Notes</strong></li>
+            </ol>
+            
+            <h3>Cloud Sync</h3>
+            <p>If SharePoint integration is enabled (look for ☁️ Cloud Mode indicator):</p>
+            <ul>
+                <li>✅ Favorites sync across all your devices</li>
+                <li>✅ Notes sync across all your devices</li>
+                <li>✅ Share favorites/notes with team members</li>
+            </ul>
+            
+            <p>If in 💾 Local Mode:</p>
+            <ul>
+                <li>⚠️ Favorites stored in browser only</li>
+                <li>⚠️ Notes stored in browser only</li>
+                <li>⚠️ Clearing browser data will delete favorites/notes</li>
+            </ul>
+        </section>
+        
+        <section id="tips" class="section">
+            <h2>💡 PRO TIPS & TRICKS</h2>
+            
+            <div class="tip">
+                <strong>🎯 Use Multiple Filters</strong><br>
+                Combine region, certification, and price range filters to find exactly what you need quickly.
+            </div>
+            
+            <div class="tip">
+                <strong>📊 Sort by AI Score</strong><br>
+                Start with the highest AI-scored suppliers for the best matches, then dive deeper into their profiles.
+            </div>
+            
+            <div class="tip">
+                <strong>🔍 Search by Product</strong><br>
+                If you know what product you need (e.g., "concrete"), search for it to see all suppliers offering it.
+            </div>
+            
+            <div class="tip">
+                <strong>✓ Look for Walmart Verified</strong><br>
+                Suppliers with the "✓ Walmart Verified" badge have been vetted and approved by Walmart's procurement team.
+            </div>
+            
+            <div class="tip">
+                <strong>📝 Keep Notes</strong><br>
+                Use the notes feature to track conversations, quotes, or reminders about specific suppliers.
+            </div>
+            
+            <div class="tip">
+                <strong>⚖️ Compare Wisely</strong><br>
+                Compare suppliers in the same category and price range for meaningful insights.
+            </div>
+            
+            <div class="tip">
+                <strong>🔄 Refresh Regularly</strong><br>
+                Supplier data is updated periodically. Refresh the page to see the latest information.
+            </div>
+            
+            <h3>Keyboard Shortcuts</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Shortcut</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><kbd>Ctrl</kbd> + <kbd>F</kbd></td>
+                        <td>Focus search box</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Esc</kbd></td>
+                        <td>Close modals/dropdowns</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Enter</kbd></td>
+                        <td>Apply search</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <div class="section">
+            <h2>❓ NEED MORE HELP?</h2>
+            <p>If you have questions or need assistance:</p>
+            <ul>
+                <li>📧 Contact your procurement manager</li>
+                <li>💬 Check the Walmart intranet for IT support</li>
+                <li>📖 Review the SharePoint setup guide (SHAREPOINT-SETUP-GUIDE.html)</li>
+                <li>🐛 Report bugs or issues to your IT helpdesk</li>
+            </ul>
+        </div>
+        
+        <a href="supplier-search-engine.html" class="back-btn">← BACK TO SUPPLIER HUB</a>
+    </div>
+    
+    <div class="footer">
+        <p style="color: #0071ce; font-weight: 600; margin-bottom: 10px;">SUPPLIER HUB v2.0</p>
+        <p>Created with ❤️ by Code Puppy 🐶</p>
+        <p style="font-size: 0.9rem; color: #999;">May 2025 | Walmart Global Tech</p>
+    </div>
+    
+    <script>
+        // Show selected topic section
+        function showTopic(topicId) {
+            // Hide all sections including welcome message
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+                if (section.id === 'welcomeMessage') {
+                    section.style.display = 'none';
+                }
+            });
+            
+            // Show selected section if valid
+            if (topicId) {
+                const selectedSection = document.getElementById(topicId);
+                if (selectedSection) {
+                    selectedSection.classList.add('active');
+                    // Smooth scroll to the section
+                    setTimeout(() => {
+                        selectedSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                }
+            } else {
+                // Show welcome message if no topic selected
+                const welcomeMsg = document.getElementById('welcomeMessage');
+                if (welcomeMsg) {
+                    welcomeMsg.style.display = 'block';
+                }
+            }
+        }
+        
+        // View all topics at once
+        function viewAllTopics() {
+            // Hide welcome message
+            const welcomeMsg = document.getElementById('welcomeMessage');
+            if (welcomeMsg) {
+                welcomeMsg.style.display = 'none';
+            }
+            
+            // Show all sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                if (section.id !== 'welcomeMessage') {
+                    section.classList.add('active');
+                }
+            });
+            
+            // Reset dropdown
+            document.getElementById('topicSelector').value = '';
+            
+            // Scroll to first section
+            setTimeout(() => {
+                const firstSection = document.getElementById('overview');
+                if (firstSection) {
+                    firstSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 100);
+        }
+        
+        // Check if there's a hash in the URL on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const hash = window.location.hash.substring(1); // Remove the #
+            if (hash) {
+                // Set the dropdown to the hash value
+                const selector = document.getElementById('topicSelector');
+                selector.value = hash;
+                showTopic(hash);
+            }
+        });
+    </script>
+</body>
+</html>

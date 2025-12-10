@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Favorites - Walmart Supplier Portal</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800&family=Space+Grotesk:wght@500;700&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --walmart-blue: #0071ce;
+            --walmart-dark-blue: #004c91;
+            --walmart-yellow: #ffc220;
+            --walmart-red: #e02020;
+            --heading-font: 'Bebas Neue', sans-serif;
+            --body-font: 'Inter', sans-serif;
+            --accent-font: 'Space Grotesk', sans-serif;
+        }
+
+        body {
+            font-family: var(--body-font);
+            background: #f5f7fa;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .header {
+            background: var(--walmart-blue);
+            color: white;
+            padding: 20px;
+            border-bottom: 4px solid var(--walmart-yellow);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-family: var(--heading-font);
+            font-size: 2rem;
+            letter-spacing: 2px;
+        }
+
+        .back-btn {
+            background: white;
+            color: var(--walmart-blue);
+            border: 2px solid white;
+            padding: 10px 20px;
+            font-family: var(--accent-font);
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: var(--walmart-yellow);
+            color: black;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .toolbar {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid var(--walmart-blue);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            font-size: 0.9rem;
+            font-family: var(--body-font);
+        }
+
+        .filter-select {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            font-size: 0.9rem;
+            font-family: var(--body-font);
+            min-width: 150px;
+        }
+
+        .favorites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .favorite-card {
+            background: white;
+            border: 2px solid var(--walmart-blue);
+            padding: 15px;
+            transition: all 0.2s;
+        }
+
+        .favorite-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .supplier-name {
+            font-family: var(--heading-font);
+            font-size: 1.3rem;
+            color: var(--walmart-blue);
+            letter-spacing: 1px;
+        }
+
+        .remove-btn {
+            background: var(--walmart-red);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .remove-btn:hover {
+            background: #c01818;
+        }
+
+        .card-meta {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .meta-item {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .meta-item strong {
+            color: #333;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border: 2px solid #ddd;
+        }
+
+        .empty-state h2 {
+            font-family: var(--heading-font);
+            font-size: 2rem;
+            color: #999;
+            margin-bottom: 20px;
+        }
+
+        .view-btn {
+            background: var(--walmart-blue);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+        }
+
+        .view-btn:hover {
+            background: var(--walmart-dark-blue);
+        }
+
+        .count-badge {
+            background: var(--walmart-yellow);
+            color: black;
+            padding: 5px 15px;
+            font-weight: 700;
+            font-family: var(--accent-font);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>MY FAVORITES</h1>
+            <a href="supplier-search-engine.html" class="back-btn">BACK TO SEARCH</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="toolbar">
+            <input type="text" id="searchBox" class="search-box" placeholder="Search favorites..." oninput="filterFavorites()">
+            <select id="categoryFilter" class="filter-select" onchange="filterFavorites()">
+                <option value="">All Categories</option>
+            </select>
+            <select id="regionFilter" class="filter-select" onchange="filterFavorites()">
+                <option value="">All Regions</option>
+            </select>
+            <span class="count-badge" id="countBadge">0 Favorites</span>
+        </div>
+
+        <div id="favoritesContainer" class="favorites-grid"></div>
+    </div>
+
+    <script>
+        // Get user data
+        const currentUser = localStorage.getItem('currentUser');
+        if (!currentUser) {
+            window.location.href = 'supplier-auth-system.html';
+        }
+
+        const users = JSON.parse(localStorage.getItem('supplierPortalUsers') || '{}');
+        const userData = users[currentUser];
+
+        if (!userData) {
+            window.location.href = 'supplier-auth-system.html';
+        }
+
+        // Get all suppliers (need to regenerate the same data)
+        const allSuppliers = generateSuppliers();
+        let filteredFavorites = [];
+
+        function generateSuppliers() {
+            // This is a simplified version - in production you'd want to share this data
+            // For now, we'll create a basic structure that matches
+            const suppliers = [];
+            for (let i = 1; i <= 100; i++) {
+                suppliers.push({
+                    id: i,
+                    name: `Supplier ${i}`,
+                    category: ['Concrete', 'Steel', 'Lumber', 'Electrical', 'Plumbing'][Math.floor(Math.random() * 5)],
+                    region: ['Northeast', 'Southeast', 'Midwest', 'Southwest', 'West'][Math.floor(Math.random() * 5)],
+                    location: 'City, ST',
+                    rating: (3 + Math.random() * 2).toFixed(1),
+                    aiScore: (60 + Math.random() * 40).toFixed(0),
+                    yearsInBusiness: Math.floor(5 + Math.random() * 30),
+                    walmartVerified: Math.random() > 0.5
+                });
+            }
+            return suppliers;
+        }
+
+        function loadFavorites() {
+            const favoriteIds = userData.favorites || [];
+            const favoriteSuppliers = allSuppliers.filter(s => favoriteIds.includes(s.id));
+            
+            // Populate filter dropdowns
+            const categories = [...new Set(favoriteSuppliers.map(s => s.category))];
+            const regions = [...new Set(favoriteSuppliers.map(s => s.region))];
+            
+            const categoryFilter = document.getElementById('categoryFilter');
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                categoryFilter.appendChild(option);
+            });
+
+            const regionFilter = document.getElementById('regionFilter');
+            regions.forEach(reg => {
+                const option = document.createElement('option');
+                option.value = reg;
+                option.textContent = reg;
+                regionFilter.appendChild(option);
+            });
+
+            filteredFavorites = favoriteSuppliers;
+            renderFavorites();
+        }
+
+        function filterFavorites() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const regionFilter = document.getElementById('regionFilter').value;
+
+            const favoriteIds = userData.favorites || [];
+            filteredFavorites = allSuppliers.filter(s => {
+                if (!favoriteIds.includes(s.id)) return false;
+                
+                const matchesSearch = !searchTerm || s.name.toLowerCase().includes(searchTerm);
+                const matchesCategory = !categoryFilter || s.category === categoryFilter;
+                const matchesRegion = !regionFilter || s.region === regionFilter;
+                
+                return matchesSearch && matchesCategory && matchesRegion;
+            });
+
+            renderFavorites();
+        }
+
+        function renderFavorites() {
+            const container = document.getElementById('favoritesContainer');
+            document.getElementById('countBadge').textContent = `${filteredFavorites.length} Favorites`;
+
+            if (filteredFavorites.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h2>No Favorites Found</h2>
+                        <p>Start adding suppliers to your favorites from the main search page!</p>
+                        <a href="supplier-search-engine.html" class="back-btn" style="margin-top: 20px;">GO TO SEARCH</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredFavorites.map(supplier => `
+                <div class="favorite-card">
+                    <div class="card-header">
+                        <div class="supplier-name">${supplier.name}</div>
+                        <button class="remove-btn" onclick="removeFavorite(${supplier.id})">REMOVE</button>
+                    </div>
+                    <div class="card-meta">
+                        <div class="meta-item"><strong>Category:</strong> ${supplier.category}</div>
+                        <div class="meta-item"><strong>AI Score:</strong> ${supplier.aiScore}</div>
+                        <div class="meta-item"><strong>Region:</strong> ${supplier.region}</div>
+                        <div class="meta-item"><strong>Rating:</strong> ${supplier.rating}/5.0</div>
+                        <div class="meta-item"><strong>Years:</strong> ${supplier.yearsInBusiness}</div>
+                        <div class="meta-item"><strong>Verified:</strong> ${supplier.walmartVerified ? 'Yes' : 'No'}</div>
+                    </div>
+                    <button class="view-btn" onclick="window.location.href='supplier-search-engine.html'">VIEW IN SEARCH</button>
+                </div>
+            `).join('');
+        }
+
+        function removeFavorite(supplierId) {
+            if (!confirm('Remove this supplier from your favorites?')) return;
+            
+            userData.favorites = userData.favorites.filter(id => id !== supplierId);
+            users[currentUser] = userData;
+            localStorage.setItem('supplierPortalUsers', JSON.stringify(users));
+            
+            filterFavorites();
+        }
+
+        // Initialize
+        loadFavorites();
+    </script>
+</body>
+</html>

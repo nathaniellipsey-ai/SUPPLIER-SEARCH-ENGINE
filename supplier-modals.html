@@ -1,0 +1,720 @@
+<!-- Supplier Modals and UI Components -->
+<!-- Include this in index.html before closing body tag -->
+
+<!-- EDIT SUPPLIER MODAL -->
+<div id="editSupplierModal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+        <div class="modal-header">
+            <h2 id="editSupplierTitle">Edit Supplier Profile</h2>
+            <button class="modal-close" onclick="closeEditSupplierModal()" aria-label="Close">✕</button>
+        </div>
+        
+        <div class="modal-body">
+            <form id="editSupplierForm" onsubmit="submitEditSupplier(event)" style="display: flex; flex-direction: column; gap: 20px;">
+                
+                <!-- Basic Info -->
+                <fieldset style="border: 1px solid #ddd; padding: 15px; border-radius: 4px;">
+                    <legend style="font-weight: 600; font-size: 14px; padding: 0 5px;">Basic Information</legend>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Name *</label>
+                            <input type="text" id="edit_name" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Category</label>
+                            <input type="text" id="edit_category" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Website</label>
+                            <input type="url" id="edit_website" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Email</label>
+                            <input type="email" id="edit_primaryEmail" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Phone</label>
+                            <input type="tel" id="edit_primaryPhone" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Location</label>
+                            <input type="text" id="edit_location" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Description</label>
+                        <textarea id="edit_description" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; min-height: 80px;"></textarea>
+                    </div>
+                </fieldset>
+                
+                <!-- Company Info -->
+                <fieldset style="border: 1px solid #ddd; padding: 15px; border-radius: 4px;">
+                    <legend style="font-weight: 600; font-size: 14px; padding: 0 5px;">Company Information</legend>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Years in Business</label>
+                            <input type="number" id="edit_yearsInBusiness" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Company Size</label>
+                            <select id="edit_companySize" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                                <option value="">Select...</option>
+                                <option value="Solo">Solo</option>
+                                <option value="Small (1-50)">Small (1-50)</option>
+                                <option value="Medium (50-200)">Medium (50-200)</option>
+                                <option value="Large (200+)">Large (200+)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Price Range</label>
+                            <select id="edit_priceRange" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                                <option value="">Select...</option>
+                                <option value="$">$ (Budget)</option>
+                                <option value="$$">$$ (Mid-range)</option>
+                                <option value="$$$">$$$ (Premium)</option>
+                                <option value="$$$$">$$$$ (Luxury)</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+                
+                <!-- Rating & Verification -->
+                <fieldset style="border: 1px solid #ddd; padding: 15px; border-radius: 4px;">
+                    <legend style="font-weight: 600; font-size: 14px; padding: 0 5px;">Rating & Verification</legend>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Rating (0-5)</label>
+                            <input type="number" id="edit_rating" min="0" max="5" step="0.1" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">AI Score</label>
+                            <input type="number" id="edit_aiScore" min="0" max="100" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div style="display: flex; align-items: flex-end;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="edit_walmartVerified">
+                                <span style="font-weight: 600; font-size: 12px;">Walmart Verified</span>
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+                
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" onclick="closeEditSupplierModal()" class="btn" style="background: #f5f5f5; color: #333; padding: 10px 20px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn" style="background: #0071ce; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                        💾 Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- CONTACT MANAGEMENT MODAL -->
+<div id="contactsModal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+        <div class="modal-header">
+            <h2>Manage Contacts - <span id="contactsSupplierName"></span></h2>
+            <button class="modal-close" onclick="closeContactsModal()" aria-label="Close">✕</button>
+        </div>
+        
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 20px;">
+            
+            <!-- Add Contact Form -->
+            <fieldset style="border: 1px solid #ddd; padding: 15px; border-radius: 4px;">
+                <legend style="font-weight: 600; font-size: 14px; padding: 0 5px;">➕ Add New Contact</legend>
+                
+                <form id="addContactForm" onsubmit="submitAddContact(event)" style="display: flex; flex-direction: column; gap: 15px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">First Name *</label>
+                            <input type="text" id="contact_firstName" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Last Name *</label>
+                            <input type="text" id="contact_lastName" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Title/Role</label>
+                            <input type="text" id="contact_title" placeholder="e.g., Sales Manager" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Department</label>
+                            <input type="text" id="contact_department" placeholder="e.g., Sales" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Email</label>
+                            <input type="email" id="contact_email" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Phone</label>
+                            <input type="tel" id="contact_phone" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                    </div>
+                    
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="contact_isPrimary">
+                        <span style="font-weight: 600; font-size: 12px;">Mark as Primary Contact</span>
+                    </label>
+                    
+                    <button type="submit" class="btn" style="background: #0071ce; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; align-self: flex-start;">
+                        ➕ Add Contact
+                    </button>
+                </form>
+            </fieldset>
+            
+            <!-- Contacts List -->
+            <fieldset style="border: 1px solid #ddd; padding: 15px; border-radius: 4px;">
+                <legend style="font-weight: 600; font-size: 14px; padding: 0 5px;">👥 Contacts</legend>
+                <div id="contactsList" style="display: flex; flex-direction: column; gap: 10px;"></div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+<!-- CREATE NEW SUPPLIER MODAL -->
+<div id="createSupplierModal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+        <div class="modal-header">
+            <h2>➕ Create New Supplier</h2>
+            <button class="modal-close" onclick="closeCreateSupplierModal()" aria-label="Close">✕</button>
+        </div>
+        
+        <div class="modal-body">
+            <form id="createSupplierForm" onsubmit="submitCreateSupplier(event)" style="display: flex; flex-direction: column; gap: 20px;">
+                
+                <!-- Same fields as edit modal -->
+                <fieldset style="border: 1px solid #ddd; padding: 15px; border-radius: 4px;">
+                    <legend style="font-weight: 600; font-size: 14px; padding: 0 5px;">Basic Information</legend>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Name *</label>
+                            <input type="text" id="create_name" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Category</label>
+                            <input type="text" id="create_category" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Website</label>
+                            <input type="url" id="create_website" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Email</label>
+                            <input type="email" id="create_primaryEmail" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Phone</label>
+                            <input type="tel" id="create_primaryPhone" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Location</label>
+                            <input type="text" id="create_location" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Description</label>
+                        <textarea id="create_description" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; min-height: 80px;"></textarea>
+                    </div>
+                </fieldset>
+                
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" onclick="closeCreateSupplierModal()" class="btn" style="background: #f5f5f5; color: #333; padding: 10px 20px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn" style="background: #0071ce; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                        ✅ Create Supplier
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- CSV IMPORT MODAL -->
+<div id="importCSVModal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h2>📊 Import Suppliers from CSV</h2>
+            <button class="modal-close" onclick="closeImportCSVModal()" aria-label="Close">✕</button>
+        </div>
+        
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 20px;">
+            
+            <div>
+                <h3 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 600;">📋 Expected CSV Format</h3>
+                <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 12px;">name,category,website,phone,email,location
+Company A,Lumber,https://company-a.com,555-1234,info@company-a.com,New York
+Company B,Concrete,https://company-b.com,555-5678,sales@company-b.com,Texas</pre>
+            </div>
+            
+            <form id="importCSVForm" onsubmit="submitImportCSV(event)" style="display: flex; flex-direction: column; gap: 15px;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 12px;">Select CSV File</label>
+                    <input type="file" id="csvFile" accept=".csv,.xlsx" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" onclick="closeImportCSVModal()" class="btn" style="flex: 1; background: #f5f5f5; color: #333; padding: 10px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn" style="flex: 1; background: #0071ce; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                        📤 Import
+                    </button>
+                </div>
+            </form>
+            
+            <div id="importResults" style="display: none; background: #f0f8ff; border: 1px solid #0071ce; padding: 10px; border-radius: 4px;">
+                <p id="importResultsText"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI CHATBOT -->
+<div id="chatbotWidget" style="position: fixed; bottom: 20px; right: 20px; width: 350px; height: 500px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); display: flex; flex-direction: column; font-family: 'Segoe UI', sans-serif; z-index: 1000;">
+    <div style="background: #0071ce; color: white; padding: 15px; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h3 style="margin: 0; font-size: 16px; font-weight: 600;">🤖 Supplier Assistant</h3>
+            <p style="margin: 5px 0 0 0; font-size: 12px; opacity: 0.9;">Ask me anything about suppliers</p>
+        </div>
+        <button onclick="toggleChatbot()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">−</button>
+    </div>
+    
+    <div id="chatMessages" style="flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px;"></div>
+    
+    <form id="chatForm" onsubmit="submitChatMessage(event)" style="padding: 15px; border-top: 1px solid #ddd; display: flex; gap: 10px;">
+        <input type="text" id="chatInput" placeholder="Ask me about suppliers..." style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;">
+        <button type="submit" style="background: #0071ce; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: 600;">→</button>
+    </form>
+</div>
+
+<style>
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+    }
+    
+    .modal-content {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .modal-header h2 {
+        margin: 0;
+        font-size: 18px;
+        color: #333;
+    }
+    
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #999;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .modal-close:hover {
+        color: #333;
+    }
+    
+    .modal-body {
+        padding: 20px;
+    }
+    
+    .btn:hover {
+        opacity: 0.9;
+    }
+    
+    .contact-card {
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 4px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .contact-card-info {
+        flex: 1;
+    }
+    
+    .contact-card-name {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .contact-card-details {
+        font-size: 12px;
+        color: #666;
+        margin-top: 3px;
+    }
+    
+    .contact-card-actions {
+        display: flex;
+        gap: 5px;
+    }
+    
+    .contact-card-actions button {
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+        background: white;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 11px;
+    }
+    
+    .contact-card-actions button:hover {
+        background: #f5f5f5;
+    }
+    
+    .chat-message {
+        padding: 10px;
+        border-radius: 4px;
+        max-width: 90%;
+        word-wrap: break-word;
+    }
+    
+    .chat-message.user {
+        background: #0071ce;
+        color: white;
+        align-self: flex-end;
+        margin-left: 10%;
+    }
+    
+    .chat-message.assistant {
+        background: #f0f0f0;
+        color: #333;
+        align-self: flex-start;
+        margin-right: 10%;
+    }
+</style>
+
+<script>
+// Modal Functions
+function openEditSupplierModal(supplierId) {
+    // Load supplier data and open modal
+    fetch(`${API_URL}/api/suppliers/${supplierId}`)
+        .then(r => r.json())
+        .then(supplier => {
+            document.getElementById('edit_name').value = supplier.name;
+            document.getElementById('edit_category').value = supplier.category || '';
+            document.getElementById('edit_website').value = supplier.website || '';
+            document.getElementById('edit_primaryEmail').value = supplier.primaryEmail || '';
+            document.getElementById('edit_primaryPhone').value = supplier.primaryPhone || '';
+            document.getElementById('edit_location').value = supplier.location || '';
+            document.getElementById('edit_description').value = supplier.description || '';
+            document.getElementById('edit_yearsInBusiness').value = supplier.yearsInBusiness || '';
+            document.getElementById('edit_companySize').value = supplier.companySize || '';
+            document.getElementById('edit_priceRange').value = supplier.priceRange || '';
+            document.getElementById('edit_rating').value = supplier.rating || '';
+            document.getElementById('edit_aiScore').value = supplier.aiScore || '';
+            document.getElementById('edit_walmartVerified').checked = supplier.walmartVerified || false;
+            
+            document.getElementById('editSupplierModal').style.display = 'flex';
+            document.getElementById('editSupplierModal').dataset.supplierId = supplierId;
+        });
+}
+
+function closeEditSupplierModal() {
+    document.getElementById('editSupplierModal').style.display = 'none';
+}
+
+function submitEditSupplier(event) {
+    event.preventDefault();
+    const supplierId = document.getElementById('editSupplierModal').dataset.supplierId;
+    
+    const data = {
+        name: document.getElementById('edit_name').value,
+        category: document.getElementById('edit_category').value,
+        website: document.getElementById('edit_website').value,
+        primary_email: document.getElementById('edit_primaryEmail').value,
+        primary_phone: document.getElementById('edit_primaryPhone').value,
+        location: document.getElementById('edit_location').value,
+        description: document.getElementById('edit_description').value,
+        years_in_business: parseInt(document.getElementById('edit_yearsInBusiness').value) || null,
+        company_size: document.getElementById('edit_companySize').value,
+        price_range: document.getElementById('edit_priceRange').value,
+        rating: parseFloat(document.getElementById('edit_rating').value) || 0,
+        ai_score: parseFloat(document.getElementById('edit_aiScore').value) || 0,
+        walmart_verified: document.getElementById('edit_walmartVerified').checked,
+    };
+    
+    fetch(`${API_URL}/api/suppliers/${supplierId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(result => {
+        if (result.success) {
+            showNotification('✅ Supplier updated successfully');
+            closeEditSupplierModal();
+            location.reload();  // Refresh to see changes
+        } else {
+            showNotification(`❌ Error: ${result.error}`);
+        }
+    })
+    .catch(err => showNotification(`❌ Error: ${err.message}`));
+}
+
+function openContactsModal(supplierId) {
+    document.getElementById('contactsModal').style.display = 'flex';
+    document.getElementById('contactsModal').dataset.supplierId = supplierId;
+    document.getElementById('addContactForm').reset();
+    
+    loadContacts(supplierId);
+}
+
+function closeContactsModal() {
+    document.getElementById('contactsModal').style.display = 'none';
+}
+
+function loadContacts(supplierId) {
+    fetch(`${API_URL}/api/suppliers/${supplierId}/contacts`)
+        .then(r => r.json())
+        .then(contacts => {
+            const list = document.getElementById('contactsList');
+            list.innerHTML = '';
+            
+            if (contacts.length === 0) {
+                list.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No contacts yet</p>';
+                return;
+            }
+            
+            contacts.forEach(contact => {
+                const card = document.createElement('div');
+                card.className = 'contact-card';
+                card.innerHTML = `
+                    <div class="contact-card-info">
+                        <div class="contact-card-name">${contact.firstName} ${contact.lastName}</div>
+                        <div class="contact-card-details">
+                            ${contact.title ? contact.title + ' · ' : ''}
+                            ${contact.email || ''}
+                            ${contact.phone ? ' · ' + contact.phone : ''}
+                        </div>
+                    </div>
+                    <div class="contact-card-actions">
+                        <button onclick="editContact(${contact.id})">Edit</button>
+                        <button onclick="deleteContact(${contact.id})">Delete</button>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        });
+}
+
+function submitAddContact(event) {
+    event.preventDefault();
+    const supplierId = document.getElementById('contactsModal').dataset.supplierId;
+    
+    const data = {
+        first_name: document.getElementById('contact_firstName').value,
+        last_name: document.getElementById('contact_lastName').value,
+        title: document.getElementById('contact_title').value,
+        email: document.getElementById('contact_email').value,
+        phone: document.getElementById('contact_phone').value,
+        department: document.getElementById('contact_department').value,
+        is_primary: document.getElementById('contact_isPrimary').checked,
+    };
+    
+    fetch(`${API_URL}/api/suppliers/${supplierId}/contacts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(result => {
+        if (result.success) {
+            showNotification('✅ Contact added successfully');
+            document.getElementById('addContactForm').reset();
+            loadContacts(supplierId);
+        } else {
+            showNotification(`❌ Error: ${result.error}`);
+        }
+    });
+}
+
+function deleteContact(contactId) {
+    if (confirm('Delete this contact?')) {
+        fetch(`${API_URL}/api/contacts/${contactId}`, { method: 'DELETE' })
+            .then(r => r.json())
+            .then(result => {
+                if (result.success) {
+                    showNotification('✅ Contact deleted');
+                    const supplierId = document.getElementById('contactsModal').dataset.supplierId;
+                    loadContacts(supplierId);
+                }
+            });
+    }
+}
+
+function openCreateSupplierModal() {
+    document.getElementById('createSupplierForm').reset();
+    document.getElementById('createSupplierModal').style.display = 'flex';
+}
+
+function closeCreateSupplierModal() {
+    document.getElementById('createSupplierModal').style.display = 'none';
+}
+
+function submitCreateSupplier(event) {
+    event.preventDefault();
+    
+    const data = {
+        name: document.getElementById('create_name').value,
+        category: document.getElementById('create_category').value,
+        website: document.getElementById('create_website').value,
+        primary_email: document.getElementById('create_primaryEmail').value,
+        primary_phone: document.getElementById('create_primaryPhone').value,
+        location: document.getElementById('create_location').value,
+        description: document.getElementById('create_description').value,
+    };
+    
+    fetch(`${API_URL}/api/suppliers`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(result => {
+        if (result.success) {
+            showNotification('✅ Supplier created successfully');
+            closeCreateSupplierModal();
+            location.reload();
+        } else {
+            showNotification(`❌ Error: ${result.error}`);
+        }
+    });
+}
+
+function openImportCSVModal() {
+    document.getElementById('importCSVModal').style.display = 'flex';
+    document.getElementById('importResults').style.display = 'none';
+}
+
+function closeImportCSVModal() {
+    document.getElementById('importCSVModal').style.display = 'none';
+}
+
+function submitImportCSV(event) {
+    event.preventDefault();
+    
+    const file = document.getElementById('csvFile').files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    fetch(`${API_URL}/api/suppliers/import/csv`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(result => {
+        const resultsDiv = document.getElementById('importResults');
+        const resultsText = document.getElementById('importResultsText');
+        
+        resultsText.innerHTML = `
+            <strong>${result.message}</strong><br>
+            Created: ${result.created} | Updated: ${result.updated} | Failed: ${result.failed}
+            ${result.errors.length > 0 ? '<br><br><strong>Errors:</strong><br>' + result.errors.slice(0, 5).join('<br>') : ''}
+        `;
+        resultsDiv.style.display = 'block';
+        
+        if (result.success) {
+            setTimeout(() => {
+                closeImportCSVModal();
+                location.reload();
+            }, 2000);
+        }
+    });
+}
+
+// Chatbot Functions
+function toggleChatbot() {
+    const widget = document.getElementById('chatbotWidget');
+    const messages = document.getElementById('chatMessages');
+    messages.style.display = messages.style.display === 'none' ? 'flex' : 'none';
+    document.getElementById('chatForm').style.display = messages.style.display === 'none' ? 'none' : 'flex';
+}
+
+function submitChatMessage(event) {
+    event.preventDefault();
+    
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    if (!message) return;
+    
+    const messagesDiv = document.getElementById('chatMessages');
+    
+    // Add user message
+    const userMsg = document.createElement('div');
+    userMsg.className = 'chat-message user';
+    userMsg.textContent = message;
+    messagesDiv.appendChild(userMsg);
+    
+    input.value = '';
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    
+    // Send to chatbot
+    fetch(`${API_URL}/api/chatbot/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message })
+    })
+    .then(r => r.json())
+    .then(result => {
+        const assistantMsg = document.createElement('div');
+        assistantMsg.className = 'chat-message assistant';
+        assistantMsg.textContent = result.message;
+        messagesDiv.appendChild(assistantMsg);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    })
+    .catch(err => {
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'chat-message assistant';
+        errorMsg.textContent = 'Sorry, I encountered an error.';
+        messagesDiv.appendChild(errorMsg);
+    });
+}
+
+// Close modals when clicking outside
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+    }
+});
+</script>

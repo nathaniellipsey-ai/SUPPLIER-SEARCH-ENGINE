@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Notes - Supplier Hub</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="shortcut icon" href="favicon.svg">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Space+Grotesk:wght@500;700&display=swap');
+        
+        :root {
+            --walmart-blue: #001e60;
+            --everyday-blue: #4dbdf5;
+            --sky-blue: #a9ddf7;
+            --yellow: #ffc220;
+            --white: #ffffff;
+            --light-bg: #f5f8fa;
+            --border: #dde4eb;
+            --body-font: 'Inter', 'Helvetica Neue', sans-serif;
+            --accent-font: 'Space Grotesk', 'Helvetica', sans-serif;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--body-font);
+            background: #ffffff;
+            background-image: 
+                linear-gradient(90deg, rgba(77, 189, 245, 0.05) 1px, transparent 1px),
+                linear-gradient(rgba(77, 189, 245, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            font-size: 13px;
+            line-height: 1.5;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--walmart-blue) 0%, var(--everyday-blue) 100%);
+            color: var(--white);
+            padding: 30px 20px;
+            border-bottom: 4px solid var(--yellow);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .header-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background: var(--yellow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+            color: var(--walmart-blue);
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            background: var(--yellow);
+            color: var(--walmart-blue);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+            font-family: var(--accent-font);
+        }
+        
+        .btn:hover {
+            background: var(--white);
+            color: var(--walmart-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 30, 96, 0.15);
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .note-item {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--everyday-blue);
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .note-item:hover {
+            box-shadow: 0 8px 16px rgba(77, 189, 245, 0.15);
+            border-color: var(--everyday-blue);
+            transform: translateX(4px);
+        }
+        
+        .note-supplier {
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--walmart-blue);
+            margin-bottom: 10px;
+        }
+        
+        .note-content {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+            padding: 12px;
+            background: var(--light-bg);
+            border-radius: 4px;
+            word-wrap: break-word;
+        }
+        
+        .note-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 6px 12px;
+            background: var(--light-bg);
+            color: #333;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-family: var(--accent-font);
+        }
+        
+        .action-btn:hover {
+            background: var(--everyday-blue);
+            color: var(--white);
+            border-color: var(--everyday-blue);
+        }
+        
+        .no-notes {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .no-notes-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid var(--light-bg);
+            border-top: 3px solid var(--everyday-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            background-color: var(--white);
+            margin: auto;
+            padding: 30px;
+            border-radius: 8px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .modal-header {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--walmart-blue);
+            margin-bottom: 20px;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-family: var(--body-font);
+            font-size: 13px;
+            resize: vertical;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--everyday-blue);
+            box-shadow: 0 0 0 3px rgba(77, 189, 245, 0.1);
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .modal-actions button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-family: var(--accent-font);
+        }
+        
+        .btn-primary {
+            background: var(--walmart-blue);
+            color: var(--white);
+        }
+        
+        .btn-primary:hover {
+            background: var(--everyday-blue);
+        }
+        
+        .btn-secondary {
+            background: var(--light-bg);
+            color: #333;
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+        
+        .footer {
+            max-width: 1200px;
+            margin: 60px auto 0;
+            padding: 30px 20px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="header-logo">📝</div>
+                <h1>My Notes</h1>
+            </div>
+            <div class="header-actions">
+                <button class="btn" onclick="window.history.back()">Back to Dashboard</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="content" id="notes-container"></div>
+    </div>
+    
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Edit Note</div>
+            <textarea id="editNoteContent"></textarea>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="saveEditNote()">Save</button>
+                <button class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+        <p>Supplier Hub v4.0 | Built with modern web technologies | All rights reserved</p>
+    </div>
+    
+    <script>
+        const API_URL = '/';
+        let currentEditNoteId = null;
+        
+        async function getNotes() {
+            const response = await fetch(`${API_URL}api/notes`);
+            if (!response.ok) throw new Error('Failed to fetch notes');
+            return response.json();
+        }
+        
+        async function deleteNote(supplierId) {
+            const params = new URLSearchParams({ supplier_id: supplierId });
+            const response = await fetch(`${API_URL}api/notes/delete?${params}`, { method: 'POST' });
+            if (!response.ok) throw new Error('Failed to delete note');
+            return response.json();
+        }
+        
+        async function updateNote(supplierId, content) {
+            const params = new URLSearchParams({ supplier_id: supplierId, content });
+            const response = await fetch(`${API_URL}api/notes/update?${params}`, { method: 'POST' });
+            if (!response.ok) throw new Error('Failed to update note');
+            return response.json();
+        }
+        
+        async function loadNotes() {
+            const container = document.getElementById('notes-container');
+            
+            container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
+            
+            try {
+                const result = await getNotes();
+                
+                if (result.count === 0) {
+                    container.innerHTML = `
+                        <div class="no-notes">
+                            <div class="no-notes-icon">📝</div>
+                            <h3>No Notes Yet</h3>
+                            <p>Start adding notes to suppliers!</p>
+                            <br>
+                            <button class="btn" style="margin-top: 20px;" onclick="window.location.href='index.html'">Go to Dashboard</button>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const html = result.notes.map(note => `
+                    <div class="note-item">
+                        <div class="note-supplier">Supplier ID: ${note.supplier_id}</div>
+                        <div class="note-content">${escapeHtml(note.content)}</div>
+                        <div class="note-actions">
+                            <button class="action-btn" onclick="openEditModal('${note.supplier_id}')">Edit</button>
+                            <button class="action-btn" onclick="deleteNoteHandler(${note.supplier_id})">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                container.innerHTML = html;
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="no-notes">
+                        <div class="no-notes-icon">⚠️</div>
+                        <h3>Error Loading Notes</h3>
+                        <p>${error.message}</p>
+                        <button class="btn" style="margin-top: 20px;" onclick="loadNotes()">Retry</button>
+                    </div>
+                `;
+            }
+        }
+        
+        function openEditModal(supplierId) {
+            currentEditNoteId = supplierId;
+            const modal = document.getElementById('editModal');
+            const textarea = document.getElementById('editNoteContent');
+            
+            const noteItem = event.target.closest('.note-item');
+            const noteContent = noteItem.querySelector('.note-content').textContent;
+            
+            textarea.value = noteContent;
+            modal.style.display = 'block';
+            textarea.focus();
+        }
+        
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            currentEditNoteId = null;
+        }
+        
+        async function saveEditNote() {
+            const content = document.getElementById('editNoteContent').value;
+            
+            if (!content.trim()) {
+                alert('Note cannot be empty');
+                return;
+            }
+            
+            try {
+                await updateNote(currentEditNoteId, content);
+                closeEditModal();
+                loadNotes();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        async function deleteNoteHandler(supplierId) {
+            if (confirm('Delete this note?')) {
+                try {
+                    await deleteNote(supplierId);
+                    loadNotes();
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            }
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                closeEditModal();
+            }
+        });
+        
+        loadNotes();
+    </script>
+</body>
+</html>

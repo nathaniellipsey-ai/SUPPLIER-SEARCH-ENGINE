@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Walmart SSO Authentication</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0071ce 0%, #005bb3 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+        }
+        
+        .container {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0071ce;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        h1 {
+            color: #0071ce;
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+        
+        p {
+            color: #666;
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .error h2 {
+            color: #c33;
+            margin-top: 0;
+        }
+        
+        .error-details {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: left;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .success {
+            display: none;
+        }
+        
+        .success h2 {
+            color: #0a7e2c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="processing">
+            <h1>🔐 Authenticating...</h1>
+            <div class="spinner"></div>
+            <p>Completing your Walmart SSO login...</p>
+            <p style="font-size: 12px; color: #999;">Please wait, you will be redirected shortly.</p>
+        </div>
+        
+        <div class="error" id="errorContainer">
+            <h2>❌ Authentication Failed</h2>
+            <p id="errorMessage"></p>
+            <div class="error-details" id="errorDetails"></div>
+            <button onclick="window.location.href='/'; " style="background: #0071ce; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 10px;">
+                Back to Dashboard
+            </button>
+        </div>
+        
+        <div class="success" id="successContainer">
+            <h2>✅ Login Successful!</h2>
+            <p>Welcome to Supplier Hub! Redirecting you now...</p>
+        </div>
+    </div>
+    
+    <script src="walmart-sso-config.js"></script>
+    <script>
+        async function handleCallback() {
+            try {
+                // Get authorization code and state from URL
+                const params = new URLSearchParams(window.location.search);
+                const code = params.get('code');
+                const state = params.get('state');
+                const error = params.get('error');
+                const errorDescription = params.get('error_description');
+                
+                // Check for errors
+                if (error) {
+                    throw new Error(`${error}: ${errorDescription || 'Unknown error'}`);
+                }
+                
+                if (!code) {
+                    throw new Error('No authorization code received from Walmart');
+                }
+                
+                console.log('📝 Authorization code received');
+                
+                // Load existing session if available
+                if (walmartSSO.loadSession()) {
+                    console.log('✅ Existing session loaded');
+                    showSuccess();
+                    redirectToDashboard();
+                    return;
+                }
+                
+                // Handle callback
+                console.log('🔄 Processing authorization code...');
+                await walmartSSO.handleCallback(code, state);
+                
+                console.log('✅ Authentication successful');
+                showSuccess();
+                
+                // Redirect to dashboard after brief delay
+                setTimeout(() => redirectToDashboard(), 2000);
+                
+            } catch (error) {
+                console.error('❌ Authentication Error:', error);
+                showError(error.message);
+            }
+        }
+        
+        function showError(message) {
+            document.getElementById('processing').style.display = 'none';
+            document.getElementById('errorContainer').style.display = 'block';
+            document.getElementById('errorMessage').textContent = message;
+            
+            // Show full error in details
+            const errorDetails = document.getElementById('errorDetails');
+            errorDetails.innerHTML = `
+                <strong>Error Details:</strong><br>
+                URL: ${window.location.href}<br>
+                Message: ${message}
+            `;
+        }
+        
+        function showSuccess() {
+            document.getElementById('processing').style.display = 'none';
+            document.getElementById('successContainer').style.display = 'block';
+        }
+        
+        function redirectToDashboard() {
+            window.location.href = '/';
+        }
+        
+        // Start authentication
+        handleCallback();
+    </script>
+</body>
+</html>
