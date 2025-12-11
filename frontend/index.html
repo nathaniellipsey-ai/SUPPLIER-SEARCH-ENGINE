@@ -3575,8 +3575,24 @@ async function searchSuppliersFromAPI(query) {
 
         // Supplier Modal
         function openSupplierModal(supplierId) {
+            console.log('🏢 openSupplierModal called with ID:', supplierId);
+            console.log('📊 allSuppliers length:', allSuppliers ? allSuppliers.length : 'NULL');
+            console.log('📊 allSuppliers:', allSuppliers);
+            
+            if (!allSuppliers || allSuppliers.length === 0) {
+                console.error('❌ allSuppliers is empty or null!');
+                alert('❌ No suppliers loaded. Please refresh the page.');
+                return;
+            }
+            
             const supplier = allSuppliers.find(s => s.id === supplierId);
-            if (!supplier) return;
+            console.log('🔍 Found supplier:', supplier);
+            
+            if (!supplier) {
+                console.error('❌ Supplier not found with ID:', supplierId);
+                console.log('🔍 Looking through IDs:', allSuppliers.map(s => s.id).slice(0, 10));
+                return;
+            }
 
             document.getElementById('modalTitle').textContent = supplier.name;
             document.getElementById('modalSubtitle').textContent = supplier.category;
@@ -4708,47 +4724,68 @@ async function searchSuppliersFromAPI(query) {
 
         // Auto-login on page load
         window.addEventListener('load', async () => {
+            console.log('🔄 PAGE LOAD EVENT STARTING...');
+            
             // First, auto-login if no user is set
             if (!localStorage.getItem('currentUser')) {
                 // Create a default user
                 const defaultUser = 'supplier_user@walmart.com';
                 localStorage.setItem('currentUser', defaultUser);
+                console.log('✅ Created default user:', defaultUser);
             }
             
             // Check user session (this will auto-create user if needed)
             try {
+                console.log('\n👤 Checking user session...');
                 const sessionOk = await checkUserSession();
                 console.log('✅ Session check result:', sessionOk);
+                console.log('📊 userData after session:', userData);
             } catch (error) {
-                console.error('Session check error:', error);
+                console.error('❌ Session check error:', error);
             }
             
             // Load suppliers from server (with fallback to local)
             try {
                 console.log('\n📂 Loading supplier data...');
-                await loadSuppliersFromServer();
+                const loadResult = await loadSuppliersFromServer();
+                console.log('📊 loadSuppliersFromServer result:', loadResult);
+                console.log('📊 allSuppliers.length after load:', allSuppliers ? allSuppliers.length : 'NULL');
+                
+                if (!allSuppliers || allSuppliers.length === 0) {
+                    console.error('❌ allSuppliers is still empty after load!');
+                    return;
+                }
+                
+                console.log('📊 First 5 supplier IDs:', allSuppliers.slice(0, 5).map(s => `${s.id}:${s.name}`));
                 
                 // Initialize UI after suppliers load
+                console.log('\n🎨 Initializing UI...');
+                
                 if (typeof updateStats === 'function') {
                     updateStats();
                     console.log('✅ Updated statistics');
                 }
                 
                 if (typeof renderResults === 'function') {
+                    console.log('📊 Calling renderResults with', filteredSuppliers ? filteredSuppliers.length : 0, 'filtered suppliers');
                     renderResults();
                     console.log('✅ Rendered results');
+                } else {
+                    console.error('❌ renderResults function not found!');
                 }
                 
                 if (typeof initializeFilters === 'function') {
+                    console.log('🏷️ Calling initializeFilters...');
                     initializeFilters();
                     console.log('✅ Populated filters');
                 } else {
                     console.error('❌ initializeFilters function not found!');
                 }
                 
-                console.log('✅ Dashboard ready!');
+                console.log('\n✅ DASHBOARD FULLY READY!');
             } catch (error) {
-                console.error('Error loading suppliers:', error);
+                console.error('❌ Error loading suppliers:', error);
+                console.error('Stack:', error.stack);
             }
         });
     </script>
