@@ -4889,13 +4889,38 @@ async function searchSuppliersFromAPI(query) {
             // Load suppliers from server (with fallback to local)
             try {
                 console.log('\n📂 Loading supplier data...');
-                const loadResult = await loadSuppliersFromServer();
+                const loadResult = await Promise.race([
+                    loadSuppliersFromServer(),
+                    new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('Timeout loading from server')), 10000)
+                    )
+                ]).catch(err => {
+                    console.warn('⚠️ Server load failed or timed out:', err.message);
+                    console.log('📂 Falling back to local generation...');
+                    allSuppliers = generateSuppliers();
+                    filteredSuppliers = [...allSuppliers];
+                    const statusElem = document.getElementById('spStatus');
+                    if (statusElem) {
+                        statusElem.innerHTML = '💾 Local (Seeded Data - Server Timeout)';
+                        statusElem.style.color = '#f59e0b';
+                        statusElem.style.opacity = '1';
+                    }
+                    return false;
+                });
+                
                 console.log('📊 loadSuppliersFromServer result:', loadResult);
                 console.log('📊 allSuppliers.length after load:', allSuppliers ? allSuppliers.length : 'NULL');
                 
                 if (!allSuppliers || allSuppliers.length === 0) {
-                    console.error('❌ allSuppliers is still empty after load!');
-                    return;
+                    console.error('❌ allSuppliers is still empty after load, trying local generation...');
+                    allSuppliers = generateSuppliers();
+                    filteredSuppliers = [...allSuppliers];
+                    const statusElem = document.getElementById('spStatus');
+                    if (statusElem) {
+                        statusElem.innerHTML = '💾 Local (Seeded Data - Fallback)';
+                        statusElem.style.color = '#f59e0b';
+                        statusElem.style.opacity = '1';
+                    }
                 }
                 
                 console.log('📊 First 5 supplier IDs:', allSuppliers.slice(0, 5).map(s => `${s.id}:${s.name}`));
