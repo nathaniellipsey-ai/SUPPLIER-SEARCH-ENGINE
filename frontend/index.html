@@ -1673,6 +1673,7 @@ async function searchSuppliersFromAPI(query) {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ query })
+            })
         if (!response.ok) throw new Error('API Error');
         const data = await response.json();
         return data.results || [];
@@ -3615,7 +3616,20 @@ let allSuppliers = [];
         `;
         document.head.appendChild(noteModalStyle);
 
-        // Initialize - Check user session first (async now!)
+        // Initialize - Load suppliers from server on page load
+window.addEventListener('DOMContentLoaded', async () => {
+    console.log('🚀 Page loading - fetching suppliers from server...');
+    try {
+        await loadSuppliersFromAPI();
+        console.log('✅ Suppliers loaded from server:', allSuppliers.length);
+        renderDashboard();
+    } catch (error) {
+        console.error('❌ Failed to load suppliers:', error);
+        alert('❌ Failed to load suppliers from server. Check console.');
+    }
+});
+
+// Initialize - Check user session first (async now!)
         (async function() {
             const sessionValid = await checkUserSession();
             if (sessionValid) {
