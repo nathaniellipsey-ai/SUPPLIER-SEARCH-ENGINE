@@ -1,0 +1,119 @@
+================================================================================
+  🚀 PUSH TO GITHUB - STEP BY STEP
+================================================================================
+
+Git command didn't work, so let's use GitHub web interface (actually faster!)
+
+================================================================================
+  STEP 1: OPEN GITHUB
+================================================================================
+
+Go to: https://github.com/[your-username]/supplier-search-engine
+
+(Replace [your-username] with your actual GitHub username)
+
+================================================================================
+  STEP 2: NAVIGATE TO FILE
+================================================================================
+
+1. Click "frontend" folder
+2. Click "index.html" file
+
+================================================================================
+  STEP 3: EDIT FILE
+================================================================================
+
+1. Click the pencil icon (top right, says "Edit")
+
+You'll see the code editor
+
+================================================================================
+  STEP 4: REPLACE CONTENT
+================================================================================
+
+1. Select all code: Ctrl+A
+2. Delete: Delete key
+3. Open your local file:
+   C:\Users\n0l08i7\Desktop\RENDER REPOSITORY\SUPPLIER-SEARCH-ENGINE\frontend\index.html
+   Select all: Ctrl+A
+   Copy: Ctrl+C
+4. Back in GitHub editor: Ctrl+V (paste)
+
+The entire file should now be in GitHub editor
+
+================================================================================
+  STEP 5: COMMIT
+================================================================================
+
+1. Scroll to BOTTOM of page
+2. You'll see "Commit changes" section
+3. In the message box, type:
+   fix: Simplify load logic - immediate local render with background server fetch
+4. Click green "Commit changes" button
+
+DONE! File is pushed to GitHub!
+
+================================================================================
+  STEP 6: WAIT FOR RENDER
+================================================================================
+
+Render will automatically deploy within 2-3 minutes
+
+During this time:
+- Go to: https://dashboard.render.com
+- Click supplier-search-engine service
+- Watch the deployment progress
+- You'll see "Building..." then "Deployed"
+
+================================================================================
+  STEP 7: TEST
+================================================================================
+
+1. Open incognito: Ctrl+Shift+N
+2. Go to: https://supplier-search-engine.onrender.com
+3. WATCH what happens:
+   - Page should load
+   - Suppliers should appear in 1-2 seconds
+   - Status should say "💾 Local Data"
+   - Can click suppliers, scroll, interact
+
+4. Open F12 console (F12 key)
+5. Look for messages like:
+   ✅ Server data loaded!
+   OR
+   ℹ️ Server not available
+
+6. Report what you see!
+
+================================================================================
+  IF YOU GET STUCK
+================================================================================
+
+At any step, tell me:
+- What are you looking at?
+- What's the button/text you see?
+- Which step are you on?
+
+I can help guide you through it!
+
+================================================================================
+  QUICK VISUAL GUIDE
+================================================================================
+
+STEP 1: github.com/[username]/supplier-search-engine
+         ↓
+STEP 2: Click "frontend" → Click "index.html"
+         ↓
+STEP 3: Click pencil icon
+         ↓
+STEP 4: Ctrl+A, Delete, Ctrl+V (paste your file)
+         ↓
+STEP 5: Scroll down → Type commit message → Click green button
+         ↓
+STEP 6: Wait 3 minutes
+         ↓
+STEP 7: Test at https://supplier-search-engine.onrender.com
+
+================================================================================
+  DO THIS NOW!
+================================================================================
