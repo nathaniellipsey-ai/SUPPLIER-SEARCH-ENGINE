@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help & Support - Supplier Search Engine</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --walmart-blue: #0071ce;
+            --walmart-red: #e02020;
+            --walmart-yellow: #ffc220;
+            --body-font: 'Inter', 'Helvetica', sans-serif;
+        }
+        
+        body {
+            font-family: var(--body-font);
+            background: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .header {
+            background: var(--walmart-blue);
+            color: white;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+            border-radius: 8px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .section {
+            background: white;
+            padding: 30px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .section h2 {
+            color: var(--walmart-blue);
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+            border-bottom: 3px solid var(--walmart-yellow);
+            padding-bottom: 10px;
+        }
+        
+        .section h3 {
+            color: #333;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .section ul, .section ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .section li {
+            margin-bottom: 10px;
+        }
+        
+        .faq-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-left: 4px solid var(--walmart-blue);
+            border-radius: 4px;
+        }
+        
+        .faq-question {
+            font-weight: 600;
+            color: var(--walmart-blue);
+            margin-bottom: 8px;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: var(--walmart-blue);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            transition: background 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: #004c91;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>📖 Help & Support</h1>
+            <p>Everything you need to know about the Supplier Search Engine</p>
+        </div>
+    </div>
+    
+    <div class="container">
+        <a href="index.html" class="back-btn">← Back to Dashboard</a>
+        
+        <div class="section">
+            <h2>Getting Started</h2>
+            
+            <h3>🔍 How to Search for Suppliers</h3>
+            <ol>
+                <li>Use the search bar at the top to find suppliers by name, product, or category</li>
+                <li>Use filters on the left to narrow down results by:
+                    <ul>
+                        <li>Vendor/Company Name</li>
+                        <li>Material Category</li>
+                        <li>Product Type</li>
+                        <li>Fixtures & Hardware</li>
+                        <li>Region/State</li>
+                        <li>Certifications</li>
+                        <li>Company Size</li>
+                        <li>Quality/Price Range</li>
+                    </ul>
+                </li>
+                <li>Click on any supplier to view detailed information</li>
+            </ol>
+            
+            <h3>❤️ Saving Your Favorites</h3>
+            <ol>
+                <li>Click the heart icon (❤️) next to a supplier to add to favorites</li>
+                <li>Access your favorites from the user menu in the top right</li>
+                <li>Favorites are saved in your browser</li>
+            </ol>
+            
+            <h3>📝 Adding Notes to Suppliers</h3>
+            <ol>
+                <li>Click the "NOTE" button on any supplier</li>
+                <li>Add your own notes and observations</li>
+                <li>Notes are saved and can be edited anytime</li>
+            </ol>
+        </div>
+        
+        <div class="section">
+            <h2>Managing Suppliers</h2>
+            
+            <h3>➕ Adding a New Supplier</h3>
+            <ol>
+                <li>Click the "➕ ADD" button in the toolbar</li>
+                <li>Fill in the supplier information:</li>
+                <li>Company name (required)</li>
+                <li>Category (required)</li>
+                <li>Email and phone</li>
+                <li>Location</li>
+                <li>Click "✅ Add Supplier" to save</li>
+            </ol>
+            
+            <h3>📥 Importing Multiple Suppliers</h3>
+            <ol>
+                <li>Click the "📥 IMPORT" button in the toolbar</li>
+                <li>Prepare your CSV file with these columns:
+                    <ul>
+                        <li>Name - Company name</li>
+                        <li>Category - Product category</li>
+                        <li>Email - Contact email</li>
+                        <li>Phone - Phone number</li>
+                        <li>Location - City, State</li>
+                    </ul>
+                </li>
+                <li>Drag & drop the CSV file or click to browse</li>
+                <li>Suppliers will be imported automatically</li>
+            </ol>
+            
+            <h3>Example CSV Format:</h3>
+            <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto;">
+Name,Category,Email,Phone,Location
+ABC Construction,Concrete & Cement,info@abcconstruction.com,(555) 123-4567,Denver, CO
+XYZ Steel,Steel & Metal,sales@xyzsteel.com,(555) 987-6543,Chicago, IL
+Premium Lumber Co,Lumber & Wood,contact@prelumber.com,(555) 456-7890,Portland, OR
+            </pre>
+        </div>
+        
+        <div class="section">
+            <h2>Filtering & Searching</h2>
+            
+            <h3>🎯 Using Filters Effectively</h3>
+            <ul>
+                <li>Click on a filter option to include that criteria</li>
+                <li>Select multiple options within a filter to see more results</li>
+                <li>Combine different filters to narrow down results</li>
+                <li>Click "RESET" to clear all filters</li>
+            </ul>
+            
+            <h3>🔎 Advanced Search Tips</h3>
+            <ul>
+                <li>Search by product name to find suppliers offering that product</li>
+                <li>Search by location to find regional suppliers</li>
+                <li>Use filter counts to see how many suppliers match each option</li>
+                <li>Click product tags in supplier details to filter by that product</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h2>Frequently Asked Questions</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">Q: What does the AI Score mean?</div>
+                <div>A: The AI Score (0-100) indicates how well a supplier matches your criteria based on their profile, ratings, and products offered. Higher scores indicate better matches.</div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">Q: Can I export the supplier list?</div>
+                <div>A: Yes! Click the "EXPORT" button in the toolbar to download filtered results as a CSV file.</div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">Q: How do I compare suppliers?</div>
+                <div>A: Click the "COMPARE (0)" button to enter comparison mode. Select suppliers using checkboxes, then click the button again to view the comparison table.</div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">Q: Where are my favorites and notes saved?</div>
+                <div>A: They are saved in your browser's local storage. They persist across sessions as long as you use the same browser.</div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">Q: What does "Walmart Verified" mean?</div>
+                <div>A: Walmart Verified suppliers have been verified and approved by Walmart's supplier verification team, indicating they meet our quality and compliance standards.</div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">Q: How often is the supplier data updated?</div>
+                <div>A: Data is updated regularly as new suppliers are added and existing supplier information is verified.</div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">Q: Can I print the supplier information?</div>
+                <div>A: Yes! Click the "PRINT" button in the toolbar to print the current filtered results.</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>📞 Contact Support</h2>
+            <p>If you have questions not answered here, please contact:</p>
+            <p>
+                <strong>Email:</strong> <a href="mailto:suppliers@walmart.com" style="color: var(--walmart-blue);">suppliers@walmart.com</a><br>
+                <strong>Phone:</strong> 1-800-WALMART (1-800-925-6278)<br>
+                <strong>Hours:</strong> Monday - Friday, 8 AM - 8 PM CST
+            </p>
+        </div>
+    </div>
+</body>
+</html>

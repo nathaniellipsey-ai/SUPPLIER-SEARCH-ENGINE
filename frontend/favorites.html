@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favorites - Supplier Search Engine</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --walmart-blue: #0071ce;
+            --walmart-red: #e02020;
+            --walmart-yellow: #ffc220;
+            --body-font: 'Inter', 'Helvetica', sans-serif;
+        }
+        
+        body {
+            font-family: var(--body-font);
+            background: #f8f9fa;
+            color: #333;
+        }
+        
+        .header {
+            background: var(--walmart-blue);
+            color: white;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: var(--walmart-blue);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            transition: background 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: #004c91;
+        }
+        
+        .favorites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .favorite-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .favorite-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+        
+        .favorite-name {
+            font-weight: 600;
+            color: var(--walmart-blue);
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .favorite-category {
+            color: #999;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .favorite-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        
+        .remove-btn {
+            background: #ffe6e6;
+            color: var(--walmart-red);
+        }
+        
+        .remove-btn:hover {
+            background: var(--walmart-red);
+            color: white;
+        }
+        
+        .view-btn {
+            background: var(--walmart-blue);
+            color: white;
+        }
+        
+        .view-btn:hover {
+            background: #004c91;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 8px;
+            color: #999;
+        }
+        
+        .empty-state div {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>❤️ My Favorites</h1>
+    </div>
+    
+    <div class="container">
+        <a href="index.html" class="back-btn">← Back to Dashboard</a>
+        
+        <div id="favoritesContainer"></div>
+    </div>
+    
+    <script>
+        // Load favorites from localStorage
+        function loadFavorites() {
+            const userData = JSON.parse(localStorage.getItem('supplierPortalUser') || '{}');
+            const favorites = userData.favorites || [];
+            const container = document.getElementById('favoritesContainer');
+            
+            if (favorites.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div>❤️</div>
+                        <h2>No Favorites Yet</h2>
+                        <p>Go back to the dashboard and click the heart icon to save your favorite suppliers.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Fetch supplier data from localStorage or IndexedDB
+            const suppliersJson = localStorage.getItem('allSuppliers');
+            if (!suppliersJson) {
+                container.innerHTML = '<p>Unable to load favorites data. Please go back to the dashboard first.</p>';
+                return;
+            }
+            
+            const allSuppliers = JSON.parse(suppliersJson);
+            const favoriteSuppliers = allSuppliers.filter(s => favorites.includes(s.id));
+            
+            if (favoriteSuppliers.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div>❤️</div>
+                        <h2>No Favorite Suppliers Found</h2>
+                        <p>Your favorites may have been cleared. Go back to add more suppliers to your favorites.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="favorites-grid">
+                    ${favoriteSuppliers.map(supplier => `
+                        <div class="favorite-card">
+                            <div class="favorite-name">${supplier.name}</div>
+                            <div class="favorite-category">${supplier.category}</div>
+                            <div style="color: #666; font-size: 0.9rem;">
+                                📍 ${supplier.location || supplier.city + ', ' + supplier.state}
+                            </div>
+                            <div style="color: #666; font-size: 0.9rem; margin-top: 10px;">
+                                ⭐ ${supplier.rating}/5.0 | AI: ${supplier.aiScore}
+                            </div>
+                            <div class="favorite-actions">
+                                <button class="action-btn view-btn" onclick="alert('View supplier details - integration needed')">View</button>
+                                <button class="action-btn remove-btn" onclick="removeFavorite(${supplier.id})">❌ Remove</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        function removeFavorite(supplierId) {
+            const userData = JSON.parse(localStorage.getItem('supplierPortalUser') || '{}');
+            userData.favorites = (userData.favorites || []).filter(id => id !== supplierId);
+            localStorage.setItem('supplierPortalUser', JSON.stringify(userData));
+            loadFavorites();
+        }
+        
+        // Load favorites on page load
+        loadFavorites();
+    </script>
+</body>
+</html>
