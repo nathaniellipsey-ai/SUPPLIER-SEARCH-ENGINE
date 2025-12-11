@@ -2469,11 +2469,12 @@ async function searchSuppliersFromAPI(query) {
                     console.log(`✅ Loaded ${allSuppliers.length} suppliers from server!`);
                     console.log('📊 Data source: SERVER (Live Data)');
                     
-                    // Update status
-                    const statusElem = document.querySelector('.data-source-status');
+                    // Update status in toolbar
+                    const statusElem = document.getElementById('spStatus');
                     if (statusElem) {
                         statusElem.innerHTML = '☁️ Server (Live Data)';
                         statusElem.style.color = '#4ade80';
+                        statusElem.style.opacity = '1';
                     }
                     
                     return true;
@@ -2515,11 +2516,12 @@ async function searchSuppliersFromAPI(query) {
                 console.log(`✅ Loaded ${allSuppliers.length} suppliers locally`);
                 console.log('📊 Data source: LOCAL (Seeded Data)');
                 
-                // Update status
-                const statusElem = document.querySelector('.data-source-status');
+                // Update status in toolbar
+                const statusElem = document.getElementById('spStatus');
                 if (statusElem) {
                     statusElem.innerHTML = '💾 Local (Seeded Data)';
                     statusElem.style.color = '#f59e0b';
+                    statusElem.style.opacity = '1';
                 }
                 
                 return false;
