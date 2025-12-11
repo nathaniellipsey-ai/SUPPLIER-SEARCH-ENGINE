@@ -149,7 +149,20 @@ app.get('/health', (req, res) => {
     service: 'walmart-supplier-portal',
     environment: NODE_ENV,
     port: PORT,
-    uptime: process.uptime()
+    uptime: process.uptime(),
+    suppliersLoaded: suppliersCache.length
+  });
+});
+
+// DEBUG endpoint - test data
+app.get('/api/test', (req, res) => {
+  console.log('📥 GET /api/test called');
+  res.json({
+    success: true,
+    message: 'Server is running and API is accessible',
+    suppliersCount: suppliersCache.length,
+    firstSupplier: suppliersCache.length > 0 ? suppliersCache[0].name : 'None',
+    timestamp: Date.now()
   });
 });
 

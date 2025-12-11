@@ -2424,8 +2424,25 @@ async function searchSuppliersFromAPI(query) {
         // Async function to load suppliers from server
         async function loadSuppliersFromServer() {
             try {
-                console.log('🌐 Fetching suppliers from server...');
+                // FIRST: Test if server is reachable
+                console.log('🔍 Testing server connection first...');
                 console.log(`   API_BASE: ${API_BASE}`);
+                console.log(`   Test URL: ${API_BASE}/api/test`);
+                
+                let testResponse;
+                try {
+                    testResponse = await fetch(`${API_BASE}/api/test`, { timeout: 5000 });
+                    const testData = await testResponse.json();
+                    console.log(`   ✅ Server test successful!`);
+                    console.log(`   Server returned: ${testData.suppliersCount} suppliers loaded on server`);
+                } catch (testError) {
+                    console.error(`   ❌ Server test failed:`, testError.message);
+                    console.log(`   This means the API endpoint is not reachable`);
+                    throw testError;
+                }
+                
+                // If we got here, server is up. Now fetch suppliers
+                console.log('\n🌐 Fetching suppliers from server...');
                 console.log(`   Full URL: ${API_BASE}/api/suppliers`);
                 
                 const response = await fetch(`${API_BASE}/api/suppliers`);
@@ -2464,10 +2481,33 @@ async function searchSuppliersFromAPI(query) {
                     throw new Error(`Invalid response format - success: ${data.success}, has data: ${!!data.data}, is array: ${Array.isArray(data.data)}`);
                 }
             } catch (error) {
-                console.error('❌ FAILED to load from server:', error);
+                console.error('\n❌ FAILED to load from server:', error);
+                console.error('   Error name:', error.name);
                 console.error('   Error message:', error.message);
                 console.error('   Error stack:', error.stack);
-                console.log('🔄 Falling back to local data generation...');
+                
+                // Diagnostic info
+                console.error('\n🔍 DIAGNOSTIC INFO:');
+                console.error(`   API_BASE: ${API_BASE}`);
+                console.error(`   Current origin: ${window.location.origin}`);
+                console.error(`   Current href: ${window.location.href}`);
+                console.error(`   API URL attempted: ${API_BASE}/api/suppliers`);
+                
+                // Common causes
+                if (error.message.includes('404')) {
+                    console.error('\n   🔴 ISSUE: API endpoint returns 404 (Not Found)');
+                    console.error('   CHECK: Does /api/suppliers endpoint exist in server.js?');
+                } else if (error.message.includes('Failed to fetch')) {
+                    console.error('\n   🔴 ISSUE: Network error - Cannot reach server at all');
+                    console.error('   CHECK: Is server running?');
+                    console.error('   CHECK: Are frontend and API on same origin?');
+                    console.error('   CHECK: CORS headers correct?');
+                } else if (error.message.includes('JSON')) {
+                    console.error('\n   🔴 ISSUE: Response is not valid JSON');
+                    console.error('   CHECK: Is /api/suppliers returning JSON?');
+                }
+                
+                console.log('\n🔄 Falling back to local data generation...');
                 
                 // Fallback to local generation
                 allSuppliers = generateSuppliers();
