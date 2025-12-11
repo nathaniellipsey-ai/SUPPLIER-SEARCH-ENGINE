@@ -1642,20 +1642,25 @@ let USE_API = false; // Set to true to use API instead of local generation
 // Function to load suppliers from API
 async function loadSuppliersFromAPI(skip = 0, limit = 5000) {
     try {
+        console.log('🌐 Fetching suppliers from:', API_URL + '/api/suppliers');
         const response = await fetch(`${API_URL}/api/suppliers`);
-        if (!response.ok) throw new Error('API Error');
+        console.log('📥 Response status:', response.status);
+        if (!response.ok) throw new Error('API Error: ' + response.status);
         const data = await response.json();
-        return data.suppliers || [];
+        console.log('📊 Server response:', data);
+        allSuppliers = data.data || [];
+        console.log('✅ Loaded', allSuppliers.length, 'suppliers from server');
+        return allSuppliers;
     } catch (error) {
-        console.warn('API load failed, using local generation:', error);
-        USE_API = false;
-        return null;
+        console.error('❌ Server load failed:', error);
+        throw error;  // Don't fall back to local - force server connection
     }
 }
 
 // Function to load dashboard stats from API
 async function loadStatsFromAPI() {
     try {
+        console.log('📊 Fetching stats from:', API_URL + '/api/stats');
         const response = await fetch(`${API_URL}/api/stats`);
         if (!response.ok) throw new Error('API Error');
         const data = await response.json();
@@ -1669,6 +1674,7 @@ async function loadStatsFromAPI() {
 // Function to search suppliers from API
 async function searchSuppliersFromAPI(query) {
     try {
+        console.log('🔍 Searching:', query);
         const response = await fetch(`${API_URL}/api/suppliers/search`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
