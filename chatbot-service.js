@@ -126,12 +126,19 @@ export async function chatbotResponse(userMessage, suppliers, useAI = false) {
     }
   }
   
-  // Category filter
-  if (message.toLowerCase().includes('supplier')) {
-    const categories = ['electronics', 'logistics', 'packaging', 'raw materials', 'equipment'];
-    for (const category of categories) {
-      if (message.toLowerCase().includes(category)) {
-        const matching = suppliers.filter(s => s.category.toLowerCase().includes(category));
+  // Category filter - extract category from message
+  if (message.toLowerCase().includes('supplier') || message.toLowerCase().includes('show')) {
+    // Get all unique categories from suppliers
+    const allCategories = [...new Set(suppliers.map(s => s.category))];
+    
+    // Check which categories match the user's query
+    for (const category of allCategories) {
+      const categoryLower = category.toLowerCase();
+      const messageLower = message.toLowerCase();
+      
+      if (messageLower.includes(categoryLower) || 
+          messageLower.includes(category.split(' ')[0].toLowerCase())) {
+        const matching = suppliers.filter(s => s.category.toLowerCase().includes(categoryLower));
         if (matching.length > 0) {
           return {
             success: true,

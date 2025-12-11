@@ -1757,6 +1757,13 @@ async function searchSuppliersFromAPI(query) {
         const seededRandom = createSeededRandom(1962); // Fixed seed for consistent data!
 
         // ==========================================
+        // 🔗 API CONFIGURATION
+        // ==========================================
+        
+        // Auto-detect API base URL
+        const API_BASE = window.location.origin; // Use current domain
+
+        // ==========================================
         // 🗄️ SHAREPOINT BACKEND INTEGRATION
         // ==========================================
         
