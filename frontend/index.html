@@ -4886,72 +4886,58 @@ async function searchSuppliersFromAPI(query) {
                 console.error('❌ Session check error:', error);
             }
             
-            // Load suppliers from server (with fallback to local)
+            // Load suppliers - IMMEDIATE LOCAL LOAD, then try server
             try {
                 console.log('\n📂 Loading supplier data...');
-                const loadResult = await Promise.race([
-                    loadSuppliersFromServer(),
-                    new Promise((_, reject) => 
-                        setTimeout(() => reject(new Error('Timeout loading from server')), 10000)
-                    )
-                ]).catch(err => {
-                    console.warn('⚠️ Server load failed or timed out:', err.message);
-                    console.log('📂 Falling back to local generation...');
-                    allSuppliers = generateSuppliers();
-                    filteredSuppliers = [...allSuppliers];
-                    const statusElem = document.getElementById('spStatus');
-                    if (statusElem) {
-                        statusElem.innerHTML = '💾 Local (Seeded Data - Server Timeout)';
-                        statusElem.style.color = '#f59e0b';
-                        statusElem.style.opacity = '1';
-                    }
-                    return false;
-                });
                 
-                console.log('📊 loadSuppliersFromServer result:', loadResult);
-                console.log('📊 allSuppliers.length after load:', allSuppliers ? allSuppliers.length : 'NULL');
-                
-                if (!allSuppliers || allSuppliers.length === 0) {
-                    console.error('❌ allSuppliers is still empty after load, trying local generation...');
-                    allSuppliers = generateSuppliers();
-                    filteredSuppliers = [...allSuppliers];
-                    const statusElem = document.getElementById('spStatus');
-                    if (statusElem) {
-                        statusElem.innerHTML = '💾 Local (Seeded Data - Fallback)';
-                        statusElem.style.color = '#f59e0b';
-                        statusElem.style.opacity = '1';
-                    }
+                // FIRST: Load from local immediately
+                console.log('📂 Loading local seeded data immediately...');
+                allSuppliers = generateSuppliers();
+                filteredSuppliers = [...allSuppliers];
+                const statusElem = document.getElementById('spStatus');
+                if (statusElem) {
+                    statusElem.innerHTML = '💾 Local (Seeded Data)';
+                    statusElem.style.color = '#f59e0b';
+                    statusElem.style.opacity = '1';
                 }
+                console.log(`✅ Loaded ${allSuppliers.length} suppliers from LOCAL`);
                 
-                console.log('📊 First 5 supplier IDs:', allSuppliers.slice(0, 5).map(s => `${s.id}:${s.name}`));
-                
-                // Initialize UI after suppliers load
-                console.log('\n🎨 Initializing UI...');
-                
+                // Initialize UI with local data
+                console.log('\n🎨 Initializing UI with local data...');
                 if (typeof updateStats === 'function') {
                     updateStats();
                     console.log('✅ Updated statistics');
                 }
-                
                 if (typeof renderResults === 'function') {
-                    console.log('📊 Calling renderResults with', filteredSuppliers ? filteredSuppliers.length : 0, 'filtered suppliers');
                     renderResults();
                     console.log('✅ Rendered results');
-                } else {
-                    console.error('❌ renderResults function not found!');
                 }
-                
                 if (typeof initializeFilters === 'function') {
-                    console.log('🏷️ Calling initializeFilters...');
                     initializeFilters();
                     console.log('✅ Populated filters');
-                } else {
-                    console.error('❌ initializeFilters function not found!');
                 }
+                console.log('\n✅ DASHBOARD READY WITH LOCAL DATA!');
                 
-                console.log('\n✅ DASHBOARD FULLY READY!');
+                // THEN: Try to load from server in background (don't wait)
+                console.log('\n🌐 Attempting to fetch live data from server (background)...');
+                loadSuppliersFromServer().then(success => {
+                    if (success && allSuppliers && allSuppliers.length > 0) {
+                        console.log(`✅ Server data loaded! Updating display...`);
+                        if (statusElem) {
+                            statusElem.innerHTML = '☁️ Server (Live Data)';
+                            statusElem.style.color = '#4ade80';
+                            statusElem.style.opacity = '1';
+                        }
+                        // Refresh the display
+                        currentPage = 1;
+                        if (typeof updateStats === 'function') updateStats();
+                        if (typeof renderResults === 'function') renderResults();
+                    }
+                }).catch(err => {
+                    console.warn('⚠️ Server load failed (local data still showing):', err.message);
+                });
             } catch (error) {
-                console.error('❌ Error loading suppliers:', error);
+                console.error('❌ Error in data loading:', error);
                 console.error('Stack:', error.stack);
             }
         });
