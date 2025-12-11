@@ -6,6 +6,7 @@ Serves the dashboard HTML and static files
 
 import http.server
 import os
+import sys
 from pathlib import Path
 
 PORT = 3002
@@ -27,11 +28,26 @@ class FrontendHandler(http.server.SimpleHTTPRequestHandler):
 
 if __name__ == '__main__':
     os.chdir(str(FRONTEND_DIR))
-    server = http.server.HTTPServer(('localhost', PORT), FrontendHandler)
-    print(f'[FRONTEND] Running on http://localhost:{PORT}')
-    print(f'[FRONTEND] Serving from: {FRONTEND_DIR}')
     try:
+        # Try to bind to localhost
+        server = http.server.HTTPServer(('127.0.0.1', PORT), FrontendHandler)
+        server.allow_reuse_address = True
+        print(f'[FRONTEND] SUCCESS: Running on http://127.0.0.1:{PORT}')
+        print(f'[FRONTEND] Access at: http://localhost:{PORT}')
+        print(f'[FRONTEND] Serving from: {FRONTEND_DIR}')
+        print(f'[FRONTEND] Press Ctrl+C to stop')
+        sys.stdout.flush()
         server.serve_forever()
+    except OSError as e:
+        print(f'[FRONTEND] OSError: {e}')
+        print(f'[FRONTEND] Trying alternative bind...')
+        try:
+            server = http.server.HTTPServer(('', PORT), FrontendHandler)
+            server.allow_reuse_address = True
+            print(f'[FRONTEND] Running on port {PORT}')
+            server.serve_forever()
+        except Exception as e2:
+            print(f'[FRONTEND] FATAL: Could not bind to port {PORT}: {e2}')
     except KeyboardInterrupt:
         print('[FRONTEND] Shutting down...')
         server.server_close()
