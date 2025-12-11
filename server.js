@@ -28,10 +28,18 @@ app.use(express.json());
 
 // Generate supplier data (seeded for consistency)
 // Generate 5000+ suppliers with full detail (not just 150!)
-let suppliersCache = generateSupplierData(5000);
+let suppliersCache = [];
+try {
+  suppliersCache = generateSupplierData(5000);
+  console.log(`\n📊 Server data generator loaded ${suppliersCache.length} suppliers`);
+  if (suppliersCache.length > 0) {
+    console.log(`   First supplier: ${suppliersCache[0].name} (${suppliersCache[0].category})`);
+  }
+} catch (error) {
+  console.error('❌ ERROR generating suppliers:', error.message);
+  suppliersCache = [];
+}
 let lastUpdateTime = Date.now();
-
-console.log(`\n📊 Server data generator loaded ${suppliersCache.length} suppliers`);
 
 // Chat history store (optional - for multi-turn conversations)
 const chatHistoryStore = new Map();
@@ -147,6 +155,7 @@ app.get('/health', (req, res) => {
 
 // Get all suppliers
 app.get('/api/suppliers', (req, res) => {
+  console.log(`📥 GET /api/suppliers - Returning ${suppliersCache.length} suppliers`);
   res.json({
     success: true,
     data: suppliersCache,
@@ -409,13 +418,31 @@ app.get('/api/chatbot/suggestions', (req, res) => {
 
 // ==================== FRONTEND SERVER ENDPOINTS ====================
 
-// Serve frontend dashboard
+// Serve static files from frontend directory
+app.use(express.static(path.join(__dirname, 'frontend')));
+
+// Serve static files from root (legacy support)
+app.use(express.static(__dirname));
+
+// Serve frontend dashboard for all routes (SPA fallback)
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
 
-// Serve legacy HTML files
-app.use(express.static(__dirname));
+// Catch-all for SPA routing - serve index.html (before error handlers)
+app.get('*', (req, res) => {
+  // Only serve index.html for non-API routes
+  // API routes that reach here are 404s and will be handled below
+  if (!req.path.startsWith('/api/') && !req.path.startsWith('/health')) {
+    return res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+  }
+  // For API routes that don't exist, let it fall through to error handler
+  res.status(404).json({
+    success: false,
+    error: 'API endpoint not found',
+    path: req.path
+  });
+});
 
 // ==================== WEBSOCKET FOR LIVE UPDATES ====================
 
@@ -463,16 +490,7 @@ setInterval(() => {
 
 // ==================== ERROR HANDLING ====================
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    error: 'Not found',
-    path: req.path
-  });
-});
-
-// Error handler
+// Error handler (before 404)
 app.use((err, req, res, next) => {
   console.error('❌ Error:', err.message);
   res.status(500).json({

@@ -2425,13 +2425,26 @@ async function searchSuppliersFromAPI(query) {
         async function loadSuppliersFromServer() {
             try {
                 console.log('🌐 Fetching suppliers from server...');
+                console.log(`   API_BASE: ${API_BASE}`);
+                console.log(`   Full URL: ${API_BASE}/api/suppliers`);
+                
                 const response = await fetch(`${API_BASE}/api/suppliers`);
+                
+                console.log(`   Response status: ${response.status} ${response.statusText}`);
+                console.log(`   Response OK: ${response.ok}`);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
                 const data = await response.json();
+                console.log(`   Response data:`, data);
+                console.log(`   Data success: ${data.success}`);
+                console.log(`   Data has .data: ${!!data.data}`);
+                console.log(`   Data.data is array: ${Array.isArray(data.data)}`);
+                if (data.data) {
+                    console.log(`   Data.data length: ${data.data.length}`);
+                }
                 
                 if (data.success && data.data && Array.isArray(data.data)) {
                     allSuppliers = data.data;
@@ -2448,10 +2461,12 @@ async function searchSuppliersFromAPI(query) {
                     
                     return true;
                 } else {
-                    throw new Error('Invalid response format');
+                    throw new Error(`Invalid response format - success: ${data.success}, has data: ${!!data.data}, is array: ${Array.isArray(data.data)}`);
                 }
             } catch (error) {
-                console.warn('⚠️ Failed to load from server:', error.message);
+                console.error('❌ FAILED to load from server:', error);
+                console.error('   Error message:', error.message);
+                console.error('   Error stack:', error.stack);
                 console.log('🔄 Falling back to local data generation...');
                 
                 // Fallback to local generation
