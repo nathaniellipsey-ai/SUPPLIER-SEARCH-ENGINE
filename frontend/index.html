@@ -1642,7 +1642,7 @@ let USE_API = false; // Set to true to use API instead of local generation
 // Function to load suppliers from API
 async function loadSuppliersFromAPI(skip = 0, limit = 5000) {
     try {
-        const response = await fetch(`${API_URL}/api/dashboard/suppliers?skip=${skip}&limit=${limit}`);
+        const response = await fetch(`${API_URL}/api/suppliers`);
         if (!response.ok) throw new Error('API Error');
         const data = await response.json();
         return data.suppliers || [];
@@ -1656,7 +1656,7 @@ async function loadSuppliersFromAPI(skip = 0, limit = 5000) {
 // Function to load dashboard stats from API
 async function loadStatsFromAPI() {
     try {
-        const response = await fetch(`${API_URL}/api/dashboard/stats`);
+        const response = await fetch(`${API_URL}/api/stats`);
         if (!response.ok) throw new Error('API Error');
         const data = await response.json();
         return data;
@@ -1669,7 +1669,10 @@ async function loadStatsFromAPI() {
 // Function to search suppliers from API
 async function searchSuppliersFromAPI(query) {
     try {
-        const response = await fetch(`${API_URL}/api/dashboard/suppliers/search?q=${encodeURIComponent(query)}`);
+        const response = await fetch(`${API_URL}/api/suppliers/search`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query })
         if (!response.ok) throw new Error('API Error');
         const data = await response.json();
         return data.results || [];
@@ -2344,7 +2347,8 @@ async function searchSuppliersFromAPI(query) {
             return suppliers;
         }
 
-        const allSuppliers = generateSuppliers();
+        // Suppliers will be loaded from server - see loadSuppliers() function
+let allSuppliers = [];
         let filteredSuppliers = [...allSuppliers];
         let currentPage = 1;
         const itemsPerPage = 20;
