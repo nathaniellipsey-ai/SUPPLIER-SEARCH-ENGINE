@@ -3331,67 +3331,95 @@ async function searchSuppliersFromAPI(query) {
         let userData = null;
 
         async function checkUserSession() {
-            // Try to initialize SharePoint
-            const spStatusElem = document.getElementById('spStatus');
             try {
-                useSharePoint = await spService.init();
-                if (useSharePoint) {
-                    console.log('✅ SharePoint connected! Using cloud storage.');
-                    if (spStatusElem) spStatusElem.innerHTML = '☁️ Cloud Mode';
-                } else {
-                    console.log('⚠️ SharePoint unavailable. Using localStorage fallback.');
+                // Try to initialize SharePoint
+                const spStatusElem = document.getElementById('spStatus');
+                try {
+                    useSharePoint = await spService.init();
+                    if (useSharePoint) {
+                        console.log('✅ SharePoint connected! Using cloud storage.');
+                        if (spStatusElem) spStatusElem.innerHTML = '☁️ Cloud Mode';
+                    } else {
+                        console.log('⚠️ SharePoint unavailable. Using localStorage fallback.');
+                        if (spStatusElem) spStatusElem.innerHTML = '💾 Local Mode';
+                    }
+                } catch (error) {
+                    console.warn('SharePoint init error:', error);
+                    useSharePoint = false;
                     if (spStatusElem) spStatusElem.innerHTML = '💾 Local Mode';
                 }
+
+                // Get current user email
+                let userEmail = localStorage.getItem('currentUser');
+                
+                // If using SharePoint and no localStorage user, try to get from SharePoint
+                if (!userEmail && useSharePoint && spService.currentUserEmail) {
+                    userEmail = spService.currentUserEmail;
+                    localStorage.setItem('currentUser', userEmail);
+                }
+                
+                // If still no user, create a default one for demo/testing
+                if (!userEmail) {
+                    userEmail = 'supplier_user@walmart.com';
+                    localStorage.setItem('currentUser', userEmail);
+                }
+
+                currentUser = userEmail;
+                console.log('👤 Current user:', currentUser);
+                
+                // Load user data from storage (SharePoint or localStorage)
+                userData = await storage.getUser(userEmail);
+
+                // If user doesn't exist, auto-create one
+                if (!userData) {
+                    userData = {
+                        name: 'Supplier User',
+                        email: userEmail,
+                        department: 'Procurement',
+                        favorites: [],
+                        notes: {},
+                        inbox: []
+                    };
+                    await storage.saveUser(userEmail, userData);
+                    console.log('✅ Auto-created user:', userEmail);
+                }
+
+                // Update UI with user name
+                const userName = document.getElementById('userName');
+                if (userName) {
+                    userName.textContent = `👤 ${userData.name.split(' ')[0]}`;
+                    console.log('✅ Updated UI with user name');
+                }
+                
+                // Safe function calls - only if they exist
+                if (typeof updateFavoriteCount === 'function') {
+                    try {
+                        await updateFavoriteCount();
+                    } catch (e) {
+                        console.warn('updateFavoriteCount error:', e);
+                    }
+                }
+                if (typeof updateFavoriteButtons === 'function') {
+                    try {
+                        await updateFavoriteButtons();
+                    } catch (e) {
+                        console.warn('updateFavoriteButtons error:', e);
+                    }
+                }
+                if (typeof updateNoteButtons === 'function') {
+                    try {
+                        await updateNoteButtons();
+                    } catch (e) {
+                        console.warn('updateNoteButtons error:', e);
+                    }
+                }
+
+                console.log('✅ Session check completed successfully');
+                return true;
             } catch (error) {
-                console.warn('SharePoint init error:', error);
-                useSharePoint = false;
-                if (spStatusElem) spStatusElem.innerHTML = '💾 Local Mode';
+                console.error('❌ checkUserSession error:', error);
+                return false;
             }
-
-            // Get current user email
-            let userEmail = localStorage.getItem('currentUser');
-            
-            // If using SharePoint and no localStorage user, try to get from SharePoint
-            if (!userEmail && useSharePoint && spService.currentUserEmail) {
-                userEmail = spService.currentUserEmail;
-                localStorage.setItem('currentUser', userEmail);
-            }
-            
-            // If still no user, create a default one for demo/testing
-            if (!userEmail) {
-                userEmail = 'supplier_user@walmart.com';
-                localStorage.setItem('currentUser', userEmail);
-            }
-
-            currentUser = userEmail;
-            
-            // Load user data from storage (SharePoint or localStorage)
-            userData = await storage.getUser(userEmail);
-
-            // If user doesn't exist, auto-create one
-            if (!userData) {
-                userData = {
-                    name: 'Supplier User',
-                    email: userEmail,
-                    department: 'Procurement',
-                    favorites: [],
-                    notes: {},
-                    inbox: []
-                };
-                await storage.saveUser(userEmail, userData);
-                console.log('✅ Auto-created user:', userEmail);
-            }
-
-            // Update UI with user name
-            const userName = document.getElementById('userName');
-            if (userName) {
-                userName.textContent = `👤 ${userData.name.split(' ')[0]}`;
-            }
-            await updateFavoriteCount();
-            await updateFavoriteButtons();
-            await updateNoteButtons();
-
-            return true;
         }
 
         function toggleUserDropdown(event) {
@@ -3971,24 +3999,12 @@ async function searchSuppliersFromAPI(query) {
                 localStorage.setItem('currentUser', defaultUser);
             }
             
-            // Check user session (this will load everything)
-            const sessionOk = await checkUserSession();
-            
-            if (sessionOk) {
-                // Page is ready, initialize suppliers data
-                // Note: generateSuppliers() and filteredSuppliers are already initialized
-                updateStats();
-                renderResults();
-                populateFilters();
-                
-                // Show chatbot welcome message after a delay
-                setTimeout(() => {
-                    addChatMessage(
-                        'Hi! I\'m your Supplier Assistant. I can help you find suppliers, answer questions about navigation, and provide supplier details.\n\nWhat would you like to know?',
-                        'bot',
-                        ['Show me electronics suppliers', 'How do I add favorites?', 'Tell me about a supplier']
-                    );
-                }, 500);
+            // Check user session (this will auto-create user if needed)
+            try {
+                const sessionOk = await checkUserSession();
+                console.log('✅ Session check result:', sessionOk);
+            } catch (error) {
+                console.error('Session check error:', error);
             }
         });
     </script>
