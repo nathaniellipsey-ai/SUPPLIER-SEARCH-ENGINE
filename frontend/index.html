@@ -3350,10 +3350,10 @@ async function searchSuppliersFromAPI(query) {
                 localStorage.setItem('currentUser', userEmail);
             }
             
+            // If still no user, create a default one for demo/testing
             if (!userEmail) {
-                // Redirect to login
-                window.location.href = 'login.html';
-                return false;
+                userEmail = 'supplier_user@walmart.com';
+                localStorage.setItem('currentUser', userEmail);
             }
 
             currentUser = userEmail;
@@ -3361,14 +3361,25 @@ async function searchSuppliersFromAPI(query) {
             // Load user data from storage (SharePoint or localStorage)
             userData = await storage.getUser(userEmail);
 
+            // If user doesn't exist, auto-create one
             if (!userData) {
-                localStorage.removeItem('currentUser');
-                window.location.href = 'login.html';
-                return false;
+                userData = {
+                    name: 'Supplier User',
+                    email: userEmail,
+                    department: 'Procurement',
+                    favorites: [],
+                    notes: {},
+                    inbox: []
+                };
+                await storage.saveUser(userEmail, userData);
+                console.log('✅ Auto-created user:', userEmail);
             }
 
             // Update UI with user name
-            document.getElementById('userName').textContent = `👤 ${userData.name.split(' ')[0]}`;
+            const userName = document.getElementById('userName');
+            if (userName) {
+                userName.textContent = `👤 ${userData.name.split(' ')[0]}`;
+            }
             await updateFavoriteCount();
             await updateFavoriteButtons();
             await updateNoteButtons();
@@ -3944,14 +3955,34 @@ async function searchSuppliersFromAPI(query) {
             if (e.key === 'Enter') sendChatMessage();
         });
 
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                addChatMessage(
-                    'Hi! I\'m your Supplier Assistant. I can help you find suppliers, answer questions about navigation, and provide supplier details.\n\nWhat would you like to know?',
-                    'bot',
-                    ['Show me electronics suppliers', 'How do I add favorites?', 'Tell me about a supplier']
-                );
-            }, 500);
+        // Auto-login on page load
+        window.addEventListener('load', async () => {
+            // First, auto-login if no user is set
+            if (!localStorage.getItem('currentUser')) {
+                // Create a default user
+                const defaultUser = 'supplier_user@walmart.com';
+                localStorage.setItem('currentUser', defaultUser);
+            }
+            
+            // Check user session (this will load everything)
+            const sessionOk = await checkUserSession();
+            
+            if (sessionOk) {
+                // Page is ready, initialize suppliers data
+                // Note: generateSuppliers() and filteredSuppliers are already initialized
+                updateStats();
+                renderResults();
+                populateFilters();
+                
+                // Show chatbot welcome message after a delay
+                setTimeout(() => {
+                    addChatMessage(
+                        'Hi! I\'m your Supplier Assistant. I can help you find suppliers, answer questions about navigation, and provide supplier details.\n\nWhat would you like to know?',
+                        'bot',
+                        ['Show me electronics suppliers', 'How do I add favorites?', 'Tell me about a supplier']
+                    );
+                }, 500);
+            }
         });
     </script>
 </body>
