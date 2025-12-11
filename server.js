@@ -11,6 +11,7 @@ import http from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { generateSupplierData } from './data-server/data-generator.js';
+import { chatbotResponse } from './chatbot-service.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -28,6 +29,9 @@ app.use(express.json());
 // Generate supplier data (seeded for consistency)
 let suppliersCache = generateSupplierData();
 let lastUpdateTime = Date.now();
+
+// Chat history store (optional - for multi-turn conversations)
+const chatHistoryStore = new Map();
 
 // In-memory user store
 const userStore = new Map();
@@ -267,6 +271,70 @@ app.get('/api/user/profile', authenticate, (req, res) => {
       department: 'Supplier Relations',
       ...user
     }
+  });
+});
+
+// ==================== CHATBOT ENDPOINTS ====================
+
+// Chatbot - Answer questions
+app.post('/api/chatbot/ask', async (req, res) => {
+  try {
+    const { message, userId } = req.body;
+    
+    if (!message) {
+      return res.status(400).json({ success: false, error: 'Message required' });
+    }
+    
+    // Get response from chatbot service
+    const response = await chatbotResponse(message, suppliersCache, false);
+    
+    // Store in chat history if userId provided
+    if (userId) {
+      if (!chatHistoryStore.has(userId)) {
+        chatHistoryStore.set(userId, []);
+      }
+      const history = chatHistoryStore.get(userId);
+      history.push({
+        userMessage: message,
+        botResponse: response,
+        timestamp: new Date().toISOString()
+      });
+      // Keep last 50 messages
+      if (history.length > 50) {
+        history.shift();
+      }
+    }
+    
+    res.json(response);
+  } catch (error) {
+    console.error('Chatbot error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to process chat message',
+      message: 'I encountered an error processing your question. Please try again.'
+    });
+  }
+});
+
+// Chatbot - Get chat history
+app.get('/api/chatbot/history/:userId', (req, res) => {
+  const history = chatHistoryStore.get(req.params.userId) || [];
+  res.json({ success: true, history });
+});
+
+// Chatbot - Get suggestions
+app.get('/api/chatbot/suggestions', (req, res) => {
+  res.json({
+    success: true,
+    suggestions: [
+      'How do I search for suppliers?',
+      'Show me electronics suppliers',
+      'How do I add favorites?',
+      'What suppliers are available?',
+      'Tell me about logistics suppliers',
+      'How do I navigate the portal?',
+      'How do I add notes?'
+    ]
   });
 });
 

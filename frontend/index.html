@@ -1,239 +1,1030 @@
 <!DOCTYPE html>
+<!--
+🎲 FIXED SEED VERSION 🎲
+This dashboard now uses a seeded random number generator (seed: 1962 - Walmart's founding year!)
+so that everyone who opens this file sees the EXACT SAME supplier data.
+
+✅ What's shared: All vendor data (names, locations, products, ratings, etc.)
+❌ What's NOT shared: User-specific data (favorites, notes, inbox) - these are stored in browser localStorage
+
+Created with ❤️ by Code Puppy 🐶
+-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Walmart Supplier Portal - Live Dashboard</title>
+    <title>Supplier Search Engine - Construction Materials & Products</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800&family=Space+Grotesk:wght@500;700&family=Playfair+Display:wght@700;900&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
 
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes slideInBottom {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutBottom {
+            from {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+        }
+        
         :root {
             --walmart-blue: #0071ce;
-            --walmart-dark-blue: #004c91;
-            --walmart-yellow: #ffc220;
             --walmart-red: #e02020;
-            --light-bg: #f5f7fa;
+            --walmart-yellow: #ffc220;
+            --walmart-dark-blue: #004c91;
+            --light-bg: #f8f9fa;
             --border: #e0e0e0;
-            --text-dark: #1a1a1a;
-            --text-light: #666;
+            --heading-font: 'Bebas Neue', 'Impact', sans-serif;
+            --body-font: 'Inter', 'Helvetica Neue', sans-serif;
+            --accent-font: 'Space Grotesk', 'Helvetica', sans-serif;
+            --serif-font: 'Playfair Display', 'Georgia', serif;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--light-bg);
-            color: var(--text-dark);
-            line-height: 1.6;
+            font-family: var(--body-font);
+            background: #ffffff;
+            background-image: 
+                linear-gradient(90deg, rgba(0, 113, 206, 0.03) 1px, transparent 1px),
+                linear-gradient(rgba(0, 113, 206, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            font-size: 13px;
+            line-height: 1.4;
+            margin: 0;
+            padding: 0;
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* Header */
         .header {
-            background: linear-gradient(135deg, var(--walmart-blue) 0%, var(--walmart-dark-blue) 100%);
-            color: white;
-            padding: 20px 0;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            background: var(--walmart-blue);
+            padding: 0;
+            position: relative;
+            overflow: visible;
+            margin-bottom: 0;
+        }
+
+        .toolbar {
+            background: #f5f5f5;
+            border-bottom: 3px solid #ddd;
+            padding: 0;
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 99;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 0;
+        }
+
+        .toolbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .toolbar-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .toolbar-btn {
+            background: white;
+            border: 2px solid #ddd;
+            padding: 8px 16px;
+            font-family: var(--accent-font);
+            font-weight: 600;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .toolbar-btn:hover {
+            background: var(--walmart-blue);
+            color: white;
+            border-color: var(--walmart-blue);
+            transform: translate(-1px, -1px);
+            box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.15);
+        }
+
+        .toolbar-btn .btn-icon {
+            font-size: 1rem;
+        }
+
+        .toolbar-info {
+            font-family: var(--body-font);
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .toolbar-info strong {
+            color: var(--walmart-blue);
+            font-size: 1.1rem;
+        }
+
+        .view-switcher {
+            display: flex;
+            gap: 5px;
+            background: white;
+            padding: 3px;
+            border: 2px solid #ddd;
+        }
+
+        .view-btn {
+            background: white;
+            border: none;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--accent-font);
+            letter-spacing: 0.5px;
+        }
+
+        .view-btn:hover {
+            background: #f0f8ff;
+        }
+
+        .view-btn.active {
+            background: var(--walmart-blue);
+            color: white;
+        }
+
+        /* Grid View Styles */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .results-grid .supplier-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Catalog View Styles */
+        .results-catalog {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .supplier-catalog-card {
+            background: white;
+            border: 3px solid var(--walmart-blue);
+            padding: 0;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .supplier-catalog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .catalog-header {
+            background: var(--walmart-blue);
+            color: white;
+            padding: 20px;
+            border-bottom: 3px solid var(--walmart-yellow);
+        }
+
+        .catalog-body {
+            padding: 20px;
+        }
+
+        .catalog-name {
+            font-family: var(--heading-font);
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .catalog-category {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .catalog-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+
+        .catalog-stat:last-child {
+            border-bottom: none;
+        }
+
+        .catalog-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
         }
 
         .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 10px 20px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 40px;
+            position: relative;
+            overflow: visible;
+        }
+
+        .header-title {
+            text-align: center;
+            font-family: var(--accent-font);
+            font-size: 3rem;
+            letter-spacing: 8px;
+            color: white;
+            text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
+            white-space: nowrap;
+            font-weight: 700;
+            font-style: normal;
+        }
+
+        .header-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 8px;
+            height: 100%;
+            background: var(--walmart-yellow);
+        }
+
+        .user-menu {
+            position: relative;
+            z-index: 100000;
+        }
+
+        .user-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            font-family: var(--accent-font);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .user-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: var(--walmart-yellow);
+        }
+
+        .user-dropdown-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 999999;
+            display: none;
+        }
+
+        .user-dropdown-overlay.active {
+            display: block;
+        }
+
+        .user-dropdown {
+            position: fixed;
+            background: white;
+            border: 3px solid var(--walmart-blue);
+            box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.3);
+            min-width: 220px;
+            z-index: 9999999;
+            padding: 5px 0;
+        }
+
+        .dropdown-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            font-family: var(--body-font);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background: var(--walmart-blue);
+            color: white;
+        }
+
+        .dropdown-divider {
+            height: 2px;
+            background: #ddd;
+            margin: 5px 0;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+
+
+        .search-container {
+            position: relative;
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 6px 35px 6px 30px;
+            font-size: 0.85rem;
+            font-family: var(--body-font);
+            font-weight: 500;
+            border: 2px solid #ddd;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--walmart-blue);
+        }
+
+        .search-box::placeholder {
+            color: #999;
+            font-weight: 400;
+            letter-spacing: 0.3px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 1rem;
+            animation: searchPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes searchPulse {
+            0%, 100% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.1); }
+        }
+
+        .clear-search {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: none;
+            padding: 3px;
+            line-height: 1;
+            transition: all 0.2s;
+        }
+
+        .clear-search:hover {
+            color: var(--walmart-red);
+            transform: translateY(-50%) rotate(90deg) scale(1.1);
+        }
+
+        .autocomplete {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-top: 5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .autocomplete.active { display: block; }
+
+        .autocomplete-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .autocomplete-item:hover {
+            background: var(--light-bg);
+        }
+
+        .autocomplete-item .icon {
+            color: #666;
+        }
+
+        .autocomplete-item .text {
+            flex: 1;
+        }
+
+        .autocomplete-item .category {
+            font-size: 0.85rem;
+            color: #999;
+        }
+
+        .main-content {
+            max-width: 1400px;
+            margin: 20px auto 20px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+        }
+
+        .filters {
+            background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 12px;
+            padding: 15px;
+            max-height: calc(100vh - 110px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: sticky;
+            top: 90px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 113, 206, 0.1);
+        }
+
+        .filters::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .filters::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .filters::-webkit-scrollbar-thumb {
+            background: var(--walmart-blue);
+            border-radius: 4px;
+        }
+
+        .filters::-webkit-scrollbar-thumb:hover {
+            background: var(--walmart-dark-blue);
+        }
+
+        .filters-header {
+            padding: 20px;
+            background: var(--walmart-blue);
+            color: white;
+            margin: -20px -20px 20px -20px;
+            border-bottom: 4px solid var(--walmart-yellow);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .logo {
-            font-size: 24px;
+        .collapse-all-btn {
+            background: var(--walmart-yellow);
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            font-family: var(--accent-font);
             font-weight: 700;
-            letter-spacing: -0.5px;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
         }
 
-        .user-info {
+        .collapse-all-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .collapse-all-btn:active {
+            transform: translate(0, 0);
+            box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .filter-section {
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .filter-section:last-child {
+            border-bottom: none;
+        }
+
+        .filter-title {
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--walmart-blue);
+            font-size: 0.95rem;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 15px;
+            justify-content: space-between;
+            user-select: none;
         }
 
-        .status-badge {
+        .filter-title:hover {
+            color: var(--walmart-dark-blue);
+        }
+
+        .filter-title .collapse-icon {
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+        }
+
+        .filter-content {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .filter-content.collapsed {
+            max-height: 0;
+        }
+
+        .filter-option {
             display: flex;
             align-items: center;
             gap: 6px;
-            padding: 6px 12px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #4ade80;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        /* Main Grid */
-        .main-grid {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            gap: 20px;
-            padding: 20px 0;
-            min-height: calc(100vh - 80px);
-        }
-
-        /* Sidebar */
-        .sidebar {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            height: fit-content;
-            position: sticky;
-            top: 80px;
-        }
-
-        .sidebar-section {
-            margin-bottom: 20px;
-        }
-
-        .sidebar-title {
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: var(--text-light);
-            margin-bottom: 10px;
-            letter-spacing: 0.5px;
-        }
-
-        .sidebar-item {
-            padding: 10px 12px;
-            margin-bottom: 4px;
-            border-radius: 6px;
+            margin-bottom: 6px;
             cursor: pointer;
-            font-size: 13px;
-            transition: all 0.2s;
-            border-left: 3px solid transparent;
         }
 
-        .sidebar-item:hover {
-            background: var(--light-bg);
-            border-left-color: var(--walmart-blue);
+        .filter-option input[type="checkbox"] {
+            cursor: pointer;
         }
 
-        .sidebar-item.active {
-            background: var(--walmart-blue);
-            color: white;
-            border-left-color: var(--walmart-blue);
+        .filter-option label {
+            cursor: pointer;
+            flex: 1;
+            font-size: 0.85rem;
+        }
+
+        .filter-count {
+            color: #999;
+            font-size: 0.75rem;
+        }
+
+        .filter-expand {
+            color: var(--walmart-blue);
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
             font-weight: 600;
         }
 
-        /* Content Area */
-        .content {
+        .filter-expand:hover {
+            text-decoration: underline;
+        }
+
+        .fixture-subcategory {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .fixture-subcategory-title {
+            font-weight: 600;
+            color: var(--walmart-blue);
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+            cursor: pointer;
             display: flex;
-            flex-direction: column;
-            gap: 20px;
+            align-items: center;
+            gap: 5px;
         }
 
-        /* Cards */
-        .card {
+        .fixture-subcategory-title:hover {
+            text-decoration: underline;
+        }
+
+        .fixture-products {
+            margin-left: 12px;
+            margin-top: 6px;
+        }
+
+        .fixture-products.collapsed {
+            display: none;
+        }
+
+        .hidden-category {
+            display: none;
+        }
+
+        .hidden-category.show {
+            display: flex;
+        }
+
+        .vendor-search {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+
+        .vendor-search:focus {
+            outline: none;
+            border-color: var(--walmart-blue);
+        }
+
+        .vendor-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .vendor-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .vendor-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .vendor-list::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+
+        .walmart-tagline {
+            background: var(--walmart-yellow);
+            color: #000;
+            padding: 8px 20px;
+            text-align: center;
+            font-family: var(--heading-font);
+            font-weight: 900;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-shadow: none;
+            border-bottom: 4px solid var(--walmart-blue);
+            position: relative;
+            margin: 0;
+            border-top: none;
+        }
+
+
+
+        .results-area {
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
             padding: 20px;
-            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
 
-        .card:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Stats Grid */
-        .stats-grid {
+        .stats-dashboard {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
+            margin-bottom: 25px;
         }
 
-        .stat-card {
-            background: white;
+        .stat-box {
+            background: var(--walmart-blue);
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+            position: relative;
+            border: 2px solid var(--walmart-dark-blue);
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+        }
+
+        .stat-box::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 0 0 10px 10px;
+            border-color: transparent transparent var(--walmart-yellow) transparent;
+        }
+
+        .stat-box.clickable {
+            cursor: pointer;
+        }
+
+        .stat-box.clickable:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-box.clickable:active {
+            transform: translate(-1px, -1px);
+            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-box.yellow {
+            background: var(--walmart-yellow);
+            color: #000;
+            border-color: #e6a800;
+        }
+
+        .stat-box.yellow::after {
+            border-color: transparent transparent var(--walmart-blue) transparent;
+        }
+
+        .stat-box.red {
+            background: var(--walmart-red);
+            border-color: #c01818;
+        }
+
+        .stat-box.red::after {
+            border-color: transparent transparent var(--walmart-blue) transparent;
+        }
+
+        .stat-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.3));
+        }
+
+        .stat-box .number {
+            font-family: var(--heading-font);
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 3px;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+            line-height: 1;
+        }
+
+        .stat-box .label {
+            font-family: var(--accent-font);
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .results-info {
+            font-size: 0.95rem;
+            color: #666;
+        }
+
+        .sort-options select {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .supplier-item {
+            border: 2px solid transparent;
+            background: linear-gradient(white, white) padding-box,
+                        linear-gradient(135deg, var(--walmart-blue), var(--walmart-yellow)) border-box;
             border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 12px;
+            margin-bottom: 10px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
 
-        .stat-value {
-            font-size: 28px;
+        .supplier-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 113, 206, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .supplier-item:hover::before {
+            left: 100%;
+        }
+
+        .compare-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--walmart-blue);
+            flex-shrink: 0;
+        }
+
+        .favorite-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            filter: grayscale(100%);
+            opacity: 0.5;
+        }
+
+        .favorite-btn:hover {
+            transform: scale(1.2);
+            filter: grayscale(0%);
+            opacity: 1;
+        }
+
+        .favorite-btn.favorited {
+            filter: grayscale(0%);
+            opacity: 1;
+            animation: heartBeat 0.3s ease;
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.3); }
+            50% { transform: scale(1.1); }
+        }
+
+        .note-btn {
+            background: var(--walmart-yellow);
+            border: 2px solid #e6a800;
+            padding: 6px 12px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .note-btn:hover {
+            background: #e6a800;
+            transform: translate(-2px, -2px);
+            box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .note-btn.has-note {
+            background: var(--walmart-blue);
+            border-color: var(--walmart-dark-blue);
+        }
+
+        .comparison-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .comparison-content {
+            background: white;
+            width: 100%;
+            max-width: 1400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 4px solid var(--walmart-blue);
+            box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .comparison-header {
+            background: var(--walmart-blue);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 4px solid var(--walmart-yellow);
+        }
+
+        .comparison-table-wrapper {
+            overflow-x: auto;
+            padding: 20px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--body-font);
+        }
+
+        .comparison-table thead {
+            background: #f5f5f5;
+            border-bottom: 3px solid var(--walmart-blue);
+        }
+
+        .comparison-table th {
+            padding: 15px;
+            text-align: left;
+            font-family: var(--heading-font);
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            border-right: 2px solid #ddd;
+        }
+
+        .comparison-table th:first-child {
+            background: var(--walmart-blue);
+            color: white;
+            position: sticky;
+            left: 0;
+            z-index: 10;
+        }
+
+        .comparison-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            border-right: 2px solid #ddd;
+        }
+
+        .comparison-table td:first-child {
+            background: #f9f9f9;
+            font-weight: 600;
+            position: sticky;
+            left: 0;
+            z-index: 9;
+        }
+
+        .comparison-table tbody tr:hover {
+            background: #f0f8ff;
+        }
+
+        .score-cell {
             font-weight: 700;
             color: var(--walmart-blue);
-            margin-bottom: 5px;
+            font-size: 1.1rem;
         }
 
-        .stat-label {
-            font-size: 12px;
-            color: var(--text-light);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        /* Search Bar */
-        .search-container {
-            margin-bottom: 20px;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 14px;
-            font-family: inherit;
-            transition: all 0.2s;
-        }
-
-        .search-input:focus {
-            outline: none;
+        .supplier-item:hover {
+            box-shadow: 0 12px 24px rgba(0, 113, 206, 0.25);
+            transform: translateY(-3px);
             border-color: var(--walmart-blue);
-            box-shadow: 0 0 0 3px rgba(0, 113, 206, 0.1);
-        }
-
-        /* Supplier Cards */
-        .suppliers-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 15px;
-        }
-
-        .supplier-card {
-            background: white;
-            border-radius: 8px;
-            padding: 16px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            transition: all 0.2s;
-            border-left: 4px solid var(--border);
-        }
-
-        .supplier-card:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            border-left-color: var(--walmart-blue);
         }
 
         .supplier-header {
@@ -244,708 +1035,2924 @@
         }
 
         .supplier-name {
-            font-size: 16px;
+            font-size: 1.3rem;
             font-weight: 700;
-            color: var(--text-dark);
+            color: var(--walmart-blue);
+            cursor: pointer;
         }
 
-        .supplier-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            background: var(--walmart-yellow);
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 700;
-            color: var(--text-dark);
+        .supplier-name:hover {
+            text-decoration: underline;
         }
 
         .supplier-meta {
-            font-size: 12px;
-            color: var(--text-light);
-            margin-bottom: 8px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            color: #666;
         }
 
-        .supplier-rating {
+        .meta-item {
             display: flex;
             align-items: center;
-            gap: 6px;
-            margin-bottom: 10px;
+            gap: 5px;
         }
 
-        .star {
-            color: var(--walmart-yellow);
+        .supplier-products {
+            margin: 12px 0;
         }
 
-        .products-list {
+        .product-tags {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
-            margin-bottom: 10px;
         }
 
-        .product-tag {
-            padding: 4px 8px;
-            background: var(--light-bg);
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .supplier-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        .btn {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
+        .tag {
+            background: #e7f3ff;
+            color: var(--walmart-blue);
+            padding: 6px 12px;
+            border: 2px solid transparent;
+            font-size: 0.85rem;
             font-weight: 600;
             transition: all 0.2s;
-            flex: 1;
-            text-align: center;
+            display: inline-block;
         }
 
-        .btn-primary {
+        .tag:hover {
             background: var(--walmart-blue);
             color: white;
+            border-color: var(--walmart-dark-blue);
+            transform: translate(-2px, -2px);
+            box-shadow: 3px 3px 0 rgba(0, 113, 206, 0.3);
         }
 
-        .btn-primary:hover {
-            background: var(--walmart-dark-blue);
+        .tag:active {
+            transform: translate(0, 0);
+            box-shadow: 1px 1px 0 rgba(0, 113, 206, 0.3);
         }
 
-        .btn-secondary {
-            background: var(--light-bg);
-            color: var(--text-dark);
-            border: 1px solid var(--border);
+        .tag.featured {
+            background: var(--walmart-yellow);
+            color: #000;
+            font-weight: 700;
+            border-color: #e6a800;
         }
 
-        .btn-secondary:hover {
-            background: var(--border);
+        .tag.featured:hover {
+            background: #e6a800;
+            border-color: #cc9600;
         }
 
-        .btn-favorite {
-            background: none;
-            border: 1px solid var(--border);
-            padding: 8px;
-            color: var(--text-dark);
-        }
-
-        .btn-favorite.active {
-            color: var(--walmart-red);
-            border-color: var(--walmart-red);
-        }
-
-        /* Loading State */
-        .loading {
+        .supplier-certifications {
             display: flex;
-            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .cert-badge {
+            background: #d4edda;
+            color: #155724;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .pagination {
+            display: flex;
             justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .page-btn {
+            padding: 8px 15px;
+            border: 1px solid var(--border);
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: var(--walmart-blue);
+            color: white;
+            border-color: var(--walmart-blue);
+        }
+
+        .page-btn.active {
+            background: var(--walmart-blue);
+            color: white;
+            border-color: var(--walmart-blue);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .ai-score {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: linear-gradient(135deg, var(--walmart-blue) 0%, var(--walmart-dark-blue) 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .walmart-verified {
+            background: var(--walmart-red);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .loading {
+            text-align: center;
             padding: 40px;
-            font-size: 14px;
-            color: var(--text-light);
+            color: #666;
         }
 
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 3px solid var(--border);
-            border-top-color: var(--walmart-blue);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-right: 10px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
             z-index: 1000;
-            align-items: center;
-            justify-content: center;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            animation: fadeIn 0.3s;
         }
 
         .modal.active {
             display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .modal-content {
             background: white;
-            border-radius: 8px;
-            padding: 24px;
-            max-width: 500px;
+            border-radius: 12px;
+            max-width: 800px;
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            position: relative;
+            animation: slideUp 0.3s;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .modal-header {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: linear-gradient(135deg, var(--walmart-blue) 0%, var(--walmart-dark-blue) 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 12px 12px 0 0;
+            position: relative;
+        }
+
+        .modal-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .modal-header .subtitle {
+            opacity: 0.9;
+            font-size: 0.95rem;
         }
 
         .modal-close {
-            background: none;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
             border: none;
-            font-size: 20px;
+            color: white;
+            font-size: 1.5rem;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
             cursor: pointer;
-            color: var(--text-light);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .form-group {
-            margin-bottom: 16px;
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
         }
 
-        .form-label {
-            display: block;
-            font-size: 12px;
+        .modal-close:focus {
+            outline: 3px solid var(--walmart-yellow);
+            outline-offset: 2px;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .modal-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .modal-section h3 {
+            color: var(--walmart-blue);
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .info-label {
             font-weight: 600;
-            margin-bottom: 6px;
-            color: var(--text-dark);
+            color: #666;
+            font-size: 0.85rem;
+            text-transform: uppercase;
         }
 
-        .form-input,
-        .form-textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            font-size: 14px;
-            font-family: inherit;
+        .info-value {
+            font-size: 1rem;
+            color: #333;
         }
 
-        .form-textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .form-input:focus,
-        .form-textarea:focus {
-            outline: none;
-            border-color: var(--walmart-blue);
-            box-shadow: 0 0 0 3px rgba(0, 113, 206, 0.1);
-        }
-
-        /* Filters */
-        .filters {
+        .contact-buttons {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
             flex-wrap: wrap;
+            margin-top: 15px;
         }
 
-        .filter-btn {
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            background: white;
+        .contact-btn {
+            padding: 10px 20px;
+            border: none;
             border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
             font-weight: 600;
-            transition: all 0.2s;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
         }
 
-        .filter-btn:hover {
-            border-color: var(--walmart-blue);
+        .contact-btn.primary {
+            background: var(--walmart-blue);
+            color: white;
+        }
+
+        .contact-btn.primary:hover {
+            background: var(--walmart-dark-blue);
+            transform: translateY(-2px);
+        }
+
+        .contact-btn.secondary {
+            background: white;
+            color: var(--walmart-blue);
+            border: 2px solid var(--walmart-blue);
+        }
+
+        .contact-btn.secondary:hover {
+            background: var(--walmart-blue);
+            color: white;
+        }
+
+        .description-text {
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .stat-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: var(--light-bg);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 1.8rem;
+            font-weight: 700;
             color: var(--walmart-blue);
         }
 
-        .filter-btn.active {
-            background: var(--walmart-blue);
-            color: white;
-            border-color: var(--walmart-blue);
+        .stat-card .label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
         }
 
-        @media (max-width: 768px) {
-            .main-grid {
+        @media (max-width: 1024px) {
+            .main-content {
                 grid-template-columns: 1fr;
             }
-
-            .sidebar {
+            .filters {
                 position: static;
             }
-
-            .suppliers-grid {
+            .info-grid {
                 grid-template-columns: 1fr;
-            }
-
-            .header-content {
-                flex-direction: column;
-                gap: 10px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <div class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">🛒 Supplier Portal</div>
-                <div class="user-info">
-                    <div class="status-badge">
-                        <div class="status-dot"></div>
-                        <span id="status-text">Connecting...</span>
+    <div class="walmart-tagline">
+        SAVE MONEY. LIVE BETTER. FIND BETTER SUPPLIERS.
+    </div>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div style="background: var(--walmart-yellow); width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border: 3px solid var(--walmart-blue); font-size: 1.5rem; font-weight: 900;">W</div>
+                <div>
+                    <div style="font-family: var(--heading-font); font-size: 1.8rem; font-weight: 900; letter-spacing: 1px; line-height: 0.9;">WALMART</div>
+                    <div style="font-family: var(--accent-font); font-size: 0.65rem; font-weight: 600; letter-spacing: 3px; margin-top: 2px;">VENDOR DISCOVERY</div>
+                </div>
+            </div>
+            <div class="header-title">SUPPLIER HUB</div>
+            <div class="user-menu" id="userMenu" style="justify-self: end;">
+                <button class="user-btn" onclick="toggleUserDropdown(event)" id="userMenuBtn">
+                    <span id="userName">Guest</span>
+                    <span style="font-size: 0.7rem;">▼</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <nav class="toolbar">
+        <div class="toolbar-content">
+            <div class="toolbar-section">
+                <button class="toolbar-btn" onclick="window.location.reload()">
+                    <span>HOME</span>
+                </button>
+                <button class="toolbar-btn" onclick="window.location.href='help.html'">
+                    <span>📖 HELP</span>
+                </button>
+                <button class="toolbar-btn" onclick="exportResults()">
+                    <span>EXPORT</span>
+                </button>
+                <button class="toolbar-btn" onclick="printResults()">
+                    <span>PRINT</span>
+                </button>
+            </div>
+            <div class="toolbar-section">
+                <button class="toolbar-btn" onclick="clearAllFilters()">
+                    <span class="btn-icon">RESET</span>
+                </button>
+                <button class="toolbar-btn" onclick="toggleCompareMode()">
+                    <span id="compareBtnText">COMPARE (0)</span>
+                </button>
+            </div>
+            <div class="toolbar-section">
+                <span class="toolbar-info">
+                    <strong id="toolbarResultCount">0</strong> suppliers found
+                </span>
+                <span class="toolbar-info" id="spStatus" style="margin-left: 15px; font-size: 0.75rem; opacity: 0.8;">
+                    🔄 Connecting...
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <aside class="filters">
+            <div class="filters-header">
+                <h3 style="font-family: var(--heading-font); font-size: 1.5rem; letter-spacing: 2px; margin: 0;">FILTERS</h3>
+                <button id="collapseAllBtn" class="collapse-all-btn" onclick="toggleAllFilters()">
+                    <span id="collapseAllText">COLLAPSE ALL</span>
+                </button>
+            </div>
+            <div class="filter-section">
+                <div class="filter-title" onclick="toggleFilterSection('vendorSection')">
+                    <span>Vendors</span>
+                    <span class="collapse-icon" id="vendorSection-icon">▲</span>
+                </div>
+                <div class="filter-content collapsed" id="vendorSection">
+                    <input type="text" class="vendor-search" id="vendorSearch" placeholder="Search vendors..." aria-label="Search vendors">
+                    <div class="vendor-list" id="vendorFilters"></div>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-title" onclick="toggleFilterSection('categorySection')">
+                    <span>Material Category</span>
+                    <span class="collapse-icon" id="categorySection-icon">▲</span>
+                </div>
+                <div class="filter-content collapsed" id="categorySection">
+                    <div id="categoryFilters"></div>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-title" onclick="toggleFilterSection('productSection')">
+                    <span>Product Type</span>
+                    <span class="collapse-icon" id="productSection-icon">▲</span>
+                </div>
+                <div class="filter-content collapsed" id="productSection">
+                    <div id="productTypeFilters"></div>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-title" onclick="toggleFilterSection('fixtureSection')">
+                    <span>Fixtures & Hardware</span>
+                    <span class="collapse-icon" id="fixtureSection-icon">▲</span>
+                </div>
+                <div class="filter-content collapsed" id="fixtureSection">
+                    <div id="fixtureFilters"></div>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-title" onclick="toggleFilterSection('regionSection')">
+                    <span>Region</span>
+                    <span class="collapse-icon" id="regionSection-icon">▲</span>
+                </div>
+                <div class="filter-content collapsed" id="regionSection">
+                    <div id="regionFilters"></div>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-title" onclick="toggleFilterSection('certSection')">
+                    <span>Certifications</span>
+                    <span class="collapse-icon" id="certSection-icon">▲</span>
+                </div>
+                <div class="filter-content collapsed" id="certSection">
+                    <div id="certFilters"></div>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-title" onclick="toggleFilterSection('sizeSection')">
+                    <span>Company Size</span>
+                    <span class="collapse-icon" id="sizeSection-icon">▲</span>
+                </div>
+                <div class="filter-content collapsed" id="sizeSection">
+                    <div id="sizeFilters"></div>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-title" onclick="toggleFilterSection('priceSection')">
+                    <span>Price Range</span>
+                    <span class="collapse-icon" id="priceSection-icon">▲</span>
+                </div>
+                <div class="filter-content collapsed" id="priceSection">
+                    <div id="priceFilters"></div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="results-area" role="main">
+                <div class="stats-dashboard">
+                    <div class="stat-box clickable" onclick="filterByStat('all')" title="Click to reset and show all suppliers">
+                        <div class="number" id="totalSuppliersCount">0</div>
+                        <div class="label">Total Suppliers</div>
+                    </div>
+                    <div class="stat-box yellow clickable" onclick="filterByStat('categories')" title="Click to sort vendors by category">
+                        <div class="number" id="categoriesCount">0</div>
+                        <div class="label">Categories</div>
+                    </div>
+                    <div class="stat-box red clickable" onclick="filterByStat('products')" title="Click to sort vendors by number of products">
+                        <div class="number" id="productsCount">0</div>
+                        <div class="label">Products Available</div>
+                    </div>
+                    <div class="stat-box clickable" onclick="filterByStat('verified')" title="Click to show only Walmart Verified suppliers">
+                        <div class="number" id="verifiedCount">0</div>
+                        <div class="label">Walmart Verified</div>
+                    </div>
+                </div>
+
+                <div class="results-header">
+                <div class="results-info">
+                    <span id="resultsCount">0</span> suppliers found
+                </div>
+                <div class="search-container">
+                    <span class="search-icon">⌕</span>
+                    <input 
+                        type="text" 
+                        class="search-box" 
+                        id="searchInput"
+                        placeholder="Search suppliers, products, brands, SKUs..."
+                        aria-label="Search suppliers and products"
+                        autocomplete="off"
+                    >
+                    <button class="clear-search" id="clearSearch" aria-label="Clear search">✕</button>
+                    <div class="autocomplete" id="autocomplete"></div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div class="view-switcher">
+                        <button class="view-btn active" id="viewList" onclick="switchView('list')" title="List view">
+                            LIST
+                        </button>
+                        <button class="view-btn" id="viewGrid" onclick="switchView('grid')" title="Grid view">
+                            GRID
+                        </button>
+                        <button class="view-btn" id="viewCatalog" onclick="switchView('catalog')" title="Catalog view">
+                            CATALOG
+                        </button>
+                    </div>
+                    <div class="sort-options">
+                        <select id="sortSelect" aria-label="Sort results">
+                            <option value="relevance">Most Relevant</option>
+                            <option value="score-high">AI Score: High to Low</option>
+                            <option value="score-low">AI Score: Low to High</option>
+                            <option value="name-asc">Name: A to Z</option>
+                            <option value="name-desc">Name: Z to A</option>
+                            <option value="rating">Customer Rating</option>
+                        </select>
                     </div>
                 </div>
             </div>
-        </div>
+
+            <div id="resultsContainer"></div>
+
+            <div class="pagination" id="pagination"></div>
+        </main>
     </div>
 
-    <!-- Main Content -->
-    <div class="container">
-        <div class="main-grid">
-            <!-- Sidebar -->
-            <aside class="sidebar">
-                <div class="sidebar-section">
-                    <div class="sidebar-title">Navigation</div>
-                    <div class="sidebar-item active" data-view="dashboard">📊 Dashboard</div>
-                    <div class="sidebar-item" data-view="suppliers">🏢 All Suppliers</div>
-                    <div class="sidebar-item" data-view="favorites">⭐ Favorites</div>
-                    <div class="sidebar-item" data-view="notes">📝 My Notes</div>
-                </div>
-
-                <div class="sidebar-section">
-                    <div class="sidebar-title">Categories</div>
-                    <div id="category-list"></div>
-                </div>
-            </aside>
-
-            <!-- Content -->
-            <main class="content">
-                <!-- Dashboard View -->
-                <div id="dashboard-view" class="view active">
-                    <div class="card">
-                        <h2>Live Supplier Dashboard</h2>
-                        <p style="color: var(--text-light); font-size: 13px; margin-top: 5px;">Real-time data from data server • WebSocket enabled</p>
-                    </div>
-
-                    <div class="stats-grid" id="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-value">-</div>
-                            <div class="stat-label">Total Suppliers</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">-</div>
-                            <div class="stat-label">In Stock</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">-</div>
-                            <div class="stat-label">Verified Suppliers</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">-</div>
-                            <div class="stat-label">Avg Rating</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Suppliers View -->
-                <div id="suppliers-view" class="view" style="display: none;">
-                    <div class="card">
-                        <h2>Supplier Search</h2>
-                        <div style="margin-top: 15px;">
-                            <input type="text" id="search-input" class="search-input" placeholder="Search suppliers by name, location, or product...">
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="filters" id="filters-container"></div>
-                    </div>
-
-                    <div id="suppliers-container" class="card">
-                        <div class="loading">
-                            <div class="spinner"></div>
-                            Loading suppliers...
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Favorites View -->
-                <div id="favorites-view" class="view" style="display: none;">
-                    <div class="card">
-                        <h2>⭐ Favorite Suppliers</h2>
-                    </div>
-                    <div id="favorites-container" class="card">
-                        <div style="text-align: center; color: var(--text-light); padding: 40px;">
-                            No favorites yet. Add suppliers from the search to see them here.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Notes View -->
-                <div id="notes-view" class="view" style="display: none;">
-                    <div class="card">
-                        <h2>📝 My Notes</h2>
-                    </div>
-                    <div id="notes-container" class="card">
-                        <div style="text-align: center; color: var(--text-light); padding: 40px;">
-                            No notes yet. Add notes to suppliers to see them here.
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
-    </div>
-
-    <!-- Note Modal -->
-    <div id="note-modal" class="modal">
+    <div class="modal" id="supplierModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
         <div class="modal-content">
             <div class="modal-header">
-                <div>Add/Edit Note</div>
-                <button class="modal-close" onclick="closeNoteModal()">&times;</button>
+                <h2 id="modalTitle"></h2>
+                <div class="subtitle" id="modalSubtitle"></div>
+                <button class="modal-close" id="modalClose" aria-label="Close modal">✕</button>
             </div>
-            <div class="form-group">
-                <label class="form-label">Supplier</label>
-                <div id="note-supplier-name" style="padding: 10px 0; font-weight: 600;"></div>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Your Notes</label>
-                <textarea id="note-content" class="form-textarea" placeholder="Add your notes about this supplier..."></textarea>
-            </div>
-            <div style="display: flex; gap: 10px;">
-                <button class="btn btn-secondary" onclick="closeNoteModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="saveNote()">Save Note</button>
-            </div>
+            <div class="modal-body" id="modalBody"></div>
         </div>
     </div>
 
     <script>
-        // Config
-        const API_BASE = 'http://localhost:3000';
-        const DATA_SERVER_URL = 'http://localhost:3001';
-        const WS_URL = 'ws://localhost:3001';
-        const USER_ID = 'user-' + Math.random().toString(36).substr(2, 9);
 
-        // State
-        let suppliers = [];
-        let favorites = [];
-        let notes = {};
-        let currentFilter = null;
-        let ws = null;
-        let currentNoteId = null;
+// API URL - point to the Python API server
+const API_URL = 'http://localhost:8000';
+let USE_API = false; // Set to true to use API instead of local generation
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', init);
+// Function to load suppliers from API
+async function loadSuppliersFromAPI(skip = 0, limit = 5000) {
+    try {
+        const response = await fetch(`${API_URL}/api/dashboard/suppliers?skip=${skip}&limit=${limit}`);
+        if (!response.ok) throw new Error('API Error');
+        const data = await response.json();
+        return data.suppliers || [];
+    } catch (error) {
+        console.warn('API load failed, using local generation:', error);
+        USE_API = false;
+        return null;
+    }
+}
 
-        async function init() {
-            console.log('🐕 Initializing Supplier Portal...');
-            setupEventListeners();
-            connectWebSocket();
-            loadInitialData();
-            loadUserData();
+// Function to load dashboard stats from API
+async function loadStatsFromAPI() {
+    try {
+        const response = await fetch(`${API_URL}/api/dashboard/stats`);
+        if (!response.ok) throw new Error('API Error');
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.warn('API stats load failed:', error);
+        return null;
+    }
+}
+
+// Function to search suppliers from API
+async function searchSuppliersFromAPI(query) {
+    try {
+        const response = await fetch(`${API_URL}/api/dashboard/suppliers/search?q=${encodeURIComponent(query)}`);
+        if (!response.ok) throw new Error('API Error');
+        const data = await response.json();
+        return data.results || [];
+    } catch (error) {
+        console.warn('API search failed:', error);
+        return null;
+    }
+}
+
+        // Comprehensive product catalog
+        const productCategories = {
+            'Concrete & Cement': ['Ready-Mix Concrete', 'Precast Concrete', 'Concrete Blocks', 'Portland Cement', 'Concrete Admixtures', 'Fiber-Reinforced Concrete', 'Self-Leveling Concrete', 'Decorative Concrete'],
+            'Steel & Metal': ['Structural Steel', 'Rebar', 'Steel Beams', 'Metal Studs', 'Sheet Metal', 'Galvanized Steel', 'Aluminum', 'Copper Piping', 'Steel Decking'],
+            'Lumber & Wood': ['Dimensional Lumber', 'Plywood', 'OSB Panels', 'Engineered Wood', 'Treated Lumber', 'Hardwood Flooring', 'Laminated Beams', 'Wood Trusses'],
+            'Roofing Materials': ['Asphalt Shingles', 'Metal Roofing', 'TPO Membrane', 'EPDM Roofing', 'Tile Roofing', 'Underlayment', 'Flashing', 'Roof Coatings'],
+            'Insulation': ['Fiberglass Batts', 'Spray Foam', 'Rigid Foam Board', 'Mineral Wool', 'Cellulose Insulation', 'Reflective Insulation', 'Acoustic Insulation'],
+            'Drywall & Gypsum': ['Standard Drywall', 'Moisture-Resistant Drywall', 'Fire-Rated Drywall', 'Ceiling Tiles', 'Joint Compound', 'Drywall Tape'],
+            'Electrical': ['Wire & Cable', 'Conduit', 'Junction Boxes', 'Breaker Panels', 'LED Fixtures', 'Switches & Outlets', 'Cable Trays', 'Emergency Lighting'],
+            'Plumbing': ['PVC Pipe', 'Copper Pipe', 'PEX Tubing', 'Valves & Fittings', 'Water Heaters', 'Fixtures', 'Drain Systems', 'Backflow Preventers'],
+            'HVAC': ['Air Handling Units', 'Ductwork', 'Thermostats', 'Refrigerant', 'Air Filters', 'Ventilation Fans', 'Heat Pumps', 'Boilers'],
+            'Flooring': ['Vinyl Flooring', 'Ceramic Tile', 'Carpet', 'Hardwood', 'Laminate', 'Epoxy Coatings', 'Polished Concrete', 'Rubber Flooring'],
+            'Windows & Doors': ['Vinyl Windows', 'Aluminum Windows', 'Steel Doors', 'Wood Doors', 'Fiberglass Doors', 'Sliding Glass Doors', 'French Doors', 'Garage Doors', 'Storm Doors'],
+            'Door Hardware & Fixtures': ['Door Handles', 'Door Knobs', 'Deadbolts', 'Door Closers', 'Hinges', 'Door Stops', 'Panic Hardware', 'Access Control Systems', 'Automatic Door Openers'],
+            'Lighting Fixtures': ['LED Downlights', 'Chandeliers', 'Pendant Lights', 'Track Lighting', 'Wall Sconces', 'Outdoor Lighting', 'Emergency Exit Lights', 'Motion Sensor Lights'],
+            'Plumbing Fixtures': ['Toilets', 'Sinks', 'Faucets', 'Shower Heads', 'Bathtubs', 'Urinals', 'Drinking Fountains', 'Floor Drains', 'Grab Bars'],
+            'Kitchen & Bath Fixtures': ['Kitchen Sinks', 'Kitchen Faucets', 'Garbage Disposals', 'Range Hoods', 'Bathroom Vanities', 'Medicine Cabinets', 'Towel Bars', 'Soap Dispensers'],
+            'Safety & Security Fixtures': ['Smoke Detectors', 'Carbon Monoxide Detectors', 'Fire Extinguishers', 'Fire Alarms', 'Security Cameras', 'Motion Sensors', 'Emergency Lighting', 'Exit Signs', 'Safety Railings', 'Bollards', 'Security Gates', 'Card Readers', 'Keypad Entry Systems'],
+            'Vinyl Products': ['Vinyl Siding', 'Vinyl Trim', 'Vinyl Soffit', 'Vinyl Fencing', 'Vinyl Flooring', 'Vinyl Window Frames', 'Vinyl Railings'],
+            'HVAC Fixtures': ['Air Vents', 'Registers', 'Grilles', 'Diffusers', 'Return Air Grilles', 'HVAC Dampers', 'Ceiling Fans', 'Exhaust Fans'],
+            'Temporary Construction Equipment': ['Temporary Walls', 'Temporary Partitions', 'Construction Fencing', 'Crowd Barriers', 'Jersey Barriers', 'Safety Barricades', 'Temporary Gates', 'Dust Barriers', 'Wind Screens'],
+            'Personal Protective Equipment': ['Hard Hats', 'Safety Glasses', 'Face Shields', 'Respirators', 'Dust Masks', 'Work Gloves', 'Safety Vests', 'Fall Protection Harnesses', 'Ear Protection', 'Steel Toe Boots', 'Knee Pads', 'Hi-Vis Clothing'],
+            'Cart & Transport Equipment': ['Shopping Carts', 'Material Carts', 'Platform Carts', 'Hand Trucks', 'Dollies', 'Pallet Jacks', 'Cart Wheels', 'Cart Parts', 'Utility Carts', 'Laundry Carts', 'Waste Collection Carts'],
+            'Scaffolding & Ladders': ['Frame Scaffolding', 'Rolling Scaffolding', 'Extension Ladders', 'Step Ladders', 'Platform Ladders', 'Scaffold Planks', 'Scaffold Accessories', 'Ladder Safety Cages'],
+            'Signage & Wayfinding': ['ADA Signs', 'Exit Signs', 'Directional Signs', 'Parking Signs', 'Safety Signs', 'Floor Graphics', 'Digital Displays', 'Post & Panel Signs', 'Monument Signs'],
+            'Material Handling Equipment': ['Forklifts', 'Pallet Racks', 'Conveyor Systems', 'Hoists', 'Cranes', 'Lifting Slings', 'Chain Hoists', 'Dock Levelers', 'Wheel Chocks'],
+            'Concrete Forms & Accessories': ['Wall Forms', 'Column Forms', 'Slab Forms', 'Form Ties', 'Form Release Agents', 'Snap Ties', 'Walers', 'Concrete Screeds'],
+            'Site Furnishings': ['Benches', 'Picnic Tables', 'Bike Racks', 'Trash Receptacles', 'Ash Urns', 'Planters', 'Bollards', 'Flagpoles'],
+            'Janitorial & Maintenance': ['Floor Cleaners', 'Mops & Buckets', 'Cleaning Chemicals', 'Trash Bags', 'Paper Products', 'Sanitizers', 'Floor Machines', 'Pressure Washers'],
+            'Landscape & Site Work': ['Mulch', 'Topsoil', 'Gravel', 'Landscape Fabric', 'Drainage Pipes', 'Irrigation Systems', 'Retaining Walls', 'Geotextiles'],
+            'Acoustic & Soundproofing': ['Acoustic Panels', 'Soundproofing Insulation', 'Acoustic Ceiling Tiles', 'Mass Loaded Vinyl', 'Sound Barriers', 'Acoustic Doors', 'Acoustic Sealants'],
+            'Fire Protection Systems': ['Sprinkler Heads', 'Fire Hoses', 'Fire Pumps', 'Fire Hydrants', 'Standpipe Systems', 'Fire Dampers', 'Fire Rated Doors', 'Fire Suppression Systems'],
+            'Loading Dock Equipment': ['Dock Levelers', 'Dock Bumpers', 'Dock Seals', 'Dock Shelters', 'Dock Lights', 'Wheel Guides', 'Vehicle Restraints', 'Dock Plates'],
+            'Masonry': ['Brick', 'Concrete Block', 'Mortar', 'Stone Veneer', 'Retaining Wall Systems', 'Pavers', 'Grout'],
+            'Paint & Coatings': ['Interior Paint', 'Exterior Paint', 'Primers', 'Epoxy Coatings', 'Stains & Sealers', 'Waterproofing', 'Fire-Retardant Coatings', 'Traffic Marking Paint'],
+            'Fasteners & Hardware': ['Screws', 'Nails', 'Bolts & Anchors', 'Brackets', 'Hinges', 'Clips', 'Straps', 'Washers', 'Nuts'],
+            'Shelving & Storage': ['Wire Shelving', 'Heavy Duty Shelving', 'Garage Storage', 'Closet Organizers', 'Tool Storage', 'Cabinets', 'Lockers', 'Storage Bins'],
+            'Tools & Equipment': ['Power Tools', 'Hand Tools', 'Measuring Tools', 'Cutting Tools', 'Tool Belts', 'Tool Boxes', 'Generators', 'Air Compressors'],
+            'Adhesives & Sealants': ['Construction Adhesive', 'Silicone Sealant', 'Caulk', 'Epoxy', 'Wood Glue', 'Concrete Bonding Agents', 'Spray Adhesives', 'Tapes'],
+            'Retail Fixtures & Displays': ['Gondola Shelving', 'End Caps', 'Display Tables', 'Slatwall Panels', 'Grid Walls', 'Mannequins', 'Clothing Racks', 'Pegboard Displays', 'Glass Display Cases'],
+            'Checkout & POS Equipment': ['Checkout Counters', 'Conveyor Belts', 'Bagging Stations', 'Card Readers', 'Cash Drawers', 'Receipt Printers', 'Self-Checkout Kiosks', 'Scanner Scales'],
+            'Commercial Refrigeration': ['Walk-In Coolers', 'Walk-In Freezers', 'Refrigerated Display Cases', 'Reach-In Refrigerators', 'Ice Machines', 'Refrigeration Condensers', 'Evaporator Coils', 'Glass Door Merchandisers'],
+            'Commercial Kitchen Equipment': ['Commercial Ovens', 'Fryers', 'Griddles', 'Deli Slicers', 'Food Warmers', 'Prep Tables', 'Commercial Sinks', 'Bakery Ovens', 'Mixers'],
+            'Parking Lot & Site Equipment': ['Parking Lot Striping', 'Light Poles', 'Cart Corrals', 'Asphalt Sealant', 'Parking Bollards', 'Speed Bumps', 'Wheel Stops', 'Parking Signs', 'Pavement Markings'],
+            'Commercial Flooring Systems': ['Polished Concrete', 'VCT Tile', 'Anti-Fatigue Mats', 'Commercial Carpet Tile', 'Epoxy Floor Coatings', 'Floor Leveling Compound', 'Transition Strips', 'Walk-Off Mats'],
+            'Ceiling Systems': ['Drop Ceiling Grid', 'Acoustic Ceiling Tiles', 'Metal Ceiling Panels', 'Suspended Ceiling Hangers', 'Ceiling Insulation', 'Ceiling Access Panels'],
+            'Commercial Overhead Doors': ['Sectional Overhead Doors', 'Rolling Steel Doors', 'High-Speed Doors', 'Dock Doors', 'Fire Doors', 'Door Operators', 'Loading Dock Seals'],
+            'Commercial Lighting Systems': ['High Bay LED Fixtures', 'Retail Track Lighting', 'Parking Lot Lights', 'Emergency Backup Lighting', 'Lighting Controls', 'Occupancy Sensors', 'Warehouse Lighting'],
+            'Loss Prevention Equipment': ['EAS Security Tags', 'Security Pedestals', 'CCTV Cameras', 'DVR Systems', 'Security Mirrors', 'Locking Showcases', 'Anti-Theft Devices'],
+            'Building Automation & Controls': ['HVAC Controls', 'Energy Management Systems', 'Building Management Software', 'Programmable Thermostats', 'Automated Lighting Controls', 'Access Control Systems'],
+            'Emergency Power Systems': ['Backup Generators', 'UPS Systems', 'Transfer Switches', 'Fuel Tanks', 'Battery Backup Systems', 'Emergency Lighting Inverters'],
+            'Commercial Plumbing Systems': ['Grease Traps', 'Backflow Preventers', 'Commercial Water Heaters', 'Floor Drains', 'Mop Sinks', 'Pre-Rinse Spray Valves', 'Hydrants'],
+            'Commercial Roofing Systems': ['TPO Roofing Membrane', 'EPDM Rubber Roofing', 'Metal Roof Panels', 'Roof Insulation', 'Roof Drains', 'Flashing Systems', 'Parapet Caps'],
+            'Department-Specific Fixtures': ['Pharmacy Counters', 'Bakery Display Cases', 'Deli Cases', 'Meat Cases', 'Produce Racks', 'Garden Center Shelving', 'Apparel Fixtures', 'Electronics Security Cases'],
+            'Auto Service Equipment': ['Tire Changers', 'Wheel Balancers', 'Automotive Lifts', 'Oil Drain Systems', 'Air Compressors', 'Battery Chargers', 'Diagnostic Equipment'],
+            'Waste Management Systems': ['Compactors', 'Balers', 'Dumpsters', 'Recycling Bins', 'Waste Containers', 'Cardboard Balers', 'Grease Containers'],
+            'Wall Systems & Partitions': ['Metal Stud Framing', 'Demountable Partitions', 'Bathroom Partitions', 'Modular Walls', 'FRP Panels', 'Wall Protection', 'Corner Guards']
+        };
+
+        const regions = ['Northeast', 'Southeast', 'Midwest', 'Southwest', 'West', 'National'];
+        const certifications = ['ISO 9001', 'LEED', 'MBE', 'WBE', 'OSHA Certified', 'Energy Star Partner'];
+        const companySizes = ['Small (1-50)', 'Medium (51-500)', 'Large (500+)'];
+        const priceRanges = ['Budget ($)', 'Standard ($$)', 'Premium ($$$)', 'Enterprise ($$$$)'];
+
+        // 🎲 Seeded Random Number Generator (Mulberry32)
+        // Using seed 1962 (Walmart founded in 1962!) so everyone sees the same "random" data
+        function createSeededRandom(seed = 1962) {
+            return function() {
+                let t = seed += 0x6D2B79F5;
+                t = Math.imul(t ^ t >>> 15, t | 1);
+                t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+                return ((t ^ t >>> 14) >>> 0) / 4294967296;
+            }
         }
+        
+        const seededRandom = createSeededRandom(1962); // Fixed seed for consistent data!
 
-        function setupEventListeners() {
-            // Navigation
-            document.querySelectorAll('.sidebar-item[data-view]').forEach(item => {
-                item.addEventListener('click', (e) => switchView(e.target.dataset.view));
-            });
+        // ==========================================
+        // 🗄️ SHAREPOINT BACKEND INTEGRATION
+        // ==========================================
+        
+        const SHAREPOINT_CONFIG = {
+            siteUrl: 'https://walmart.sharepoint.com/sites/SupplierPortal',
+            lists: {
+                userProfiles: 'UserProfiles',
+                favorites: 'SupplierFavorites',
+                notes: 'SupplierNotes',
+                inbox: 'SupplierInbox'
+            },
+            enabled: false, // ⚠️ SET TO TRUE after creating SharePoint lists! (See SHAREPOINT-SETUP-GUIDE.html)
+            useLocalStorageFallback: true // Use localStorage if SharePoint fails
+        };
 
-            // Search
-            document.getElementById('search-input').addEventListener('input', debounce(handleSearch, 300));
-        }
+        /* 
+        📋 SHAREPOINT SETUP INSTRUCTIONS:
+        
+        Create these 4 lists in your SharePoint site (https://walmart.sharepoint.com/sites/SupplierPortal):
+        
+        1. UserProfiles
+           - Title (Single line of text) - User email
+           - FullName (Single line of text)
+           - Department (Single line of text)
+           - LastLogin (Date and Time)
+        
+        2. SupplierFavorites
+           - Title (Single line of text) - User email
+           - SupplierId (Number)
+           - DateAdded (Date and Time)
+        
+        3. SupplierNotes
+           - Title (Single line of text) - User email
+           - SupplierId (Number)
+           - NoteText (Multiple lines of text)
+           - DateCreated (Date and Time)
+           - DateModified (Date and Time)
+        
+        4. SupplierInbox
+           - Title (Single line of text) - User email
+           - MessageId (Number)
+           - Vendor (Single line of text)
+           - Subject (Single line of text)
+           - Message (Multiple lines of text)
+           - DateReceived (Date and Time)
+           - IsRead (Yes/No)
+           - IsStarred (Yes/No)
+        */
 
-        function connectWebSocket() {
-            try {
-                ws = new WebSocket(WS_URL);
+        // SharePoint Service Class
+        class SharePointService {
+            constructor(config) {
+                this.config = config;
+                this.digestValue = null;
+                this.currentUserEmail = null;
+            }
 
-                ws.onopen = () => {
-                    console.log('✅ WebSocket connected');
-                    updateStatus('Connected', true);
-                };
+            async init() {
+                if (!this.config.enabled) return false;
+                
+                try {
+                    // Get current user from Microsoft Graph or SharePoint
+                    await this.getCurrentUser();
+                    return true;
+                } catch (error) {
+                    console.warn('SharePoint init failed, using localStorage fallback:', error);
+                    return false;
+                }
+            }
 
-                ws.onmessage = (event) => {
-                    const message = JSON.parse(event.data);
-                    if (message.type === 'update' || message.type === 'initial') {
-                        suppliers = message.data;
-                        console.log(`📊 Received ${suppliers.length} suppliers from data server`);
-                        renderSuppliers();
-                        updateStats();
+            async getCurrentUser() {
+                try {
+                    const response = await fetch(`${this.config.siteUrl}/_api/web/currentuser`, {
+                        headers: {
+                            'Accept': 'application/json;odata=verbose'
+                        },
+                        credentials: 'include'
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.currentUserEmail = data.d.Email;
+                        return this.currentUserEmail;
                     }
-                };
+                } catch (error) {
+                    console.warn('Could not get current user from SharePoint:', error);
+                }
+                return null;
+            }
 
-                ws.onerror = (error) => {
-                    console.error('❌ WebSocket error:', error);
-                    updateStatus('Connection Error', false);
-                };
+            async getRequestDigest() {
+                if (this.digestValue) return this.digestValue;
+                
+                try {
+                    const response = await fetch(`${this.config.siteUrl}/_api/contextinfo`, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json;odata=verbose'
+                        },
+                        credentials: 'include'
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.digestValue = data.d.GetContextWebInformation.FormDigestValue;
+                        return this.digestValue;
+                    }
+                } catch (error) {
+                    console.warn('Could not get request digest:', error);
+                }
+                return null;
+            }
 
-                ws.onclose = () => {
-                    console.log('🔌 WebSocket disconnected');
-                    updateStatus('Disconnected', false);
-                    setTimeout(() => connectWebSocket(), 5000); // Reconnect
-                };
-            } catch (error) {
-                console.error('Failed to connect WebSocket:', error);
-                updateStatus('Failed', false);
+            async getUserProfile(email) {
+                try {
+                    const response = await fetch(
+                        `${this.config.siteUrl}/_api/web/lists/getbytitle('${this.config.lists.userProfiles}')/items?$filter=Title eq '${email}'`,
+                        {
+                            headers: {
+                                'Accept': 'application/json;odata=verbose'
+                            },
+                            credentials: 'include'
+                        }
+                    );
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.d.results.length > 0) {
+                            return data.d.results[0];
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Error getting user profile:', error);
+                }
+                return null;
+            }
+
+            async createUserProfile(email, fullName, department) {
+                const digest = await this.getRequestDigest();
+                if (!digest) return null;
+                
+                try {
+                    const response = await fetch(
+                        `${this.config.siteUrl}/_api/web/lists/getbytitle('${this.config.lists.userProfiles}')/items`,
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json;odata=verbose',
+                                'Content-Type': 'application/json;odata=verbose',
+                                'X-RequestDigest': digest
+                            },
+                            credentials: 'include',
+                            body: JSON.stringify({
+                                __metadata: { type: 'SP.Data.UserProfilesListItem' },
+                                Title: email,
+                                FullName: fullName,
+                                Department: department,
+                                LastLogin: new Date().toISOString()
+                            })
+                        }
+                    );
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        return data.d;
+                    }
+                } catch (error) {
+                    console.warn('Error creating user profile:', error);
+                }
+                return null;
+            }
+
+            async getFavorites(email) {
+                try {
+                    const response = await fetch(
+                        `${this.config.siteUrl}/_api/web/lists/getbytitle('${this.config.lists.favorites}')/items?$filter=Title eq '${email}'`,
+                        {
+                            headers: {
+                                'Accept': 'application/json;odata=verbose'
+                            },
+                            credentials: 'include'
+                        }
+                    );
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        return data.d.results.map(item => item.SupplierId);
+                    }
+                } catch (error) {
+                    console.warn('Error getting favorites:', error);
+                }
+                return [];
+            }
+
+            async addFavorite(email, supplierId) {
+                const digest = await this.getRequestDigest();
+                if (!digest) return false;
+                
+                try {
+                    const response = await fetch(
+                        `${this.config.siteUrl}/_api/web/lists/getbytitle('${this.config.lists.favorites}')/items`,
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json;odata=verbose',
+                                'Content-Type': 'application/json;odata=verbose',
+                                'X-RequestDigest': digest
+                            },
+                            credentials: 'include',
+                            body: JSON.stringify({
+                                __metadata: { type: 'SP.Data.SupplierFavoritesListItem' },
+                                Title: email,
+                                SupplierId: supplierId,
+                                DateAdded: new Date().toISOString()
+                            })
+                        }
+                    );
+                    
+                    return response.ok;
+                } catch (error) {
+                    console.warn('Error adding favorite:', error);
+                }
+                return false;
+            }
+
+            async removeFavorite(email, supplierId) {
+                const digest = await this.getRequestDigest();
+                if (!digest) return false;
+                
+                try {
+                    // First, get the item ID
+                    const getResponse = await fetch(
+                        `${this.config.siteUrl}/_api/web/lists/getbytitle('${this.config.lists.favorites}')/items?$filter=Title eq '${email}' and SupplierId eq ${supplierId}`,
+                        {
+                            headers: {
+                                'Accept': 'application/json;odata=verbose'
+                            },
+                            credentials: 'include'
+                        }
+                    );
+                    
+                    if (getResponse.ok) {
+                        const data = await getResponse.json();
+                        if (data.d.results.length > 0) {
+                            const itemId = data.d.results[0].Id;
+                            
+                            // Delete the item
+                            const deleteResponse = await fetch(
+                                `${this.config.siteUrl}/_api/web/lists/getbytitle('${this.config.lists.favorites}')/items(${itemId})`,
+                                {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'Accept': 'application/json;odata=verbose',
+                                        'X-RequestDigest': digest,
+                                        'IF-MATCH': '*'
+                                    },
+                                    credentials: 'include'
+                                }
+                            );
+                            
+                            return deleteResponse.ok;
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Error removing favorite:', error);
+                }
+                return false;
+            }
+
+            async getNotes(email) {
+                try {
+                    const response = await fetch(
+                        `${this.config.siteUrl}/_api/web/lists/getbytitle('${this.config.lists.notes}')/items?$filter=Title eq '${email}'`,
+                        {
+                            headers: {
+                                'Accept': 'application/json;odata=verbose'
+                            },
+                            credentials: 'include'
+                        }
+                    );
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        const notes = {};
+                        data.d.results.forEach(item => {
+                            notes[item.SupplierId] = item.NoteText;
+                        });
+                        return notes;
+                    }
+                } catch (error) {
+                    console.warn('Error getting notes:', error);
+                }
+                return {};
+            }
+
+            async saveNote(email, supplierId, noteText) {
+                const digest = await this.getRequestDigest();
+                if (!digest) return false;
+                
+                try {
+                    // Check if note exists
+                    const getResponse = await fetch(
+                        `${this.config.siteUrl}/_api/web/lists/getbytitle('${this.config.lists.notes}')/items?$filter=Title eq '${email}' and SupplierId eq ${supplierId}`,
+                        {
+                            headers: {
+                                'Accept': 'application/json;odata=verbose'
+                            },
+                            credentials: 'include'
+                        }
+                    );
+                    
+                    if (getResponse.ok) {
+                        const data = await getResponse.json();
+                        
+                        if (data.d.results.length > 0) {
+                            // Update existing note
+                            const itemId = data.d.results[0].Id;
+                            const updateResponse = await fetch(
+                                `${this.config.siteUrl}/_api/web/lists/getbytitle('${this.config.lists.notes}')/items(${itemId})`,
+                                {
+                                    method: 'POST',
+                                    headers: {
+                                        'Accept': 'application/json;odata=verbose',
+                                        'Content-Type': 'application/json;odata=verbose',
+                                        'X-RequestDigest': digest,
+                                        'IF-MATCH': '*',
+                                        'X-HTTP-Method': 'MERGE'
+                                    },
+                                    credentials: 'include',
+                                    body: JSON.stringify({
+                                        __metadata: { type: 'SP.Data.SupplierNotesListItem' },
+                                        NoteText: noteText,
+                                        DateModified: new Date().toISOString()
+                                    })
+                                }
+                            );
+                            return updateResponse.ok;
+                        } else {
+                            // Create new note
+                            const createResponse = await fetch(
+                                `${this.config.siteUrl}/_api/web/lists/getbytitle('${this.config.lists.notes}')/items`,
+                                {
+                                    method: 'POST',
+                                    headers: {
+                                        'Accept': 'application/json;odata=verbose',
+                                        'Content-Type': 'application/json;odata=verbose',
+                                        'X-RequestDigest': digest
+                                    },
+                                    credentials: 'include',
+                                    body: JSON.stringify({
+                                        __metadata: { type: 'SP.Data.SupplierNotesListItem' },
+                                        Title: email,
+                                        SupplierId: supplierId,
+                                        NoteText: noteText,
+                                        DateCreated: new Date().toISOString(),
+                                        DateModified: new Date().toISOString()
+                                    })
+                                }
+                            );
+                            return createResponse.ok;
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Error saving note:', error);
+                }
+                return false;
             }
         }
 
-        async function loadInitialData() {
-            try {
-                const response = await fetch(`${DATA_SERVER_URL}/api/suppliers`);
-                const data = await response.json();
-                suppliers = data.data || [];
-                console.log(`✅ Loaded ${suppliers.length} suppliers`);
-                loadCategories();
-                renderSuppliers();
-                updateStats();
-            } catch (error) {
-                console.error('Failed to load suppliers:', error);
-                updateStatus('Failed', false);
+        // Initialize SharePoint service
+        const spService = new SharePointService(SHAREPOINT_CONFIG);
+        let useSharePoint = false;
+
+        // Storage abstraction layer - uses SharePoint or localStorage
+        const storage = {
+            async getUser(email) {
+                if (useSharePoint) {
+                    const profile = await spService.getUserProfile(email);
+                    if (profile) {
+                        const favorites = await spService.getFavorites(email);
+                        const notes = await spService.getNotes(email);
+                        return {
+                            name: profile.FullName,
+                            email: email,
+                            department: profile.Department,
+                            favorites: favorites,
+                            notes: notes,
+                            inbox: [] // Inbox would be loaded separately
+                        };
+                    }
+                    return null;
+                } else {
+                    const users = JSON.parse(localStorage.getItem('supplierPortalUsers') || '{}');
+                    return users[email] || null;
+                }
+            },
+            
+            async saveUser(email, userData) {
+                if (useSharePoint) {
+                    // User profile is managed separately in SharePoint
+                    return true;
+                } else {
+                    const users = JSON.parse(localStorage.getItem('supplierPortalUsers') || '{}');
+                    users[email] = userData;
+                    localStorage.setItem('supplierPortalUsers', JSON.stringify(users));
+                    return true;
+                }
+            },
+            
+            async getFavorites(email) {
+                if (useSharePoint) {
+                    return await spService.getFavorites(email);
+                } else {
+                    const users = JSON.parse(localStorage.getItem('supplierPortalUsers') || '{}');
+                    return users[email]?.favorites || [];
+                }
+            },
+            
+            async addFavorite(email, supplierId) {
+                if (useSharePoint) {
+                    return await spService.addFavorite(email, supplierId);
+                } else {
+                    const users = JSON.parse(localStorage.getItem('supplierPortalUsers') || '{}');
+                    if (!users[email]) return false;
+                    if (!users[email].favorites) users[email].favorites = [];
+                    if (!users[email].favorites.includes(supplierId)) {
+                        users[email].favorites.push(supplierId);
+                    }
+                    localStorage.setItem('supplierPortalUsers', JSON.stringify(users));
+                    return true;
+                }
+            },
+            
+            async removeFavorite(email, supplierId) {
+                if (useSharePoint) {
+                    return await spService.removeFavorite(email, supplierId);
+                } else {
+                    const users = JSON.parse(localStorage.getItem('supplierPortalUsers') || '{}');
+                    if (!users[email]) return false;
+                    if (users[email].favorites) {
+                        users[email].favorites = users[email].favorites.filter(id => id !== supplierId);
+                    }
+                    localStorage.setItem('supplierPortalUsers', JSON.stringify(users));
+                    return true;
+                }
+            },
+            
+            async getNotes(email) {
+                if (useSharePoint) {
+                    return await spService.getNotes(email);
+                } else {
+                    const users = JSON.parse(localStorage.getItem('supplierPortalUsers') || '{}');
+                    return users[email]?.notes || {};
+                }
+            },
+            
+            async saveNote(email, supplierId, noteText) {
+                if (useSharePoint) {
+                    return await spService.saveNote(email, supplierId, noteText);
+                } else {
+                    const users = JSON.parse(localStorage.getItem('supplierPortalUsers') || '{}');
+                    if (!users[email]) return false;
+                    if (!users[email].notes) users[email].notes = {};
+                    users[email].notes[supplierId] = noteText;
+                    localStorage.setItem('supplierPortalUsers', JSON.stringify(users));
+                    return true;
+                }
+            }
+        };
+
+        // Generate large supplier dataset
+        function generateSuppliers() {
+            const suppliers = [];
+            const usedNames = new Set();
+            const companyTypes = ['Inc.', 'LLC', 'Corp.', 'Co.', 'Supply Co.', 'Distributors', 'Materials', 'Solutions', 'Industries', 'Group', 'Enterprises', 'Services', 'Systems', 'Technologies'];
+            const adjectives = ['Premier', 'Elite', 'Pro', 'Superior', 'Quality', 'Reliable', 'National', 'Metro', 'Coastal', 'Summit', 'Precision', 'BuildRight', 'Apex', 'Pioneer', 'TruValue', 'First Choice', 'Top Tier', 'Allied', 'United', 'Global', 'Platinum', 'Diamond', 'Crown', 'Ace', 'Master', 'Prime', 'Advantage', 'American', 'Industrial', 'Commercial', 'Advanced', 'Superior', 'Dynamic', 'Innovative', 'Strategic', 'Certified', 'Professional', 'Executive', 'Specialist', 'Expert', 'Mega', 'Ultra', 'Super', 'Best', 'Direct', 'Express', 'Rapid', 'Swift', 'Instant', 'Quick'];
+            const cities = [
+                {city: 'New York', state: 'NY', region: 'Northeast'},
+                {city: 'Los Angeles', state: 'CA', region: 'West'},
+                {city: 'Chicago', state: 'IL', region: 'Midwest'},
+                {city: 'Houston', state: 'TX', region: 'Southwest'},
+                {city: 'Phoenix', state: 'AZ', region: 'Southwest'},
+                {city: 'Philadelphia', state: 'PA', region: 'Northeast'},
+                {city: 'San Antonio', state: 'TX', region: 'Southwest'},
+                {city: 'San Diego', state: 'CA', region: 'West'},
+                {city: 'Dallas', state: 'TX', region: 'Southwest'},
+                {city: 'San Jose', state: 'CA', region: 'West'},
+                {city: 'Austin', state: 'TX', region: 'Southwest'},
+                {city: 'Jacksonville', state: 'FL', region: 'Southeast'},
+                {city: 'Fort Worth', state: 'TX', region: 'Southwest'},
+                {city: 'Columbus', state: 'OH', region: 'Midwest'},
+                {city: 'Charlotte', state: 'NC', region: 'Southeast'},
+                {city: 'Seattle', state: 'WA', region: 'West'},
+                {city: 'Denver', state: 'CO', region: 'West'},
+                {city: 'Boston', state: 'MA', region: 'Northeast'},
+                {city: 'Portland', state: 'OR', region: 'West'},
+                {city: 'Las Vegas', state: 'NV', region: 'West'},
+                {city: 'Detroit', state: 'MI', region: 'Midwest'},
+                {city: 'Memphis', state: 'TN', region: 'Southeast'},
+                {city: 'Baltimore', state: 'MD', region: 'Northeast'},
+                {city: 'Milwaukee', state: 'WI', region: 'Midwest'},
+                {city: 'Atlanta', state: 'GA', region: 'Southeast'},
+                {city: 'Miami', state: 'FL', region: 'Southeast'},
+                {city: 'Indianapolis', state: 'IN', region: 'Midwest'},
+                {city: 'Kansas City', state: 'MO', region: 'Midwest'},
+                {city: 'Minneapolis', state: 'MN', region: 'Midwest'},
+                {city: 'Raleigh', state: 'NC', region: 'Southeast'}
+            ];
+
+            let id = 1;
+            for (let category in productCategories) {
+                const products = productCategories[category];
+                const suppliersPerCategory = Math.floor(5000 / Object.keys(productCategories).length);
+                
+                for (let i = 0; i < suppliersPerCategory; i++) {
+                    let supplierName;
+                    let adj;
+                    let type;
+                    let attempts = 0;
+                    const categoryShort = category.split(' ')[0];
+                    
+                    // Generate unique name
+                    do {
+                        adj = adjectives[Math.floor(seededRandom() * adjectives.length)];
+                        type = companyTypes[Math.floor(seededRandom() * companyTypes.length)];
+                        supplierName = `${adj} ${categoryShort} ${type}`;
+                        attempts++;
+                        
+                        // Add number suffix if we can't find unique name after 10 attempts
+                        if (attempts > 10 && usedNames.has(supplierName)) {
+                            supplierName = `${adj} ${categoryShort} ${type} #${Math.floor(seededRandom() * 999 + 1)}`;
+                        }
+                    } while (usedNames.has(supplierName) && attempts < 20);
+                    
+                    usedNames.add(supplierName);
+                    const cityData = cities[Math.floor(seededRandom() * cities.length)];
+                    
+                    const numProducts = Math.floor(seededRandom() * 5) + 2;
+                    const supplierProducts = [];
+                    for (let j = 0; j < numProducts; j++) {
+                        const prod = products[Math.floor(seededRandom() * products.length)];
+                        if (!supplierProducts.includes(prod)) {
+                            supplierProducts.push(prod);
+                        }
+                    }
+
+                    const numCerts = Math.floor(seededRandom() * 3) + 1;
+                    const supplierCerts = [];
+                    for (let j = 0; j < numCerts; j++) {
+                        const cert = certifications[Math.floor(seededRandom() * certifications.length)];
+                        if (!supplierCerts.includes(cert)) {
+                            supplierCerts.push(cert);
+                        }
+                    }
+
+                    suppliers.push({
+                        id: id++,
+                        name: supplierName,
+                        description: `Leading provider of ${category.toLowerCase()} with over ${Math.floor(seededRandom() * 40 + 5)} years of experience. We specialize in delivering high-quality construction materials to commercial and residential projects across the ${cityData.region} region. Our commitment to customer satisfaction and competitive pricing has made us a trusted partner for contractors and builders nationwide.`,
+                        website: `https://www.${adj.toLowerCase().replace(/ /g, '')}${categoryShort.toLowerCase()}.com`,
+                        email: `${['sales', 'info', 'contact', 'support'][Math.floor(seededRandom() * 4)]}@${adj.toLowerCase().replace(/ /g, '')}${categoryShort.toLowerCase()}.com`,
+                        phone: `(${Math.floor(seededRandom() * 900 + 200)}) ${Math.floor(seededRandom() * 900 + 200)}-${Math.floor(seededRandom() * 9000 + 1000)}`,
+                        address: `${Math.floor(seededRandom() * 9000 + 1000)} ${['Main', 'Oak', 'Maple', 'Industrial', 'Commerce', 'Market', 'Park', 'Center'][Math.floor(seededRandom() * 8)]} ${['Street', 'Avenue', 'Boulevard', 'Drive', 'Way', 'Road'][Math.floor(seededRandom() * 6)]}`,
+                        city: cityData.city,
+                        state: cityData.state,
+                        category: category,
+                        products: supplierProducts,
+                        location: `${cityData.city}, ${cityData.state}`,
+                        region: cityData.region,
+                        rating: (seededRandom() * 1.5 + 3.5).toFixed(1),
+                        aiScore: Math.floor(seededRandom() * 30 + 70),
+                        certifications: supplierCerts,
+                        size: companySizes[Math.floor(seededRandom() * companySizes.length)],
+                        priceRange: priceRanges[Math.floor(seededRandom() * priceRanges.length)],
+                        yearsInBusiness: Math.floor(seededRandom() * 40 + 5),
+                        projectsCompleted: Math.floor(seededRandom() * 5000 + 100),
+                        walmartVerified: seededRandom() > 0.7,
+                        employees: Math.floor(seededRandom() * 900 + 50),
+                        responseTime: Math.floor(seededRandom() * 24 + 1) + ' hours',
+                        minOrder: '$' + (Math.floor(seededRandom() * 50 + 10) * 100).toLocaleString(),
+                        paymentTerms: ['Net 30', 'Net 60', '2/10 Net 30', 'Credit Card', 'COD'][Math.floor(seededRandom() * 5)],
+                    });
+                }
+            }
+            return suppliers;
+        }
+
+        const allSuppliers = generateSuppliers();
+        let filteredSuppliers = [...allSuppliers];
+        let currentPage = 1;
+        const itemsPerPage = 20;
+
+        // Toggle filter section collapse
+        function toggleFilterSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const icon = document.getElementById(sectionId + '-icon');
+            
+            if (section.classList.contains('collapsed')) {
+                section.classList.remove('collapsed');
+                icon.textContent = '▼';
+            } else {
+                section.classList.add('collapsed');
+                icon.textContent = '▲';
             }
         }
 
-        async function loadUserData() {
-            try {
-                const headers = { 'X-User-ID': USER_ID };
-                const [favRes, notesRes] = await Promise.all([
-                    fetch(`${API_BASE}/api/user/favorites`, { headers }),
-                    fetch(`${API_BASE}/api/user/notes`, { headers })
-                ]);
-
-                favorites = (await favRes.json()).favorites || [];
-                notes = (await notesRes.json()).notes || {};
-                console.log('📌 Loaded user data');
-            } catch (error) {
-                console.error('Failed to load user data:', error);
-            }
-        }
-
-        function loadCategories() {
-            const categories = [...new Set(suppliers.map(s => s.category))];
-            const html = categories.map(cat => 
-                `<div class="sidebar-item" data-category="${cat}" onclick="filterByCategory('${cat}')">${cat}</div>`
-            ).join('');
-            document.getElementById('category-list').innerHTML = html;
-        }
-
-        function switchView(viewName) {
-            document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
-            document.getElementById(`${viewName}-view`).style.display = 'block';
-
-            document.querySelectorAll('.sidebar-item[data-view]').forEach(item => {
-                item.classList.toggle('active', item.dataset.view === viewName);
+        let allCollapsed = false;
+        function toggleAllFilters() {
+            const sections = document.querySelectorAll('.filter-content');
+            const icons = document.querySelectorAll('.collapse-icon');
+            const btnText = document.getElementById('collapseAllText');
+            
+            allCollapsed = !allCollapsed;
+            
+            sections.forEach(section => {
+                if (allCollapsed) {
+                    section.classList.add('collapsed');
+                } else {
+                    section.classList.remove('collapsed');
+                }
             });
-
-            if (viewName === 'suppliers') {
-                renderSuppliers();
-            } else if (viewName === 'favorites') {
-                renderFavorites();
-            } else if (viewName === 'notes') {
-                renderNotes();
-            }
+            
+            icons.forEach(icon => {
+                icon.textContent = allCollapsed ? '▲' : '▼';
+            });
+            
+            btnText.textContent = allCollapsed ? 'EXPAND ALL' : 'COLLAPSE ALL';
         }
 
-        async function handleSearch(e) {
-            const query = e.target.value;
-            if (!query) {
-                renderSuppliers();
+        function filterByStat(type) {
+            // Clear existing filters
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.getElementById('searchInput').value = '';
+            
+            if (type === 'all') {
+                // Show all suppliers
+                filteredSuppliers = [...allSuppliers];
+                currentPage = 1;
+                renderResults();
+            } else if (type === 'verified') {
+                // Filter to only verified suppliers
+                filteredSuppliers = allSuppliers.filter(s => s.walmartVerified);
+                currentPage = 1;
+                renderResults();
+                
+                // Show notification
+                showNotification(`✅ Showing ${filteredSuppliers.length} Walmart Verified suppliers`);
+            } else if (type === 'categories') {
+                // Sort by category (alphabetically), then by name
+                filteredSuppliers = [...allSuppliers].sort((a, b) => {
+                    if (a.category < b.category) return -1;
+                    if (a.category > b.category) return 1;
+                    return a.name.localeCompare(b.name);
+                });
+                currentPage = 1;
+                renderResults();
+                
+                // Show notification
+                showNotification(`📊 Sorted by ${Object.keys(productCategories).length} categories`);
+            } else if (type === 'products') {
+                // Sort by number of products (most to least)
+                filteredSuppliers = [...allSuppliers].sort((a, b) => b.products.length - a.products.length);
+                currentPage = 1;
+                renderResults();
+                
+                // Show notification
+                showNotification(`📦 Sorted by product count (${filteredSuppliers[0].products.length} max)`);
+            }
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showNotification(message) {
+            // Remove existing notification if any
+            const existing = document.getElementById('filterNotification');
+            if (existing) existing.remove();
+            
+            // Create notification
+            const notification = document.createElement('div');
+            notification.id = 'filterNotification';
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: var(--walmart-blue);
+                color: white;
+                padding: 15px 25px;
+                border: 3px solid var(--walmart-yellow);
+                box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
+                z-index: 9999;
+                font-family: var(--accent-font);
+                font-weight: 600;
+                font-size: 0.9rem;
+                letter-spacing: 0.5px;
+                animation: slideInBottom 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOutBottom 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        let compareMode = false;
+        let compareList = [];
+        let currentView = 'list'; // list, grid, or catalog
+        
+        function toggleCompareMode() {
+            if (compareList.length < 2) {
+                alert('⚠️ Please select at least 2 suppliers to compare!');
                 return;
             }
+            showComparisonView();
+        }
 
-            try {
-                const response = await fetch(`${DATA_SERVER_URL}/api/suppliers/search`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query })
-                });
-                const data = await response.json();
-                renderSuppliers(data.data);
-            } catch (error) {
-                console.error('Search failed:', error);
+        function toggleCompareSupplier(supplierId) {
+            const checkbox = document.getElementById(`compare-${supplierId}`);
+            
+            if (checkbox.checked) {
+                if (compareList.length >= 5) {
+                    checkbox.checked = false;
+                    alert('⚠️ You can compare up to 5 suppliers at once.');
+                    return;
+                }
+                compareList.push(supplierId);
+            } else {
+                compareList = compareList.filter(id => id !== supplierId);
+            }
+            
+            updateCompareBtnText();
+        }
+
+        function updateCompareBtnText() {
+            const btn = document.getElementById('compareBtnText');
+            btn.textContent = `COMPARE (${compareList.length})`;
+            
+            // Enable/disable compare button
+            const compareBtn = btn.parentElement;
+            if (compareList.length >= 2) {
+                compareBtn.style.background = 'var(--walmart-blue)';
+                compareBtn.style.color = 'white';
+                compareBtn.style.borderColor = 'var(--walmart-blue)';
+            } else {
+                compareBtn.style.background = 'white';
+                compareBtn.style.color = '#666';
+                compareBtn.style.borderColor = '#ddd';
             }
         }
 
-        function filterByCategory(category) {
-            const filtered = suppliers.filter(s => s.category === category);
-            currentFilter = category;
-            renderSuppliers(filtered);
-        }
-
-        function renderSuppliers(data = null) {
-            const toRender = data || suppliers;
-            const html = toRender.map(supplier => `
-                <div class="supplier-card">
-                    <div class="supplier-header">
-                        <div>
-                            <div class="supplier-name">${supplier.name}</div>
-                            <div class="supplier-meta">${supplier.location}</div>
+        function showComparisonView() {
+            const suppliers = compareList.map(id => allSuppliers.find(s => s.id === id));
+            
+            const comparisonHTML = `
+                <div class="comparison-modal" id="comparisonModal">
+                    <div class="comparison-content">
+                        <div class="comparison-header">
+                            <h2 style="font-family: var(--heading-font); font-size: 2rem; letter-spacing: 2px;">⚖️ SUPPLIER COMPARISON</h2>
+                            <button onclick="closeComparison()" class="modal-close">✕</button>
                         </div>
-                        <button class="btn-favorite ${favorites.includes(supplier.id) ? 'active' : ''}" 
-                                onclick="toggleFavorite('${supplier.id}', '${supplier.name.replace(/'/g, "\\'")}')">♥</button>
-                    </div>
-
-                    <div class="supplier-badge">${supplier.category}</div>
-
-                    <div class="supplier-rating">
-                        <span class="star">★</span>
-                        <span>${supplier.rating}</span>
-                        <span style="color: var(--text-light);">(${supplier.reviews} reviews)</span>
-                    </div>
-
-                    <div style="font-size: 12px; color: var(--text-light); margin-bottom: 10px;">
-                        ${supplier.inStock ? '✅ In Stock' : '❌ Out of Stock'}
-                    </div>
-
-                    <div class="products-list">
-                        ${supplier.products.slice(0, 3).map(p => `<div class="product-tag">${p}</div>`).join('')}
-                    </div>
-
-                    <div class="supplier-actions">
-                        <button class="btn btn-secondary" onclick="openNoteModal('${supplier.id}', '${supplier.name.replace(/'/g, "\\'")}')">📝 Note</button>
-                        <button class="btn btn-primary">View Details</button>
+                        <div class="comparison-table-wrapper">
+                            <table class="comparison-table">
+                                <thead>
+                                    <tr>
+                                        <th>METRIC</th>
+                                        ${suppliers.map(s => `<th>${s.name}</th>`).join('')}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>AI Score</strong></td>
+                                        ${suppliers.map(s => `<td class="score-cell">🤖 ${s.aiScore}</td>`).join('')}
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Rating</strong></td>
+                                        ${suppliers.map(s => `<td>⭐ ${s.rating}/5.0</td>`).join('')}
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Location</strong></td>
+                                        ${suppliers.map(s => `<td>📍 ${s.location}</td>`).join('')}
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Company Size</strong></td>
+                                        ${suppliers.map(s => `<td>🏢 ${s.size}</td>`).join('')}
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Years in Business</strong></td>
+                                        ${suppliers.map(s => `<td>📅 ${s.yearsInBusiness} years</td>`).join('')}
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Employees</strong></td>
+                                        ${suppliers.map(s => `<td>👥 ${s.employees}</td>`).join('')}
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Response Time</strong></td>
+                                        ${suppliers.map(s => `<td>⏱️ ${s.responseTime}</td>`).join('')}
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Min Order</strong></td>
+                                        ${suppliers.map(s => `<td>💵 ${s.minOrder}</td>`).join('')}
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Payment Terms</strong></td>
+                                        ${suppliers.map(s => `<td>💳 ${s.paymentTerms}</td>`).join('')}
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Walmart Verified</strong></td>
+                                        ${suppliers.map(s => `<td>${s.walmartVerified ? '✅ Yes' : '❌ No'}</td>`).join('')}
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Products</strong></td>
+                                        ${suppliers.map(s => `<td><small>${s.products.join(', ')}</small></td>`).join('')}
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Certifications</strong></td>
+                                        ${suppliers.map(s => `<td><small>${s.certifications.join(', ')}</small></td>`).join('')}
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-            `).join('');
-
-            document.getElementById('suppliers-container').innerHTML = html || 
-                '<div style="text-align: center; color: var(--text-light); padding: 40px;">No suppliers found</div>';
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', comparisonHTML);
         }
 
-        function renderFavorites() {
-            const favSuppliers = suppliers.filter(s => favorites.includes(s.id));
-            document.getElementById('favorites-container').innerHTML = 
-                favSuppliers.length === 0 
-                    ? '<div style="text-align: center; color: var(--text-light); padding: 40px;">No favorites yet</div>'
-                    : `<div class="suppliers-grid">${favSuppliers.map(s => renderSupplierCard(s)).join('')}</div>`;
+        function closeComparison() {
+            const modal = document.getElementById('comparisonModal');
+            if (modal) modal.remove();
         }
 
-        function renderNotes() {
-            const notesList = Object.entries(notes).map(([supplierId, note]) => `
-                <div class="supplier-card">
-                    <div class="supplier-name" style="margin-bottom: 10px;">${supplierNameById(supplierId)}</div>
-                    <div style="font-size: 13px; line-height: 1.6; color: var(--text-dark); margin-bottom: 10px;">${note.content}</div>
-                    <div style="font-size: 11px; color: var(--text-light);">Updated: ${new Date(note.updatedAt).toLocaleDateString()}</div>
-                </div>
-            `).join('');
-
-            document.getElementById('notes-container').innerHTML = notesList || 
-                '<div style="text-align: center; color: var(--text-light); padding: 40px;">No notes yet</div>';
+        function switchView(view) {
+            currentView = view;
+            
+            // Update button states
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`view${view.charAt(0).toUpperCase() + view.slice(1)}`).classList.add('active');
+            
+            // Re-render with new view
+            renderResults();
         }
 
-        function renderSupplierCard(supplier) {
+        function exportResults() {
+            const csvContent = "data:text/csv;charset=utf-8,"
+                + "Name,Location,Category,Rating,AI Score,Products,Verified\n"
+                + filteredSuppliers.map(s => 
+                    `"${s.name}","${s.location}","${s.category}",${s.rating},${s.aiScore},${s.products.length},${s.walmartVerified}`
+                ).join("\n");
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "walmart_suppliers.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function printResults() {
+            window.print();
+        }
+
+        function clearAllFilters() {
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.getElementById('searchInput').value = '';
+            document.getElementById('sortSelect').value = 'relevance';
+            applyFilters();
+        }
+
+        function filterByTag(productName) {
+            // Clear existing filters
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            
+            // Check the matching product checkbox if it exists
+            const productCheckboxes = document.querySelectorAll('#productTypeFilters input[type="checkbox"]');
+            productCheckboxes.forEach(cb => {
+                if (cb.value === productName) {
+                    cb.checked = true;
+                }
+            });
+            
+            // Also set search to the product name
+            document.getElementById('searchInput').value = productName;
+            
+            // Apply filters
+            applyFilters();
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function closeModal() {
+            document.getElementById('supplierModal').style.display = 'none';
+        }
+
+        // Initialize filters
+        function initializeFilters() {
+            // Vendors - show top 20 unique vendor names
+            const vendorContainer = document.getElementById('vendorFilters');
+            const uniqueVendors = [...new Set(allSuppliers.map(s => s.name))]
+                .sort()
+                .slice(0, 50); // Show first 50 vendors
+            
+            let allVendors = uniqueVendors;
+            
+            function renderVendors(vendors) {
+                vendorContainer.innerHTML = vendors.map(vendor => {
+                    const count = allSuppliers.filter(s => s.name === vendor).length;
+                    return `
+                        <div class="filter-option">
+                            <input type="checkbox" id="vendor-${vendor.replace(/[^a-zA-Z0-9]/g, '')}" value="${vendor}" class="vendor-filter">
+                            <label for="vendor-${vendor.replace(/[^a-zA-Z0-9]/g, '')}">${vendor}</label>
+                            <span class="filter-count">(${count})</span>
+                        </div>
+                    `;
+                }).join('');
+                
+                // Re-attach event listeners
+                document.querySelectorAll('.vendor-filter').forEach(cb => {
+                    cb.addEventListener('change', applyFilters);
+                });
+            }
+            
+            renderVendors(allVendors);
+            
+            // Vendor search functionality
+            document.getElementById('vendorSearch').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                if (searchTerm) {
+                    const filtered = uniqueVendors.filter(v => v.toLowerCase().includes(searchTerm));
+                    renderVendors(filtered);
+                } else {
+                    renderVendors(allVendors);
+                }
+            });
+            // Categories - show first 10, rest hidden
+            const categoryContainer = document.getElementById('categoryFilters');
+            const allCategories = Object.keys(productCategories);
+            const initialCategoryCount = 10;
+            
+            allCategories.forEach((cat, index) => {
+                const count = allSuppliers.filter(s => s.category === cat).length;
+                const isHidden = index >= initialCategoryCount;
+                categoryContainer.innerHTML += `
+                    <div class="filter-option ${isHidden ? 'hidden-category' : ''}">
+                        <input type="checkbox" id="cat-${cat}" value="${cat}" class="category-filter">
+                        <label for="cat-${cat}">${cat}</label>
+                        <span class="filter-count">(${count})</span>
+                    </div>
+                `;
+            });
+            
+            if (allCategories.length > initialCategoryCount) {
+                categoryContainer.innerHTML += `
+                    <div class="filter-expand" onclick="toggleCategories()" id="categoryToggle">
+                        <span id="categoryToggleIcon">▼</span> Show More (${allCategories.length - initialCategoryCount} more)
+                    </div>
+                `;
+            }
+
+            // Product Types - show top products from general categories
+            const productContainer = document.getElementById('productTypeFilters');
+            const generalCategories = ['Concrete & Cement', 'Steel & Metal', 'Lumber & Wood', 'Roofing Materials', 'Insulation'];
+            const generalProducts = [];
+            generalCategories.forEach(cat => {
+                if (productCategories[cat]) {
+                    generalProducts.push(...productCategories[cat].slice(0, 3));
+                }
+            });
+            generalProducts.forEach(prod => {
+                const count = allSuppliers.filter(s => s.products.includes(prod)).length;
+                if (count > 0) {
+                    productContainer.innerHTML += `
+                        <div class="filter-option">
+                            <input type="checkbox" id="prod-${prod}" value="${prod}" class="product-filter">
+                            <label for="prod-${prod}">${prod}</label>
+                            <span class="filter-count">(${count})</span>
+                        </div>
+                    `;
+                }
+            });
+
+            // Fixtures & Hardware - organized by subcategory
+            const fixtureContainer = document.getElementById('fixtureFilters');
+            const fixtureCategories = {
+                'Temporary Construction': productCategories['Temporary Construction Equipment'] || [],
+                'PPE & Safety Gear': productCategories['Personal Protective Equipment'] || [],
+                'Carts & Transport': productCategories['Cart & Transport Equipment'] || [],
+                'Security Fixtures': productCategories['Safety & Security Fixtures'] || [],
+                'Door Fixtures': productCategories['Door Hardware & Fixtures'] || [],
+                'Lighting Fixtures': productCategories['Lighting Fixtures'] || [],
+                'Plumbing Fixtures': productCategories['Plumbing Fixtures'] || [],
+                'Kitchen & Bath': productCategories['Kitchen & Bath Fixtures'] || [],
+                'Vinyl Products': productCategories['Vinyl Products'] || [],
+                'HVAC Fixtures': productCategories['HVAC Fixtures'] || [],
+                'Signage': productCategories['Signage & Wayfinding'] || [],
+                'Material Handling': productCategories['Material Handling Equipment'] || [],
+                'Scaffolding & Ladders': productCategories['Scaffolding & Ladders'] || [],
+                'Site Furnishings': productCategories['Site Furnishings'] || [],
+                'Fire Protection': productCategories['Fire Protection Systems'] || [],
+                'Loading Dock': productCategories['Loading Dock Equipment'] || [],
+                'Acoustic & Sound': productCategories['Acoustic & Soundproofing'] || [],
+                'Concrete Forms': productCategories['Concrete Forms & Accessories'] || [],
+                'Janitorial': productCategories['Janitorial & Maintenance'] || [],
+                'Tools & Equipment': productCategories['Tools & Equipment'] || [],
+                'Adhesives & Sealants': productCategories['Adhesives & Sealants'] || []
+            };
+
+            Object.entries(fixtureCategories).forEach(([subcat, products], index) => {
+                if (products.length > 0) {
+                    const subcatId = subcat.replace(/[^a-zA-Z0-9]/g, '');
+                    const isExpanded = index < 2; // First 2 expanded by default
+                    
+                    fixtureContainer.innerHTML += `
+                        <div class="fixture-subcategory">
+                            <div class="fixture-subcategory-title" onclick="toggleFixtureCategory('${subcatId}')">
+                                <span id="icon-${subcatId}">${isExpanded ? '▼' : '▶'}</span>
+                                ${subcat}
+                            </div>
+                            <div class="fixture-products ${isExpanded ? '' : 'collapsed'}" id="${subcatId}">
+                                ${products.map(prod => {
+                                    const count = allSuppliers.filter(s => s.products.includes(prod)).length;
+                                    return count > 0 ? `
+                                        <div class="filter-option">
+                                            <input type="checkbox" id="fixture-${prod}" value="${prod}" class="product-filter fixture-filter">
+                                            <label for="fixture-${prod}">${prod}</label>
+                                            <span class="filter-count">(${count})</span>
+                                        </div>
+                                    ` : '';
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            // Regions
+            const regionContainer = document.getElementById('regionFilters');
+            regions.forEach(reg => {
+                const count = allSuppliers.filter(s => s.region === reg).length;
+                regionContainer.innerHTML += `
+                    <div class="filter-option">
+                        <input type="checkbox" id="reg-${reg}" value="${reg}" class="region-filter">
+                        <label for="reg-${reg}">${reg}</label>
+                        <span class="filter-count">(${count})</span>
+                    </div>
+                `;
+            });
+
+            // Certifications
+            const certContainer = document.getElementById('certFilters');
+            certifications.forEach(cert => {
+                const count = allSuppliers.filter(s => s.certifications.includes(cert)).length;
+                certContainer.innerHTML += `
+                    <div class="filter-option">
+                        <input type="checkbox" id="cert-${cert}" value="${cert}" class="cert-filter">
+                        <label for="cert-${cert}">${cert}</label>
+                        <span class="filter-count">(${count})</span>
+                    </div>
+                `;
+            });
+
+            // Company Size
+            const sizeContainer = document.getElementById('sizeFilters');
+            companySizes.forEach(size => {
+                const count = allSuppliers.filter(s => s.size === size).length;
+                sizeContainer.innerHTML += `
+                    <div class="filter-option">
+                        <input type="checkbox" id="size-${size}" value="${size}" class="size-filter">
+                        <label for="size-${size}">${size}</label>
+                        <span class="filter-count">(${count})</span>
+                    </div>
+                `;
+            });
+
+            // Price Range
+            const priceContainer = document.getElementById('priceFilters');
+            priceRanges.forEach(price => {
+                const count = allSuppliers.filter(s => s.priceRange === price).length;
+                priceContainer.innerHTML += `
+                    <div class="filter-option">
+                        <input type="checkbox" id="price-${price}" value="${price}" class="price-filter">
+                        <label for="price-${price}">${price}</label>
+                        <span class="filter-count">(${count})</span>
+                    </div>
+                `;
+            });
+
+            // Add event listeners
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                cb.addEventListener('change', applyFilters);
+            });
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const selectedVendors = Array.from(document.querySelectorAll('.vendor-filter:checked')).map(cb => cb.value);
+            const selectedCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
+            const selectedProducts = Array.from(document.querySelectorAll('.product-filter:checked')).map(cb => cb.value);
+            const selectedRegions = Array.from(document.querySelectorAll('.region-filter:checked')).map(cb => cb.value);
+            const selectedCerts = Array.from(document.querySelectorAll('.cert-filter:checked')).map(cb => cb.value);
+            const selectedSizes = Array.from(document.querySelectorAll('.size-filter:checked')).map(cb => cb.value);
+            const selectedPrices = Array.from(document.querySelectorAll('.price-filter:checked')).map(cb => cb.value);
+
+            filteredSuppliers = allSuppliers.filter(supplier => {
+                const matchesSearch = !searchTerm || 
+                    supplier.name.toLowerCase().includes(searchTerm) ||
+                    supplier.category.toLowerCase().includes(searchTerm) ||
+                    supplier.products.some(p => p.toLowerCase().includes(searchTerm)) ||
+                    supplier.location.toLowerCase().includes(searchTerm);
+
+                const matchesVendor = selectedVendors.length === 0 || selectedVendors.includes(supplier.name);
+                const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(supplier.category);
+                const matchesProduct = selectedProducts.length === 0 || supplier.products.some(p => selectedProducts.includes(p));
+                const matchesRegion = selectedRegions.length === 0 || selectedRegions.includes(supplier.region);
+                const matchesCert = selectedCerts.length === 0 || supplier.certifications.some(c => selectedCerts.includes(c));
+                const matchesSize = selectedSizes.length === 0 || selectedSizes.includes(supplier.size);
+                const matchesPrice = selectedPrices.length === 0 || selectedPrices.includes(supplier.priceRange);
+
+                return matchesSearch && matchesVendor && matchesCategory && matchesProduct && matchesRegion && matchesCert && matchesSize && matchesPrice;
+            });
+
+            currentPage = 1;
+            renderResults();
+        }
+
+        // Render catalog card
+        function renderCatalogCard(supplier) {
+            const isFavorited = userData && userData.favorites && userData.favorites.includes(supplier.id);
+            const hasNote = userData && userData.notes && userData.notes[supplier.id];
+            
             return `
-                <div class="supplier-card">
-                    <div class="supplier-header">
-                        <div>
-                            <div class="supplier-name">${supplier.name}</div>
-                            <div class="supplier-meta">${supplier.location}</div>
-                        </div>
-                        <button class="btn-favorite ${favorites.includes(supplier.id) ? 'active' : ''}" 
-                                onclick="toggleFavorite('${supplier.id}', '${supplier.name.replace(/'/g, "\\'")}')">♥</button>
+                <div class="supplier-catalog-card">
+                    <div class="catalog-header">
+                        <div class="catalog-name">${supplier.name}</div>
+                        <div class="catalog-category">${supplier.category}</div>
                     </div>
-                    <div class="supplier-badge">${supplier.category}</div>
-                    <div class="supplier-rating">
-                        <span class="star">★</span>
-                        <span>${supplier.rating}</span>
+                    <div class="catalog-body">
+                        <div class="catalog-stat">
+                            <span>AI Score</span>
+                            <strong>${supplier.aiScore}</strong>
+                        </div>
+                        <div class="catalog-stat">
+                            <span>Rating</span>
+                            <strong>${supplier.rating}/5.0</strong>
+                        </div>
+                        <div class="catalog-stat">
+                            <span>Location</span>
+                            <strong>${supplier.city}, ${supplier.state}</strong>
+                        </div>
+                        <div class="catalog-stat">
+                            <span>Products</span>
+                            <strong>${supplier.products.length}</strong>
+                        </div>
+                        <div class="catalog-stat">
+                            <span>Years</span>
+                            <strong>${supplier.yearsInBusiness}</strong>
+                        </div>
+                        ${supplier.walmartVerified ? '<div class="catalog-stat"><span>Verified</span><strong>Yes</strong></div>' : ''}
+                        <div class="catalog-actions">
+                            <button class="favorite-btn ${isFavorited ? 'favorited' : ''}" onclick="toggleFavorite(${supplier.id})" id="fav-${supplier.id}" style="font-size: 1.5rem; flex: 1;">
+                                ❤️
+                            </button>
+                            <button class="note-btn ${hasNote ? 'has-note' : ''}" onclick="openNoteModal(${supplier.id})" style="flex: 2;">
+                                NOTES
+                            </button>
+                            <button class="btn btn-primary" onclick="openSupplierModal(${supplier.id})" style="flex: 3; padding: 10px; font-size: 0.8rem;">
+                                VIEW
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
         }
 
-        function supplierNameById(id) {
-            return suppliers.find(s => s.id === id)?.name || 'Unknown';
+        // Render results
+        function renderResults() {
+            const container = document.getElementById('resultsContainer');
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageSuppliers = filteredSuppliers.slice(start, end);
+
+            document.getElementById('resultsCount').textContent = filteredSuppliers.length.toLocaleString();
+            document.getElementById('toolbarResultCount').textContent = filteredSuppliers.length.toLocaleString();
+
+            // Apply view-specific class to container
+            container.className = currentView === 'grid' ? 'results-grid' : currentView === 'catalog' ? 'results-catalog' : '';
+
+            if (currentView === 'catalog') {
+                container.innerHTML = pageSuppliers.map(supplier => renderCatalogCard(supplier)).join('');
+            } else {
+                container.innerHTML = pageSuppliers.map(supplier => `
+                <div class="supplier-item">
+                    <div class="supplier-header">
+                        <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                            <input type="checkbox" 
+                                class="compare-checkbox" 
+                                id="compare-${supplier.id}" 
+                                onchange="toggleCompareSupplier(${supplier.id})" 
+                                ${compareList.includes(supplier.id) ? 'checked' : ''}
+                                title="Select for comparison">
+                            <button class="favorite-btn" onclick="toggleFavorite(${supplier.id})" id="fav-${supplier.id}" title="Add to favorites">
+                                ❤️
+                            </button>
+                            <div class="supplier-name" onclick="openSupplierModal(${supplier.id})" style="cursor: pointer;">
+                                ${supplier.name}
+                                ${supplier.walmartVerified ? '<span class="walmart-verified">✓ Walmart Verified</span>' : ''}
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <button class="note-btn" onclick="openNoteModal(${supplier.id})" title="Add/view notes">
+                                NOTE
+                            </button>
+                            <span class="ai-score">AI: ${supplier.aiScore}</span>
+                        </div>
+                    </div>
+                    <div class="supplier-meta">
+                        <span class="meta-item">${supplier.location}, ${supplier.region}</span>
+                        <span class="meta-item">Rating: ${supplier.rating}/5.0</span>
+                        <span class="meta-item">${supplier.size}</span>
+                        <span class="meta-item">${supplier.priceRange}</span>
+                        <span class="meta-item">${supplier.yearsInBusiness} years</span>
+                    </div>
+                    <div class="supplier-products">
+                        <strong>Products:</strong>
+                        <div class="product-tags">
+                            ${supplier.products.map((p, i) => `<span class="tag ${i === 0 ? 'featured' : ''}" onclick="filterByTag('${p.replace(/'/g, "\\'")}')" title="Click to filter by ${p}" style="cursor: pointer;">${p}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="supplier-certifications">
+                        ${supplier.certifications.map(c => `<span class="cert-badge">✓ ${c}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+            }
+
+            renderPagination();
+            
+            // Update favorite and note buttons after rendering
+            setTimeout(() => {
+                updateFavoriteButtons();
+                updateNoteButtons();
+            }, 0);
         }
 
-        async function toggleFavorite(supplierId, supplierName) {
-            const headers = { 'X-User-ID': USER_ID, 'Content-Type': 'application/json' };
-            const isFavorite = favorites.includes(supplierId);
-            const endpoint = isFavorite ? 'remove' : 'add';
+        // Pagination
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredSuppliers.length / itemsPerPage);
+            const pagination = document.getElementById('pagination');
+            
+            let html = `
+                <button class="page-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>← Previous</button>
+            `;
 
-            try {
-                const response = await fetch(`${API_BASE}/api/user/favorites/${endpoint}`, {
-                    method: 'POST',
-                    headers,
-                    body: JSON.stringify({ supplierId })
-                });
-                const data = await response.json();
-                favorites = data.favorites;
-                renderSuppliers();
-            } catch (error) {
-                console.error('Failed to update favorite:', error);
+            const maxButtons = 7;
+            let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+            let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+            if (endPage - startPage < maxButtons - 1) {
+                startPage = Math.max(1, endPage - maxButtons + 1);
+            }
+
+            if (startPage > 1) {
+                html += `<button class="page-btn" onclick="changePage(1)">1</button>`;
+                if (startPage > 2) html += `<span>...</span>`;
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) html += `<span>...</span>`;
+                html += `<button class="page-btn" onclick="changePage(${totalPages})">${totalPages}</button>`;
+            }
+
+            html += `
+                <button class="page-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next →</button>
+            `;
+
+            pagination.innerHTML = html;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(filteredSuppliers.length / itemsPerPage);
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+                renderResults();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }
 
-        function openNoteModal(supplierId, supplierName) {
-            currentNoteId = supplierId;
-            document.getElementById('note-supplier-name').textContent = supplierName;
-            document.getElementById('note-content').value = notes[supplierId]?.content || '';
-            document.getElementById('note-modal').classList.add('active');
+        // Autocomplete
+        const searchInput = document.getElementById('searchInput');
+        const autocomplete = document.getElementById('autocomplete');
+        const clearSearch = document.getElementById('clearSearch');
+
+        searchInput.addEventListener('input', function() {
+            const value = this.value.toLowerCase();
+            clearSearch.style.display = value ? 'block' : 'none';
+
+            if (value.length < 2) {
+                autocomplete.classList.remove('active');
+                applyFilters();
+                return;
+            }
+
+            const suggestions = [];
+            
+            // Search suppliers
+            allSuppliers.forEach(s => {
+                if (s.name.toLowerCase().includes(value)) {
+                    suggestions.push({ type: 'supplier', text: s.name, category: s.category });
+                }
+            });
+
+            // Search products
+            Object.values(productCategories).flat().forEach(p => {
+                if (p.toLowerCase().includes(value) && !suggestions.find(s => s.text === p)) {
+                    suggestions.push({ type: 'product', text: p, category: 'Product' });
+                }
+            });
+
+            if (suggestions.length > 0) {
+                autocomplete.innerHTML = suggestions.slice(0, 8).map(s => `
+                    <div class="autocomplete-item" onclick="selectSuggestion('${s.text.replace(/'/g, "\\'")}')">
+                        <span class="icon">${s.type === 'supplier' ? '🏢' : '📦'}</span>
+                        <span class="text">${s.text}</span>
+                        <span class="category">${s.category}</span>
+                    </div>
+                `).join('');
+                autocomplete.classList.add('active');
+            } else {
+                autocomplete.classList.remove('active');
+            }
+
+            applyFilters();
+        });
+
+        function selectSuggestion(text) {
+            searchInput.value = text;
+            autocomplete.classList.remove('active');
+            applyFilters();
+        }
+
+        clearSearch.addEventListener('click', function() {
+            searchInput.value = '';
+            clearSearch.style.display = 'none';
+            autocomplete.classList.remove('active');
+            applyFilters();
+        });
+
+        // Sort
+        document.getElementById('sortSelect').addEventListener('change', function() {
+            const sortBy = this.value;
+            
+            switch(sortBy) {
+                case 'score-high':
+                    filteredSuppliers.sort((a, b) => b.aiScore - a.aiScore);
+                    break;
+                case 'score-low':
+                    filteredSuppliers.sort((a, b) => a.aiScore - b.aiScore);
+                    break;
+                case 'name-asc':
+                    filteredSuppliers.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                case 'name-desc':
+                    filteredSuppliers.sort((a, b) => b.name.localeCompare(a.name));
+                    break;
+                case 'rating':
+                    filteredSuppliers.sort((a, b) => b.rating - a.rating);
+                    break;
+            }
+            
+            renderResults();
+        });
+
+        // Supplier Modal
+        function openSupplierModal(supplierId) {
+            const supplier = allSuppliers.find(s => s.id === supplierId);
+            if (!supplier) return;
+
+            document.getElementById('modalTitle').textContent = supplier.name;
+            document.getElementById('modalSubtitle').textContent = supplier.category;
+
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div class="modal-section">
+                    <h3>📋 About</h3>
+                    <p class="description-text">${supplier.description}</p>
+                    ${supplier.walmartVerified ? '<div style="margin-top: 15px;"><span class="walmart-verified">✓ Walmart Verified Supplier</span></div>' : ''}
+                </div>
+
+                <div class="modal-section">
+                    <h3>📊 Key Metrics</h3>
+                    <div class="stat-cards">
+                        <div class="stat-card">
+                            <div class="value">${supplier.aiScore}</div>
+                            <div class="label">AI Match Score</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="value">⭐ ${supplier.rating}</div>
+                            <div class="label">Customer Rating</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="value">${supplier.yearsInBusiness}</div>
+                            <div class="label">Years in Business</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="value">${supplier.employees}</div>
+                            <div class="label">Employees</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="value">${supplier.projectsCompleted.toLocaleString()}</div>
+                            <div class="label">Projects Completed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="value">${supplier.responseTime}</div>
+                            <div class="label">Avg Response Time</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3>🏢 Company Information</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Location</div>
+                            <div class="info-value">📍 ${supplier.address}<br>${supplier.city}, ${supplier.region}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Company Size</div>
+                            <div class="info-value">${supplier.size}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Price Range</div>
+                            <div class="info-value">${supplier.priceRange}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Minimum Order</div>
+                            <div class="info-value">${supplier.minOrder}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Payment Terms</div>
+                            <div class="info-value">${supplier.paymentTerms}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3>📦 Products & Services</h3>
+                    <div class="product-tags">
+                        ${supplier.products.map(p => `<span class="tag" onclick="filterByTag('${p.replace(/'/g, "\\'")}'); closeModal();" title="Click to filter by ${p}" style="cursor: pointer;">${p}</span>`).join('')}
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3>✅ Certifications</h3>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        ${supplier.certifications.map(c => `<span class="cert-badge">✓ ${c}</span>`).join('')}
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3>📞 Contact Information</h3>
+                    <div class="info-grid" style="margin-bottom: 15px;">
+                        <div class="info-item">
+                            <div class="info-label">Phone</div>
+                            <div class="info-value">${supplier.phone}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Email</div>
+                            <div class="info-value">${supplier.email}</div>
+                        </div>
+                    </div>
+                    <div class="contact-buttons">
+                        <a href="${supplier.website}" target="_blank" class="contact-btn primary">
+                            🌐 Visit Website
+                        </a>
+                        <a href="mailto:${supplier.email}" class="contact-btn secondary">
+                            ✉️ Send Email
+                        </a>
+                        <a href="tel:${supplier.phone.replace(/[^0-9]/g, '')}" class="contact-btn secondary">
+                            📱 Call Now
+                        </a>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('supplierModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('supplierModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Modal close handlers
+        document.getElementById('modalClose').addEventListener('click', closeModal);
+        document.getElementById('supplierModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // Toggle fixture category
+        function toggleFixtureCategory(categoryId) {
+            const element = document.getElementById(categoryId);
+            const icon = document.getElementById('icon-' + categoryId);
+            if (element.classList.contains('collapsed')) {
+                element.classList.remove('collapsed');
+                icon.textContent = '▼';
+            } else {
+                element.classList.add('collapsed');
+                icon.textContent = '▶';
+            }
+        }
+
+        // Toggle category show more/less
+        let categoriesExpanded = false;
+        function toggleCategories() {
+            const hiddenCategories = document.querySelectorAll('.hidden-category');
+            const toggleButton = document.getElementById('categoryToggle');
+            const toggleIcon = document.getElementById('categoryToggleIcon');
+            
+            categoriesExpanded = !categoriesExpanded;
+            
+            hiddenCategories.forEach(cat => {
+                if (categoriesExpanded) {
+                    cat.classList.add('show');
+                } else {
+                    cat.classList.remove('show');
+                }
+            });
+            
+            if (categoriesExpanded) {
+                const hiddenCount = hiddenCategories.length;
+                toggleButton.innerHTML = `<span id="categoryToggleIcon">▲</span> Show Less`;
+            } else {
+                const hiddenCount = hiddenCategories.length;
+                toggleButton.innerHTML = `<span id="categoryToggleIcon">▼</span> Show More (${hiddenCount} more)`;
+            }
+        }
+
+        // Update stats dashboard
+        function updateStats() {
+            document.getElementById('totalSuppliersCount').textContent = allSuppliers.length.toLocaleString();
+            document.getElementById('categoriesCount').textContent = Object.keys(productCategories).length;
+            document.getElementById('productsCount').textContent = Object.values(productCategories).flat().length.toLocaleString();
+            document.getElementById('verifiedCount').textContent = allSuppliers.filter(s => s.walmartVerified).length.toLocaleString();
+        }
+
+        // ==========================================
+        // USER AUTHENTICATION & FAVORITES SYSTEM
+        // ==========================================
+        
+        let currentUser = null;
+        let userData = null;
+
+        async function checkUserSession() {
+            // Try to initialize SharePoint
+            const spStatusElem = document.getElementById('spStatus');
+            try {
+                useSharePoint = await spService.init();
+                if (useSharePoint) {
+                    console.log('✅ SharePoint connected! Using cloud storage.');
+                    if (spStatusElem) spStatusElem.innerHTML = '☁️ Cloud Mode';
+                } else {
+                    console.log('⚠️ SharePoint unavailable. Using localStorage fallback.');
+                    if (spStatusElem) spStatusElem.innerHTML = '💾 Local Mode';
+                }
+            } catch (error) {
+                console.warn('SharePoint init error:', error);
+                useSharePoint = false;
+                if (spStatusElem) spStatusElem.innerHTML = '💾 Local Mode';
+            }
+
+            // Get current user email
+            let userEmail = localStorage.getItem('currentUser');
+            
+            // If using SharePoint and no localStorage user, try to get from SharePoint
+            if (!userEmail && useSharePoint && spService.currentUserEmail) {
+                userEmail = spService.currentUserEmail;
+                localStorage.setItem('currentUser', userEmail);
+            }
+            
+            if (!userEmail) {
+                // Redirect to login
+                window.location.href = 'login.html';
+                return false;
+            }
+
+            currentUser = userEmail;
+            
+            // Load user data from storage (SharePoint or localStorage)
+            userData = await storage.getUser(userEmail);
+
+            if (!userData) {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+                return false;
+            }
+
+            // Update UI with user name
+            document.getElementById('userName').textContent = `👤 ${userData.name.split(' ')[0]}`;
+            await updateFavoriteCount();
+            await updateFavoriteButtons();
+            await updateNoteButtons();
+
+            return true;
+        }
+
+        function toggleUserDropdown(event) {
+            event.stopPropagation();
+            
+            // Check if dropdown already exists
+            let overlay = document.getElementById('userDropdownOverlay');
+            let dropdown = document.querySelector('.user-dropdown');
+            
+            if (overlay && dropdown) {
+                // Close it
+                overlay.remove();
+                dropdown.remove();
+            } else {
+                // Get button position
+                const button = event.currentTarget;
+                const rect = button.getBoundingClientRect();
+                
+                // Create overlay
+                const overlayDiv = document.createElement('div');
+                overlayDiv.id = 'userDropdownOverlay';
+                overlayDiv.className = 'user-dropdown-overlay active';
+                overlayDiv.onclick = function() {
+                    overlayDiv.remove();
+                    const dd = document.querySelector('.user-dropdown');
+                    if (dd) dd.remove();
+                };
+                
+                // Create dropdown positioned directly under button
+                const dropdownDiv = document.createElement('div');
+                dropdownDiv.className = 'user-dropdown';
+                dropdownDiv.style.top = (rect.bottom + 10) + 'px';
+                dropdownDiv.style.right = (window.innerWidth - rect.right) + 'px';
+                dropdownDiv.innerHTML = `
+                    <div class="dropdown-item" onclick="window.location.href='inbox.html'">Inbox</div>
+                    <div class="dropdown-item" onclick="window.location.href='my-favorites.html'">My Favorites (<span id="favCountDrop">${userData?.favorites?.length || 0}</span>)</div>
+                    <div class="dropdown-item" onclick="window.location.href='my-notes.html'">My Notes</div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" onclick="logout()">Logout</div>
+                `;
+                
+                document.body.appendChild(overlayDiv);
+                document.body.appendChild(dropdownDiv);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+
+        async function toggleFavorite(supplierId) {
+            if (!userData) return;
+
+            if (!userData.favorites) userData.favorites = [];
+
+            const index = userData.favorites.indexOf(supplierId);
+            if (index > -1) {
+                // Remove favorite
+                await storage.removeFavorite(currentUser, supplierId);
+                userData.favorites.splice(index, 1);
+            } else {
+                // Add favorite
+                await storage.addFavorite(currentUser, supplierId);
+                userData.favorites.push(supplierId);
+            }
+
+            await updateFavoriteButtons();
+            await updateFavoriteCount();
+        }
+
+        function updateFavoriteButtons() {
+            if (!userData || !userData.favorites) return;
+
+            document.querySelectorAll('.favorite-btn').forEach(btn => {
+                const supplierId = parseInt(btn.id.replace('fav-', ''));
+                if (userData.favorites.includes(supplierId)) {
+                    btn.classList.add('favorited');
+                } else {
+                    btn.classList.remove('favorited');
+                }
+            });
+        }
+
+        function updateFavoriteCount() {
+            if (!userData || !userData.favorites) return;
+            const favCountElem = document.getElementById('favCount');
+            if (favCountElem) favCountElem.textContent = userData.favorites.length;
+            const favCountDrop = document.getElementById('favCountDrop');
+            if (favCountDrop) favCountDrop.textContent = userData.favorites.length;
+        }
+
+        function showMyFavorites() {
+            if (!userData || !userData.favorites || userData.favorites.length === 0) {
+                showNotification('❤️ No favorites yet! Click the heart icon on suppliers to save them.');
+                return;
+            }
+
+            // Filter to show only favorites
+            filteredSuppliers = allSuppliers.filter(s => userData.favorites.includes(s.id));
+            currentPage = 1;
+            renderResults();
+
+            showNotification(`❤️ Showing ${filteredSuppliers.length} favorite suppliers`);
+            document.getElementById('userDropdown').classList.remove('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openNoteModal(supplierId) {
+            const supplier = allSuppliers.find(s => s.id === supplierId);
+            if (!supplier) return;
+
+            const currentNote = (userData.notes && userData.notes[supplierId]) || '';
+
+            const modalHTML = `
+                <div class="note-modal" id="noteModal">
+                    <div class="note-modal-content">
+                        <div class="note-modal-header">
+                            <h2 style="font-family: var(--heading-font); font-size: 1.5rem; letter-spacing: 1px;">📝 NOTES: ${supplier.name}</h2>
+                            <button onclick="closeNoteModal()" class="modal-close">✕</button>
+                        </div>
+                        <div class="note-modal-body">
+                            <textarea id="noteTextarea" placeholder="Add your notes about this supplier..." style="width: 100%; height: 200px; padding: 15px; font-family: var(--body-font); font-size: 1rem; border: 2px solid #ddd; resize: vertical;">${currentNote}</textarea>
+                            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                                <button onclick="saveNote(${supplierId})" class="btn btn-primary" style="flex: 1; padding: 12px;">💾 SAVE NOTE</button>
+                                <button onclick="deleteNote(${supplierId})" class="btn btn-secondary" style="padding: 12px;">🗑️ DELETE</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
         }
 
         function closeNoteModal() {
-            document.getElementById('note-modal').classList.remove('active');
-            currentNoteId = null;
+            const modal = document.getElementById('noteModal');
+            if (modal) modal.remove();
         }
 
-        async function saveNote() {
-            const content = document.getElementById('note-content').value;
-            const headers = { 'X-User-ID': USER_ID, 'Content-Type': 'application/json' };
+        async function saveNote(supplierId) {
+            const noteText = document.getElementById('noteTextarea').value.trim();
+            
+            if (!userData.notes) userData.notes = {};
+
+            if (noteText) {
+                await storage.saveNote(currentUser, supplierId, noteText);
+                userData.notes[supplierId] = noteText;
+                showNotification('✅ Note saved successfully!' + (useSharePoint ? ' (Synced to SharePoint)' : ''));
+            } else {
+                await storage.saveNote(currentUser, supplierId, '');
+                delete userData.notes[supplierId];
+                showNotification('🗑️ Note deleted');
+            }
+
+            await updateNoteButtons();
+            closeNoteModal();
+        }
+
+        async function deleteNote(supplierId) {
+            if (userData.notes && userData.notes[supplierId]) {
+                await storage.saveNote(currentUser, supplierId, '');
+                delete userData.notes[supplierId];
+                await updateNoteButtons();
+                showNotification('🗑️ Note deleted');
+            }
+
+            closeNoteModal();
+        }
+
+        function updateNoteButtons() {
+            if (!userData || !userData.notes) return;
+
+            document.querySelectorAll('.note-btn').forEach(btn => {
+                const supplierId = parseInt(btn.getAttribute('onclick').match(/\d+/)[0]);
+                if (userData.notes[supplierId]) {
+                    btn.classList.add('has-note');
+                } else {
+                    btn.classList.remove('has-note');
+                }
+            });
+        }
+
+        function showMyNotes() {
+            if (!userData || !userData.notes || Object.keys(userData.notes).length === 0) {
+                showNotification('📝 No notes yet! Click the note icon on suppliers to add notes.');
+                return;
+            }
+
+            const supplierIds = Object.keys(userData.notes).map(id => parseInt(id));
+            filteredSuppliers = allSuppliers.filter(s => supplierIds.includes(s.id));
+            currentPage = 1;
+            renderResults();
+
+            showNotification(`📝 Showing ${filteredSuppliers.length} suppliers with notes`);
+            document.getElementById('userDropdown').classList.remove('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Add CSS for note modal
+        const noteModalStyle = document.createElement('style');
+        noteModalStyle.textContent = `
+            .note-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            }
+            .note-modal-content {
+                background: white;
+                width: 100%;
+                max-width: 600px;
+                border: 4px solid var(--walmart-blue);
+                box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.3);
+            }
+            .note-modal-header {
+                background: var(--walmart-blue);
+                color: white;
+                padding: 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 4px solid var(--walmart-yellow);
+            }
+            .note-modal-body {
+                padding: 30px;
+            }
+        `;
+        document.head.appendChild(noteModalStyle);
+
+        // Initialize - Check user session first (async now!)
+        (async function() {
+            const sessionValid = await checkUserSession();
+            if (sessionValid) {
+                initializeFilters();
+                updateStats();
+                renderResults();
+            }
+        })();
+    </script>
+    <!-- CHATBOT WIDGET STYLES -->
+    <style>
+        /* Chatbot Styles */
+        .chatbot-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-family: 'Inter', sans-serif;
+            z-index: 9999;
+        }
+
+        .chatbot-toggle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--walmart-blue);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 12px rgba(0, 113, 206, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .chatbot-toggle:hover {
+            background: var(--walmart-dark-blue);
+            box-shadow: 0 6px 16px rgba(0, 113, 206, 0.4);
+            transform: scale(1.1);
+        }
+
+        .chatbot-toggle.active {
+            display: none;
+        }
+
+        .chatbot-container {
+            display: none;
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 400px;
+            max-width: 90vw;
+            height: 600px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 40px rgba(0, 0, 0, 0.16);
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+
+        .chatbot-container.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chatbot-header {
+            background: linear-gradient(135deg, var(--walmart-blue) 0%, var(--walmart-dark-blue) 100%);
+            color: white;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chatbot-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .chatbot-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #f5f5f5;
+        }
+
+        .chat-message {
+            display: flex;
+            gap: 8px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .chat-message.user {
+            justify-content: flex-end;
+        }
+
+        .chat-bubble {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .chat-bubble.user {
+            background: var(--walmart-blue);
+            color: white;
+            border-radius: 12px 4px 12px 12px;
+        }
+
+        .chat-bubble.bot {
+            background: white;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 4px 12px 12px 12px;
+        }
+
+        .chat-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .suggestion-btn {
+            background: white;
+            border: 1px solid var(--walmart-blue);
+            color: var(--walmart-blue);
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .suggestion-btn:hover {
+            background: var(--walmart-blue);
+            color: white;
+        }
+
+        .chatbot-input-area {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            border-top: 1px solid #ddd;
+            background: white;
+        }
+
+        .chatbot-input {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 10px 16px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .chatbot-input:focus {
+            border-color: var(--walmart-blue);
+        }
+
+        .chatbot-send {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--walmart-blue);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .chatbot-send:hover {
+            background: var(--walmart-dark-blue);
+            transform: scale(1.05);
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #999;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+    </style>
+
+    <!-- CHATBOT WIDGET HTML -->
+    <div class="chatbot-widget">
+        <button class="chatbot-toggle" id="chatbot-toggle" title="Open assistant">
+            💬
+        </button>
+        <div class="chatbot-container" id="chatbot-container">
+            <div class="chatbot-header">
+                <h3>Supplier Assistant</h3>
+                <button class="chatbot-close" id="chatbot-close">&times;</button>
+            </div>
+            <div class="chatbot-messages" id="chatbot-messages"></div>
+            <div class="chatbot-input-area">
+                <input 
+                    type="text" 
+                    class="chatbot-input" 
+                    id="chatbot-input" 
+                    placeholder="Ask about suppliers..."
+                    autocomplete="off"
+                >
+                <button class="chatbot-send" id="chatbot-send">→</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chatbot functionality
+        const chatbotToggle = document.getElementById('chatbot-toggle');
+        const chatbotClose = document.getElementById('chatbot-close');
+        const chatbotContainer = document.getElementById('chatbot-container');
+        const chatbotMessages = document.getElementById('chatbot-messages');
+        const chatbotInput = document.getElementById('chatbot-input');
+        const chatbotSend = document.getElementById('chatbot-send');
+
+        chatbotToggle.addEventListener('click', () => {
+            chatbotContainer.classList.add('active');
+            chatbotToggle.classList.add('active');
+            chatbotInput.focus();
+        });
+
+        chatbotClose.addEventListener('click', () => {
+            chatbotContainer.classList.remove('active');
+            chatbotToggle.classList.remove('active');
+        });
+
+        async function sendChatMessage() {
+            const message = chatbotInput.value.trim();
+            if (!message) return;
+
+            addChatMessage(message, 'user');
+            chatbotInput.value = '';
+            showTypingIndicator();
 
             try {
-                const response = await fetch(`${API_BASE}/api/user/notes/save`, {
+                const response = await fetch(`${API_BASE}/api/chatbot/ask`, {
                     method: 'POST',
-                    headers,
-                    body: JSON.stringify({ supplierId: currentNoteId, content })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message, userId: currentUser })
                 });
+
                 const data = await response.json();
-                notes = data.notes;
-                closeNoteModal();
-                console.log('✅ Note saved');
+                removeTypingIndicator();
+
+                if (data.success) {
+                    addChatMessage(data.message, 'bot', data.suggestions);
+                } else {
+                    addChatMessage(data.message || 'I encountered an error. Please try again.', 'bot');
+                }
             } catch (error) {
-                console.error('Failed to save note:', error);
+                console.error('Chat error:', error);
+                removeTypingIndicator();
+                addChatMessage('Sorry, I encountered an error. Please try again.', 'bot');
             }
         }
 
-        function updateStats() {
-            const stats = {
-                total: suppliers.length,
-                inStock: suppliers.filter(s => s.inStock).length,
-                verified: suppliers.filter(s => s.verified).length,
-                avgRating: (suppliers.reduce((sum, s) => sum + s.rating, 0) / suppliers.length).toFixed(2)
-            };
-
-            const cards = document.querySelectorAll('.stat-card');
-            cards[0].querySelector('.stat-value').textContent = stats.total;
-            cards[1].querySelector('.stat-value').textContent = stats.inStock;
-            cards[2].querySelector('.stat-value').textContent = stats.verified;
-            cards[3].querySelector('.stat-value').textContent = stats.avgRating;
+        function addChatMessage(text, sender, suggestions = null) {
+            const messageEl = document.createElement('div');
+            messageEl.className = `chat-message ${sender}`;
+            
+            let html = `<div class="chat-bubble ${sender}">${text.replace(/\n/g, '<br>')}</div>`;
+            
+            if (suggestions && sender === 'bot') {
+                html += '<div class="chat-suggestions">';
+                suggestions.slice(0, 3).forEach(suggestion => {
+                    html += `<button class="suggestion-btn">${suggestion}</button>`;
+                });
+                html += '</div>';
+            }
+            
+            messageEl.innerHTML = html;
+            chatbotMessages.appendChild(messageEl);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
         }
 
-        function updateStatus(text, isConnected) {
-            const statusEl = document.getElementById('status-text');
-            const dotEl = document.querySelector('.status-dot');
-            statusEl.textContent = text;
-            dotEl.style.background = isConnected ? '#4ade80' : '#ef4444';
+        function showTypingIndicator() {
+            const messageEl = document.createElement('div');
+            messageEl.className = 'chat-message bot';
+            messageEl.id = 'typing-indicator';
+            messageEl.innerHTML = `<div class="chat-bubble bot"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+            chatbotMessages.appendChild(messageEl);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
         }
 
-        function debounce(fn, delay) {
-            let timeoutId;
-            return function(...args) {
-                clearTimeout(timeoutId);
-                timeoutId = setTimeout(() => fn.apply(this, args), delay);
-            };
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) indicator.remove();
         }
+
+        chatbotSend.addEventListener('click', sendChatMessage);
+        chatbotInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendChatMessage();
+        });
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                addChatMessage(
+                    'Hi! I\'m your Supplier Assistant. I can help you find suppliers, answer questions about navigation, and provide supplier details.\n\nWhat would you like to know?',
+                    'bot',
+                    ['Show me electronics suppliers', 'How do I add favorites?', 'Tell me about a supplier']
+                );
+            }, 500);
+        });
     </script>
 </body>
 </html>
