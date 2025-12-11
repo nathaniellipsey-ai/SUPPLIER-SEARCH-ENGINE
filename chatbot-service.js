@@ -144,6 +144,13 @@ export async function chatbotResponse(userMessage, suppliers, useAI = false) {
             success: true,
             message: `I found ${matching.length} ${category} suppliers. Here are some: ${matching.slice(0, 3).map(s => s.name).join(', ')}`,
             type: 'supplier_list',
+            // 🔥 NEW: Include action data for the frontend to use
+            action: {
+              type: 'filter',
+              filterType: 'category',
+              filterValue: category,
+              matchingSuppliers: matching.length
+            },
             suggestions: [
               `Show me all ${category} suppliers`,
               'Tell me about one of these',

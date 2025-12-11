@@ -1277,6 +1277,56 @@ Created with ❤️ by Code Puppy 🐶
             padding: 30px;
         }
 
+        /* 🆕 Category Card Styles */
+        .category-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            min-height: 140px;
+        }
+
+        .category-card:hover {
+            border-color: var(--walmart-blue);
+            background: linear-gradient(135deg, rgba(0, 113, 206, 0.05), rgba(0, 113, 206, 0.1));
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 113, 206, 0.15);
+        }
+
+        .category-card:active {
+            transform: translateY(-2px);
+        }
+
+        .category-icon {
+            font-size: 2.5rem;
+            line-height: 1;
+        }
+
+        .category-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            line-height: 1.3;
+        }
+
+        .category-count {
+            font-size: 0.8rem;
+            color: var(--walmart-blue);
+            font-weight: 600;
+            background: rgba(0, 113, 206, 0.1);
+            padding: 4px 10px;
+            border-radius: 12px;
+            width: 100%;
+        }
+
         .modal-section {
             margin-bottom: 25px;
             padding-bottom: 20px;
@@ -1560,7 +1610,7 @@ Created with ❤️ by Code Puppy 🐶
                         <div class="number" id="totalSuppliersCount">0</div>
                         <div class="label">Total Suppliers</div>
                     </div>
-                    <div class="stat-box yellow clickable" onclick="filterByStat('categories')" title="Click to sort vendors by category">
+                    <div class="stat-box yellow clickable" onclick="showCategoryModal()" title="Click to browse categories">
                         <div class="number" id="categoriesCount">0</div>
                         <div class="label">Categories</div>
                     </div>
@@ -1630,6 +1680,20 @@ Created with ❤️ by Code Puppy 🐶
                 <button class="modal-close" id="modalClose" aria-label="Close modal">✕</button>
             </div>
             <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- 🆕 Category Picker Modal -->
+    <div class="modal" id="categoryModal" role="dialog" aria-modal="true" aria-labelledby="categoryModalTitle">
+        <div class="modal-content" style="max-width: 900px; max-height: 80vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2 id="categoryModalTitle">📚 Select a Category</h2>
+                <p style="font-size: 0.9rem; color: #666; margin-top: 5px;">Click on any category to see suppliers</p>
+                <button class="modal-close" id="categoryModalClose" aria-label="Close modal">✕</button>
+            </div>
+            <div class="modal-body" id="categoryModalBody" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; padding: 20px;">
+                <!-- Categories will be populated here -->
+            </div>
         </div>
     </div>
 
@@ -2351,10 +2415,64 @@ async function searchSuppliersFromAPI(query) {
             return suppliers;
         }
 
-        const allSuppliers = generateSuppliers();
-        let filteredSuppliers = [...allSuppliers];
+        // Load suppliers from API instead of generating locally
+        let allSuppliers = [];
+        let filteredSuppliers = [];
         let currentPage = 1;
         const itemsPerPage = 20;
+        
+        // Async function to load suppliers from server
+        async function loadSuppliersFromServer() {
+            try {
+                console.log('🌐 Fetching suppliers from server...');
+                const response = await fetch(`${API_BASE}/api/suppliers`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.data && Array.isArray(data.data)) {
+                    allSuppliers = data.data;
+                    filteredSuppliers = [...allSuppliers];
+                    console.log(`✅ Loaded ${allSuppliers.length} suppliers from server!`);
+                    console.log('📊 Data source: SERVER (Live Data)');
+                    
+                    // Update status
+                    const statusElem = document.querySelector('.data-source-status');
+                    if (statusElem) {
+                        statusElem.innerHTML = '☁️ Server (Live Data)';
+                        statusElem.style.color = '#4ade80';
+                    }
+                    
+                    return true;
+                } else {
+                    throw new Error('Invalid response format');
+                }
+            } catch (error) {
+                console.warn('⚠️ Failed to load from server:', error.message);
+                console.log('🔄 Falling back to local data generation...');
+                
+                // Fallback to local generation
+                allSuppliers = generateSuppliers();
+                filteredSuppliers = [...allSuppliers];
+                console.log(`✅ Loaded ${allSuppliers.length} suppliers locally`);
+                console.log('📊 Data source: LOCAL (Seeded Data)');
+                
+                // Update status
+                const statusElem = document.querySelector('.data-source-status');
+                if (statusElem) {
+                    statusElem.innerHTML = '💾 Local (Seeded Data)';
+                    statusElem.style.color = '#f59e0b';
+                }
+                
+                return false;
+            }
+        }
+        
+        // Initialize suppliers (will be called on page load)
+        // This will be called after checkUserSession() completes
 
         // Toggle filter section collapse
         function toggleFilterSection(sectionId) {
@@ -2470,6 +2588,125 @@ async function searchSuppliersFromAPI(query) {
                 setTimeout(() => notification.remove(), 300);
             }, 3000);
         }
+
+        // 🆕 Category Modal Functions
+        function showCategoryModal() {
+            const categoryModal = document.getElementById('categoryModal');
+            const categoryModalBody = document.getElementById('categoryModalBody');
+            
+            // Get all unique categories with supplier counts
+            const categoryMap = new Map();
+            allSuppliers.forEach(s => {
+                const count = categoryMap.get(s.category) || 0;
+                categoryMap.set(s.category, count + 1);
+            });
+            
+            // Sort categories alphabetically
+            const categories = Array.from(categoryMap.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+            
+            console.log(`📚 Showing ${categories.length} categories`);
+            
+            // Create category cards
+            categoryModalBody.innerHTML = categories.map(([category, count]) => {
+                // Get emoji for category
+                const categoryEmoji = getCategoryEmoji(category);
+                
+                return `
+                    <div class="category-card" onclick="selectCategory('${category.replace(/'/g, "\'")}')">
+                        <div class="category-icon">${categoryEmoji}</div>
+                        <div class="category-name">${category}</div>
+                        <div class="category-count">${count} suppliers</div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Show modal
+            categoryModal.classList.add('active');
+        }
+        
+        function selectCategory(category) {
+            console.log(`🏷️ Selected category: ${category}`);
+            
+            // Filter suppliers by category
+            filteredSuppliers = allSuppliers.filter(s => s.category === category);
+            currentPage = 1;
+            
+            // Close modal
+            document.getElementById('categoryModal').classList.remove('active');
+            
+            // Render results
+            renderResults();
+            
+            // Show notification
+            const count = filteredSuppliers.length;
+            showNotification(`✅ Showing ${count} ${category} suppliers`);
+            
+            // Scroll to results
+            setTimeout(() => {
+                const resultsArea = document.querySelector('.results-area');
+                if (resultsArea) {
+                    resultsArea.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 300);
+        }
+        
+        function getCategoryEmoji(category) {
+            // Map categories to emojis
+            const emojiMap = {
+                'Personal Protective Equipment': '👷',
+                'Electrical': '⚡',
+                'Plumbing': '🚰',
+                'HVAC': '❄️',
+                'Steel & Metal': '🏗️',
+                'Concrete & Cement': '🧱',
+                'Lumber & Wood': '🪵',
+                'Flooring': '🏠',
+                'Roofing Materials': '🏢',
+                'Windows & Doors': '🪟',
+                'Tools & Equipment': '🔧',
+                'Safety & Security Fixtures': '🔒',
+                'Insulation': '🛡️',
+                'Paint & Coatings': '🎨',
+                'Fasteners & Hardware': '🔩',
+                'Lighting Fixtures': '💡',
+                'Flooring': '🏘️',
+                'Drywall & Gypsum': '📦',
+                'Masonry': '⛏️',
+                'Adhesives & Sealants': '🧴',
+                'Flooring': '⬜',
+                'Commercial Refrigeration': '❄️',
+                'Commercial Kitchen Equipment': '🍳',
+                'Retail Fixtures & Displays': '🛍️',
+                'Material Handling Equipment': '🏋️',
+                'Waste Management Systems': '♻️',
+                'Signage & Wayfinding': '🚩',
+                'Landscape & Site Work': '🌳',
+                'Emergency Power Systems': '⚡',
+                'Building Automation & Controls': '🤖',
+            };
+            
+            return emojiMap[category] || '📚';
+        }
+        
+        // Close category modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const categoryModalClose = document.getElementById('categoryModalClose');
+            const categoryModal = document.getElementById('categoryModal');
+            
+            if (categoryModalClose) {
+                categoryModalClose.addEventListener('click', () => {
+                    categoryModal.classList.remove('active');
+                });
+            }
+            
+            if (categoryModal) {
+                categoryModal.addEventListener('click', (e) => {
+                    if (e.target === categoryModal) {
+                        categoryModal.classList.remove('active');
+                    }
+                });
+            }
+        });
 
         let compareMode = false;
         let compareList = [];
@@ -3942,6 +4179,12 @@ async function searchSuppliersFromAPI(query) {
 
                 if (data.success) {
                     addChatMessage(data.message, 'bot', data.suggestions);
+                    
+                    // 🔥 NEW: Handle chatbot actions (like filtering)
+                    if (data.action) {
+                        console.log('🎬 Chatbot action:', data.action);
+                        handleChatbotAction(data.action);
+                    }
                 } else {
                     addChatMessage(data.message || 'I encountered an error. Please try again.', 'bot');
                 }
@@ -3950,6 +4193,64 @@ async function searchSuppliersFromAPI(query) {
                 removeTypingIndicator();
                 addChatMessage('Sorry, I encountered an error. Please try again.', 'bot');
             }
+        }
+        
+        // 🔥 NEW: Handle actions from chatbot (filtering, searching, etc.)
+        function handleChatbotAction(action) {
+            if (action.type === 'filter') {
+                if (action.filterType === 'category') {
+                    // Filter by category
+                    console.log(`🔍 Filtering by category: ${action.filterValue}`);
+                    
+                    // Filter suppliers by category
+                    filteredSuppliers = allSuppliers.filter(s => 
+                        s.category.toLowerCase() === action.filterValue.toLowerCase()
+                    );
+                    
+                    currentPage = 1;
+                    
+                    // Update the view
+                    if (typeof renderResults === 'function') {
+                        renderResults();
+                    } else {
+                        console.log(`📊 Found ${filteredSuppliers.length} ${action.filterValue} suppliers`);
+                    }
+                    
+                    // Show notification
+                    showChatNotification(`✅ Showing ${filteredSuppliers.length} ${action.filterValue} suppliers`);
+                    
+                    // Scroll dashboard into view
+                    const mainContent = document.querySelector('.main-content');
+                    if (mainContent) {
+                        setTimeout(() => mainContent.scrollIntoView({ behavior: 'smooth' }), 300);
+                    }
+                }
+            }
+        }
+        
+        // Show notification from chatbot
+        function showChatNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 100px;
+                right: 20px;
+                background: var(--walmart-blue);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                z-index: 9998;
+                font-weight: 600;
+                animation: slideInBottom 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOutBottom 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
         }
 
         function addChatMessage(text, sender, suggestions = null) {
@@ -3960,14 +4261,30 @@ async function searchSuppliersFromAPI(query) {
             
             if (suggestions && sender === 'bot') {
                 html += '<div class="chat-suggestions">';
-                suggestions.slice(0, 3).forEach(suggestion => {
-                    html += `<button class="suggestion-btn">${suggestion}</button>`;
+                suggestions.slice(0, 3).forEach((suggestion, idx) => {
+                    const suggestionId = `suggestion-${Date.now()}-${idx}`;
+                    html += `<button class="suggestion-btn" id="${suggestionId}" data-suggestion="${suggestion.replace(/"/g, '&quot;')}">${suggestion}</button>`;
                 });
                 html += '</div>';
             }
             
             messageEl.innerHTML = html;
             chatbotMessages.appendChild(messageEl);
+            
+            // Add click handlers to suggestion buttons
+            if (suggestions && sender === 'bot') {
+                messageEl.querySelectorAll('.suggestion-btn').forEach((btn, idx) => {
+                    btn.addEventListener('click', async (e) => {
+                        const suggestion = suggestions[idx];
+                        console.log('📤 Suggestion clicked:', suggestion);
+                        
+                        // Auto-send the suggestion as a new message
+                        chatbotInput.value = suggestion;
+                        await sendChatMessage();
+                    });
+                });
+            }
+            
             chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
         }
 
@@ -4005,6 +4322,32 @@ async function searchSuppliersFromAPI(query) {
                 console.log('✅ Session check result:', sessionOk);
             } catch (error) {
                 console.error('Session check error:', error);
+            }
+            
+            // Load suppliers from server (with fallback to local)
+            try {
+                console.log('\n📂 Loading supplier data...');
+                await loadSuppliersFromServer();
+                
+                // Initialize UI after suppliers load
+                if (typeof updateStats === 'function') {
+                    updateStats();
+                    console.log('✅ Updated statistics');
+                }
+                
+                if (typeof renderResults === 'function') {
+                    renderResults();
+                    console.log('✅ Rendered results');
+                }
+                
+                if (typeof populateFilters === 'function') {
+                    populateFilters();
+                    console.log('✅ Populated filters');
+                }
+                
+                console.log('✅ Dashboard ready!');
+            } catch (error) {
+                console.error('Error loading suppliers:', error);
             }
         });
     </script>
