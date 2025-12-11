@@ -1827,6 +1827,106 @@ async function searchSuppliersFromAPI(query) {
         const seededRandom = createSeededRandom(1962); // Fixed seed for consistent data!
 
         // ==========================================
+        // 🔧 GLOBAL VARIABLES
+        // ==========================================
+        
+        let allSuppliers = [];  // All suppliers from server
+        let filteredSuppliers = [];  // Filtered suppliers based on search/filter
+        let currentUser = null;  // Current logged-in user email
+        let userData = null;  // Current user's data (favorites, notes, etc.)
+        let useSharePoint = false;  // Whether SharePoint is available
+        let currentPage = 1;  // Current pagination page
+        let itemsPerPage = 20;  // Items per page
+        let compareList = [];  // List of suppliers being compared
+        let currentView = 'list';  // Current view type (list, grid, catalog)
+
+        // ==========================================
+        // 💾 STORAGE SERVICE (localStorage only)
+        // ==========================================
+        
+        const storage = {
+            // Get user data from localStorage
+            getUser: async function(userEmail) {
+                try {
+                    const userStr = localStorage.getItem('supplierPortalUser');
+                    if (!userStr) return null;
+                    
+                    const user = JSON.parse(userStr);
+                    if (user.email === userEmail) {
+                        return user;
+                    }
+                    return null;
+                } catch (error) {
+                    console.error('Error getting user:', error);
+                    return null;
+                }
+            },
+            
+            // Save user data to localStorage
+            saveUser: async function(userEmail, userData) {
+                try {
+                    const user = {
+                        ...userData,
+                        email: userEmail,
+                        lastUpdated: new Date().toISOString()
+                    };
+                    localStorage.setItem('supplierPortalUser', JSON.stringify(user));
+                    console.log('💾 Saved user:', userEmail);
+                    return true;
+                } catch (error) {
+                    console.error('Error saving user:', error);
+                    return false;
+                }
+            },
+            
+            // Add favorite
+            addFavorite: async function(userEmail, supplierId) {
+                try {
+                    if (!userData.favorites) userData.favorites = [];
+                    if (!userData.favorites.includes(supplierId)) {
+                        userData.favorites.push(supplierId);
+                        await this.saveUser(userEmail, userData);
+                    }
+                    return true;
+                } catch (error) {
+                    console.error('Error adding favorite:', error);
+                    return false;
+                }
+            },
+            
+            // Remove favorite
+            removeFavorite: async function(userEmail, supplierId) {
+                try {
+                    if (userData.favorites) {
+                        userData.favorites = userData.favorites.filter(id => id !== supplierId);
+                        await this.saveUser(userEmail, userData);
+                    }
+                    return true;
+                } catch (error) {
+                    console.error('Error removing favorite:', error);
+                    return false;
+                }
+            },
+            
+            // Save note
+            saveNote: async function(userEmail, supplierId, noteText) {
+                try {
+                    if (!userData.notes) userData.notes = {};
+                    if (noteText.trim()) {
+                        userData.notes[supplierId] = noteText;
+                    } else {
+                        delete userData.notes[supplierId];
+                    }
+                    await this.saveUser(userEmail, userData);
+                    return true;
+                } catch (error) {
+                    console.error('Error saving note:', error);
+                    return false;
+                }
+            }
+        };
+
+        // ==========================================
         // 🔗 API CONFIGURATION
         // ==========================================
         
@@ -2472,6 +2572,14 @@ async function searchSuppliersFromAPI(query) {
                 if (data.success && data.data && Array.isArray(data.data)) {
                     allSuppliers = data.data;
                     filteredSuppliers = [...allSuppliers];
+                    
+                    // Save suppliers to localStorage for reference
+                    try {
+                        localStorage.setItem('allSuppliers', JSON.stringify(allSuppliers));
+                    } catch (e) {
+                        console.warn('Could not save to localStorage:', e);
+                    }
+                    
                     console.log(`✅ Loaded ${allSuppliers.length} suppliers from server!`);
                     console.log('📊 Data source: SERVER (Live Data)');
                     
@@ -2519,6 +2627,14 @@ async function searchSuppliersFromAPI(query) {
                 // Fallback to local generation
                 allSuppliers = generateSuppliers();
                 filteredSuppliers = [...allSuppliers];
+                
+                // Save suppliers to localStorage
+                try {
+                    localStorage.setItem('allSuppliers', JSON.stringify(allSuppliers));
+                } catch (e) {
+                    console.warn('Could not save to localStorage:', e);
+                }
+                
                 console.log(`✅ Loaded ${allSuppliers.length} suppliers locally`);
                 console.log('📊 Data source: LOCAL (Seeded Data)');
                 
@@ -4000,8 +4116,20 @@ async function searchSuppliersFromAPI(query) {
         }
 
         function logout() {
+            console.log('🚪 Logging out user...');
+            
+            // Clear all user data
             localStorage.removeItem('currentUser');
-            window.location.href = 'login.html';
+            localStorage.removeItem('supplierPortalUser');
+            localStorage.removeItem('session_id');
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('user_email');
+            localStorage.removeItem('user_name');
+            
+            console.log('✅ Session cleared');
+            
+            // Redirect to login page
+            window.location.href = '/login.html';
         }
 
         function toggleFavorite(supplierId) {
