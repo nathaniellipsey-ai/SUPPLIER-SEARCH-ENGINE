@@ -1636,32 +1636,27 @@ Created with ❤️ by Code Puppy 🐶
     <script>
 
 // API URL - point to the Python API server
-const API_URL = window.location.origin;  // Uses current domain (works on localhost, Render, etc.)
+const API_URL = 'http://localhost:8000';
 let USE_API = false; // Set to true to use API instead of local generation
 
 // Function to load suppliers from API
 async function loadSuppliersFromAPI(skip = 0, limit = 5000) {
     try {
-        console.log('🌐 Fetching suppliers from:', API_URL + '/api/suppliers');
-        const response = await fetch(`${API_URL}/api/suppliers`);
-        console.log('📥 Response status:', response.status);
-        if (!response.ok) throw new Error('API Error: ' + response.status);
+        const response = await fetch(`${API_URL}/api/dashboard/suppliers?skip=${skip}&limit=${limit}`);
+        if (!response.ok) throw new Error('API Error');
         const data = await response.json();
-        console.log('📊 Server response:', data);
-        allSuppliers = data.data || [];
-        console.log('✅ Loaded', allSuppliers.length, 'suppliers from server');
-        return allSuppliers;
+        return data.suppliers || [];
     } catch (error) {
-        console.error('❌ Server load failed:', error);
-        throw error;  // Don't fall back to local - force server connection
+        console.warn('API load failed, using local generation:', error);
+        USE_API = false;
+        return null;
     }
 }
 
 // Function to load dashboard stats from API
 async function loadStatsFromAPI() {
     try {
-        console.log('📊 Fetching stats from:', API_URL + '/api/stats');
-        const response = await fetch(`${API_URL}/api/stats`);
+        const response = await fetch(`${API_URL}/api/dashboard/stats`);
         if (!response.ok) throw new Error('API Error');
         const data = await response.json();
         return data;
@@ -1674,12 +1669,7 @@ async function loadStatsFromAPI() {
 // Function to search suppliers from API
 async function searchSuppliersFromAPI(query) {
     try {
-        console.log('🔍 Searching:', query);
-        const response = await fetch(`${API_URL}/api/suppliers/search`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query })
-            })
+        const response = await fetch(`${API_URL}/api/dashboard/suppliers/search?q=${encodeURIComponent(query)}`);
         if (!response.ok) throw new Error('API Error');
         const data = await response.json();
         return data.results || [];
@@ -2354,9 +2344,36 @@ async function searchSuppliersFromAPI(query) {
             return suppliers;
         }
 
-        // Suppliers will be loaded from server - see loadSuppliers() function
-let allSuppliers = [];
-        let filteredSuppliers = [...allSuppliers];
+        // Load suppliers from server
+        let allSuppliers = [];
+        let filteredSuppliers = [];
+        
+        // Initialize on page load
+        async function initializeFromServer() {
+            console.log('🚀 Loading suppliers from server...');
+            try {
+                const response = await fetch(window.location.origin + '/api/suppliers');
+                if (!response.ok) throw new Error('Server error: ' + response.status);
+                const data = await response.json();
+                allSuppliers = data.data || [];
+                filteredSuppliers = [...allSuppliers];
+                console.log('✅ Loaded', allSuppliers.length, 'suppliers from server');
+                initializeFilters();
+                updateStats();
+                renderResults();
+                renderPagination();
+            } catch (error) {
+                console.error('❌ Failed to load suppliers:', error);
+                alert('❌ Failed to load from server:\n' + error.message);
+            }
+        }
+        
+        // Call on DOMContentLoaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeFromServer);
+        } else {
+            initializeFromServer();
+        }
         let currentPage = 1;
         const itemsPerPage = 20;
 
@@ -3622,20 +3639,7 @@ let allSuppliers = [];
         `;
         document.head.appendChild(noteModalStyle);
 
-        // Initialize - Load suppliers from server on page load
-window.addEventListener('DOMContentLoaded', async () => {
-    console.log('🚀 Page loading - fetching suppliers from server...');
-    try {
-        await loadSuppliersFromAPI();
-        console.log('✅ Suppliers loaded from server:', allSuppliers.length);
-        renderDashboard();
-    } catch (error) {
-        console.error('❌ Failed to load suppliers:', error);
-        alert('❌ Failed to load suppliers from server. Check console.');
-    }
-});
-
-// Initialize - Check user session first (async now!)
+        // Initialize - Check user session first (async now!)
         (async function() {
             const sessionValid = await checkUserSession();
             if (sessionValid) {
