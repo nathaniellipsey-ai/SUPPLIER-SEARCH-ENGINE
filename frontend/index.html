@@ -3378,6 +3378,14 @@ async function searchSuppliersFromAPI(query) {
             const end = start + itemsPerPage;
             const pageSuppliers = filteredSuppliers.slice(start, end);
 
+            console.log('🎨 renderResults called');
+            console.log('📊 pageSuppliers count:', pageSuppliers.length);
+            if (pageSuppliers.length > 0) {
+                console.log('🔍 First supplier object:', pageSuppliers[0]);
+                console.log('🔍 First supplier ID field:', pageSuppliers[0].id);
+                console.log('🔍 First supplier keys:', Object.keys(pageSuppliers[0]));
+            }
+
             document.getElementById('resultsCount').textContent = filteredSuppliers.length.toLocaleString();
             document.getElementById('toolbarResultCount').textContent = filteredSuppliers.length.toLocaleString();
 
@@ -3394,19 +3402,19 @@ async function searchSuppliersFromAPI(query) {
                             <input type="checkbox" 
                                 class="compare-checkbox" 
                                 id="compare-${supplier.id}" 
-                                onchange="toggleCompareSupplier(${supplier.id})" 
+                                onchange="toggleCompareSupplier('${supplier.id}')" 
                                 ${compareList.includes(supplier.id) ? 'checked' : ''}
                                 title="Select for comparison">
-                            <button class="favorite-btn" onclick="toggleFavorite(${supplier.id})" id="fav-${supplier.id}" title="Add to favorites">
+                            <button class="favorite-btn" onclick="toggleFavorite('${supplier.id}')" id="fav-${supplier.id}" title="Add to favorites">
                                 ❤️
                             </button>
-                            <div class="supplier-name" onclick="openSupplierModal(${supplier.id})" style="cursor: pointer;">
+                            <div class="supplier-name" onclick="openSupplierModal('${supplier.id}')" style="cursor: pointer;">
                                 ${supplier.name}
                                 ${supplier.walmartVerified ? '<span class="walmart-verified">✓ Walmart Verified</span>' : ''}
                             </div>
                         </div>
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <button class="note-btn" onclick="openNoteModal(${supplier.id})" title="Add/view notes">
+                            <button class="note-btn" onclick="openNoteModal('${supplier.id}')" title="Add/view notes">
                                 NOTE
                             </button>
                             <span class="ai-score">AI: ${supplier.aiScore}</span>
@@ -3575,9 +3583,8 @@ async function searchSuppliersFromAPI(query) {
 
         // Supplier Modal
         function openSupplierModal(supplierId) {
-            console.log('🏢 openSupplierModal called with ID:', supplierId);
+            console.log('🏢 openSupplierModal called with ID:', supplierId, 'Type:', typeof supplierId);
             console.log('📊 allSuppliers length:', allSuppliers ? allSuppliers.length : 'NULL');
-            console.log('📊 allSuppliers:', allSuppliers);
             
             if (!allSuppliers || allSuppliers.length === 0) {
                 console.error('❌ allSuppliers is empty or null!');
@@ -3585,12 +3592,17 @@ async function searchSuppliersFromAPI(query) {
                 return;
             }
             
-            const supplier = allSuppliers.find(s => s.id === supplierId);
+            // Find supplier - handle both string and number IDs
+            const supplier = allSuppliers.find(s => {
+                // Convert both to strings for comparison (API returns SUP-00001, local might be numbers)
+                return String(s.id) === String(supplierId);
+            });
+            
             console.log('🔍 Found supplier:', supplier);
             
             if (!supplier) {
                 console.error('❌ Supplier not found with ID:', supplierId);
-                console.log('🔍 Looking through IDs:', allSuppliers.map(s => s.id).slice(0, 10));
+                console.log('🔍 First 5 supplier IDs:', allSuppliers.slice(0, 5).map(s => `${s.id} (${typeof s.id})}`));
                 return;
             }
 
@@ -4072,7 +4084,7 @@ async function searchSuppliersFromAPI(query) {
         }
 
         function toggleFavorite(supplierId) {
-            console.log('🖤 toggleFavorite called for ID:', supplierId);
+            console.log('🖤 toggleFavorite called for ID:', supplierId, 'Type:', typeof supplierId);
             
             if (!userData) {
                 console.error('❌ No user data! userData is null/undefined');
@@ -4087,7 +4099,11 @@ async function searchSuppliersFromAPI(query) {
                 console.log('📝 Created empty favorites array');
             }
 
-            const index = userData.favorites.indexOf(supplierId);
+            // Convert to string for consistent comparison (API returns SUP-00001)
+            const suppId = String(supplierId);
+            const favoritesAsStrings = userData.favorites.map(f => String(f));
+            const index = favoritesAsStrings.indexOf(suppId);
+            
             if (index > -1) {
                 // Remove favorite
                 userData.favorites.splice(index, 1);
@@ -4152,8 +4168,17 @@ async function searchSuppliersFromAPI(query) {
         }
 
         function openNoteModal(supplierId) {
-            const supplier = allSuppliers.find(s => s.id === supplierId);
-            if (!supplier) return;
+            console.log('📝 openNoteModal called for ID:', supplierId, 'Type:', typeof supplierId);
+            
+            // Find supplier - handle both string and number IDs
+            const supplier = allSuppliers.find(s => String(s.id) === String(supplierId));
+            
+            if (!supplier) {
+                console.error('❌ Supplier not found for note with ID:', supplierId);
+                return;
+            }
+            
+            console.log('✅ Found supplier for note:', supplier.name);
 
             const currentNote = (userData.notes && userData.notes[supplierId]) || '';
 
