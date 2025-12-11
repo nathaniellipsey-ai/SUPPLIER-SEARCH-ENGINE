@@ -4,8 +4,6 @@
  * Uses built-in knowledge + optional AI API
  */
 
-import fetch from 'node-fetch';
-
 // Navigation help database
 const navigationHelp = {
   'how do i search': 'Use the search bar at the top to find suppliers by name, ID, or category.',
@@ -180,48 +178,11 @@ export async function chatbotResponse(userMessage, suppliers, useAI = false) {
 }
 
 // Optional: Call external AI API (OpenAI, etc.)
+// To use, install node-fetch and set OPENAI_API_KEY environment variable
 export async function callAIAPI(userMessage, context = {}) {
-  const apiKey = process.env.OPENAI_API_KEY;
-  
-  if (!apiKey) {
-    return null; // AI API not configured
-  }
-  
-  try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a helpful assistant for a Walmart Supplier Portal. Help users find suppliers, navigate the system, and answer questions about supplier information.'
-          },
-          {
-            role: 'user',
-            content: userMessage
-          }
-        ],
-        max_tokens: 150,
-        temperature: 0.7
-      })
-    });
-    
-    if (!response.ok) {
-      console.error('AI API error:', response.status);
-      return null;
-    }
-    
-    const data = await response.json();
-    return data.choices[0].message.content;
-  } catch (error) {
-    console.error('AI API call failed:', error.message);
-    return null;
-  }
+  // AI API support disabled by default to avoid dependency issues
+  // To enable: npm install node-fetch, set OPENAI_API_KEY env var
+  return null;
 }
 
 export default {
