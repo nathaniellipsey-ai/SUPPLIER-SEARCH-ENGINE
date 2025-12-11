@@ -2985,12 +2985,6 @@ async function searchSuppliersFromAPI(query) {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function closeModal() {
-            const modal = document.getElementById('supplierModal');
-            modal.style.display = 'none';
-            document.body.style.overflow = '';
-        }
-
         // Initialize filters
         function initializeFilters() {
             console.log('📊 Initializing filters with', allSuppliers.length, 'suppliers');
@@ -3359,10 +3353,10 @@ async function searchSuppliersFromAPI(query) {
                             <button class="favorite-btn ${isFavorited ? 'favorited' : ''}" onclick="toggleFavorite(${supplier.id})" id="fav-${supplier.id}" style="font-size: 1.5rem; flex: 1;">
                                 ❤️
                             </button>
-                            <button class="note-btn ${hasNote ? 'has-note' : ''}" onclick="openNoteModal(${supplier.id})" style="flex: 2;">
+                            <button class="note-btn ${hasNote ? 'has-note' : ''}" onclick="openNoteModal('${supplier.id}')" style="flex: 2;">
                                 NOTES
                             </button>
-                            <button class="btn btn-primary" onclick="openSupplierModal(${supplier.id})" style="flex: 3; padding: 10px; font-size: 0.8rem;">
+                            <button class="btn btn-primary" onclick="openSupplierModal('${supplier.id}')" style="flex: 3; padding: 10px; font-size: 0.8rem;">
                                 VIEW
                             </button>
                         </div>
@@ -3583,33 +3577,52 @@ async function searchSuppliersFromAPI(query) {
 
         // Supplier Modal
         function openSupplierModal(supplierId) {
-            console.log('🏢 openSupplierModal called with ID:', supplierId, 'Type:', typeof supplierId);
-            console.log('📊 allSuppliers length:', allSuppliers ? allSuppliers.length : 'NULL');
+            console.log('\n' + '='.repeat(60));
+            console.log('🏢 OPENING SUPPLIER MODAL');
+            console.log('='.repeat(60));
+            console.log('Supplier ID:', supplierId, 'Type:', typeof supplierId);
+            console.log('allSuppliers loaded:', allSuppliers ? allSuppliers.length : 'NULL');
             
             if (!allSuppliers || allSuppliers.length === 0) {
-                console.error('❌ allSuppliers is empty or null!');
+                console.error('❌ FATAL: allSuppliers is empty or null!');
                 alert('❌ No suppliers loaded. Please refresh the page.');
                 return;
             }
             
             // Find supplier - handle both string and number IDs
             const supplier = allSuppliers.find(s => {
-                // Convert both to strings for comparison (API returns SUP-00001, local might be numbers)
                 return String(s.id) === String(supplierId);
             });
             
-            console.log('🔍 Found supplier:', supplier);
-            
             if (!supplier) {
-                console.error('❌ Supplier not found with ID:', supplierId);
-                console.log('🔍 First 5 supplier IDs:', allSuppliers.slice(0, 5).map(s => `${s.id} (${typeof s.id})}`));
+                console.error('❌ FATAL: Supplier not found with ID:', supplierId);
+                console.log('First 5 supplier IDs:', allSuppliers.slice(0, 5).map(s => `${s.id} (${typeof s.id})}`));
                 return;
             }
+            
+            console.log('✅ Found supplier:', supplier.name);
+            console.log('   Category:', supplier.category);
+            console.log('   Location:', supplier.location);
 
-            document.getElementById('modalTitle').textContent = supplier.name;
-            document.getElementById('modalSubtitle').textContent = supplier.category;
-
+            console.log('\n📝 Populating modal elements...');
+            
+            const modalTitle = document.getElementById('modalTitle');
+            const modalSubtitle = document.getElementById('modalSubtitle');
             const modalBody = document.getElementById('modalBody');
+            
+            if (!modalTitle || !modalSubtitle || !modalBody) {
+                console.error('❌ FATAL: Modal elements not found!');
+                console.error('   modalTitle:', modalTitle);
+                console.error('   modalSubtitle:', modalSubtitle);
+                console.error('   modalBody:', modalBody);
+                return;
+            }
+            
+            console.log('✅ Modal elements found');
+            
+            modalTitle.textContent = supplier.name;
+            modalSubtitle.textContent = supplier.category;
+            console.log('✅ Set title and subtitle');
             modalBody.innerHTML = `
                 <div class="modal-section">
                     <h3>📋 About</h3>
@@ -3713,19 +3726,44 @@ async function searchSuppliersFromAPI(query) {
                 </div>
             `;
 
+            console.log('\n🖥️  Displaying modal...');
+            
             const modal = document.getElementById('supplierModal');
-            console.log('📱 Modal element:', modal);
             
             if (!modal) {
-                console.error('❌ Modal element not found!');
+                console.error('❌ FATAL: Modal element with id="supplierModal" not found!');
+                console.error('   Checking for all modals:', document.querySelectorAll('.modal').length);
                 return;
             }
             
+            console.log('✅ Modal element found:', modal.id);
+            console.log('   Modal classes before:', modal.className);
+            
+            // Remove any previous 'active' class first
+            modal.classList.remove('active');
+            
+            // Now add the active class
             modal.classList.add('active');
+            console.log('   Modal classes after:', modal.className);
+            
+            // Set inline display just to be safe
             modal.style.display = 'flex';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            
+            // Prevent body scroll
             document.body.style.overflow = 'hidden';
             
-            console.log('✅ Modal displayed for supplier:', supplier.name);
+            // Force a reflow to ensure CSS is applied
+            modal.offsetHeight;
+            
+            console.log('✅ Modal should now be visible');
+            console.log('   Modal display:', window.getComputedStyle(modal).display);
+            console.log('   Modal visibility:', window.getComputedStyle(modal).visibility);
+            console.log('   Modal z-index:', window.getComputedStyle(modal).zIndex);
+            console.log('='.repeat(60));
+            console.log('\n✨ MODAL OPENED FOR: ' + supplier.name);
+            console.log('='.repeat(60) + '\n');
         }
 
         function closeModal() {
