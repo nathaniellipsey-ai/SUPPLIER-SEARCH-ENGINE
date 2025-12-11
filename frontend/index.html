@@ -3586,20 +3586,28 @@ async function searchSuppliersFromAPI(query) {
                     if (spStatusElem) spStatusElem.innerHTML = '💾 Local Mode';
                 }
 
-                // Get current user email
-                let userEmail = localStorage.getItem('currentUser');
+                // Get current user email from login or auto-login
+                let userEmail = localStorage.getItem('user_email') || localStorage.getItem('currentUser');
                 
                 // If using SharePoint and no localStorage user, try to get from SharePoint
                 if (!userEmail && useSharePoint && spService.currentUserEmail) {
                     userEmail = spService.currentUserEmail;
-                    localStorage.setItem('currentUser', userEmail);
                 }
                 
-                // If still no user, create a default one for demo/testing
+                // If still no user, check if logged in via login form
                 if (!userEmail) {
+                    // Redirect to login if not authenticated
+                    const sessionId = localStorage.getItem('session_id');
+                    if (!sessionId) {
+                        console.log('⚠️ No user session found, redirecting to login');
+                        window.location.href = '/login.html';
+                        return false;
+                    }
+                    // Create a default for testing
                     userEmail = 'supplier_user@walmart.com';
-                    localStorage.setItem('currentUser', userEmail);
                 }
+                
+                localStorage.setItem('currentUser', userEmail);
 
                 currentUser = userEmail;
                 console.log('👤 Current user:', currentUser);

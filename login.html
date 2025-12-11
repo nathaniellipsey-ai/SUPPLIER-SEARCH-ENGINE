@@ -343,7 +343,7 @@
                 showMessage('✅ Login successful! Redirecting...', 'success');
                 
                 setTimeout(() => {
-                    window.location.href = '/DASHBOARD_API_WORKING.html';
+                    window.location.href = '/frontend/';
                 }, 1500);
                 
             } catch (error) {
@@ -384,7 +384,7 @@
                 showMessage('✅ Walmart SSO login successful! Redirecting...', 'success');
                 
                 setTimeout(() => {
-                    window.location.href = '/DASHBOARD_API_WORKING.html';
+                    window.location.href = '/frontend/';
                 }, 1500);
                 
             } catch (error) {
@@ -423,7 +423,7 @@
                 showMessage('✅ Welcome guest! Redirecting...', 'success');
                 
                 setTimeout(() => {
-                    window.location.href = '/DASHBOARD_API_WORKING.html';
+                    window.location.href = '/frontend/';
                 }, 1500);
                 
             } catch (error) {
@@ -448,7 +448,7 @@
         window.addEventListener('load', () => {
             const sessionId = localStorage.getItem('session_id');
             if (sessionId) {
-                window.location.href = '/index.html';
+                window.location.href = '/frontend/';
             }
         });
     </script>

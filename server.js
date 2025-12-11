@@ -27,8 +27,11 @@ app.use(cors());
 app.use(express.json());
 
 // Generate supplier data (seeded for consistency)
-let suppliersCache = generateSupplierData();
+// Generate 5000+ suppliers with full detail (not just 150!)
+let suppliersCache = generateSupplierData(5000);
 let lastUpdateTime = Date.now();
+
+console.log(`\n📊 Server data generator loaded ${suppliersCache.length} suppliers`);
 
 // Chat history store (optional - for multi-turn conversations)
 const chatHistoryStore = new Map();
@@ -62,6 +65,72 @@ const authenticate = (req, res, next) => {
   req.userId = userId;
   next();
 };
+
+// ==================== AUTHENTICATION ENDPOINTS ====================
+
+// Login endpoint
+app.post('/api/auth/login', (req, res) => {
+  try {
+    const { email, name, walmart_id } = req.body;
+    
+    if (!email || !name) {
+      return res.status(400).json({ 
+        success: false, 
+        detail: 'Email and name are required' 
+      });
+    }
+    
+    // Create session
+    const userId = email; // Use email as user ID
+    const sessionId = `sess-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Initialize user if needed
+    initializeUser(userId);
+    
+    console.log(`✅ User logged in: ${email}`);
+    
+    res.json({
+      success: true,
+      session_id: sessionId,
+      user_id: userId,
+      user_email: email,
+      user_name: name,
+      message: 'Login successful'
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ 
+      success: false, 
+      detail: 'Login failed: ' + error.message 
+    });
+  }
+});
+
+// Guest login endpoint
+app.post('/api/auth/guest', (req, res) => {
+  try {
+    const guestId = `guest-${Date.now()}`;
+    const sessionId = `sess-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    initializeUser(guestId);
+    
+    console.log(`✅ Guest user created: ${guestId}`);
+    
+    res.json({
+      success: true,
+      session_id: sessionId,
+      user_id: guestId,
+      user_name: 'Guest User',
+      message: 'Guest login successful'
+    });
+  } catch (error) {
+    console.error('Guest login error:', error);
+    res.status(500).json({ 
+      success: false, 
+      detail: 'Guest login failed' 
+    });
+  }
+});
 
 // ==================== DATA SERVER ENDPOINTS ====================
 
