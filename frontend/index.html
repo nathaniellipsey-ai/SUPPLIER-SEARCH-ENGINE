@@ -2960,7 +2960,9 @@ async function searchSuppliersFromAPI(query) {
         }
 
         function closeModal() {
-            document.getElementById('supplierModal').style.display = 'none';
+            const modal = document.getElementById('supplierModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
         }
 
         // Initialize filters
@@ -3644,7 +3646,10 @@ async function searchSuppliersFromAPI(query) {
                 </div>
             `;
 
-            document.getElementById('supplierModal').classList.add('active');
+            const modal = document.getElementById('supplierModal');
+            modal.style.display = 'flex';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
             document.body.style.overflow = 'hidden';
         }
 
@@ -3999,24 +4004,30 @@ async function searchSuppliersFromAPI(query) {
             window.location.href = 'login.html';
         }
 
-        async function toggleFavorite(supplierId) {
-            if (!userData) return;
+        function toggleFavorite(supplierId) {
+            if (!userData) {
+                console.warn('⚠️ No user data loaded');
+                return;
+            }
 
             if (!userData.favorites) userData.favorites = [];
 
             const index = userData.favorites.indexOf(supplierId);
             if (index > -1) {
                 // Remove favorite
-                await storage.removeFavorite(currentUser, supplierId);
                 userData.favorites.splice(index, 1);
+                console.log('❤️ Removed from favorites:', supplierId);
             } else {
                 // Add favorite
-                await storage.addFavorite(currentUser, supplierId);
                 userData.favorites.push(supplierId);
+                console.log('❤️ Added to favorites:', supplierId);
             }
 
-            await updateFavoriteButtons();
-            await updateFavoriteCount();
+            // Save to localStorage
+            localStorage.setItem('supplierPortalUser', JSON.stringify(userData));
+            
+            updateFavoriteButtons();
+            updateFavoriteCount();
         }
 
         function updateFavoriteButtons() {
@@ -4088,31 +4099,36 @@ async function searchSuppliersFromAPI(query) {
             if (modal) modal.remove();
         }
 
-        async function saveNote(supplierId) {
+        function saveNote(supplierId) {
             const noteText = document.getElementById('noteTextarea').value.trim();
             
             if (!userData.notes) userData.notes = {};
 
             if (noteText) {
-                await storage.saveNote(currentUser, supplierId, noteText);
                 userData.notes[supplierId] = noteText;
-                showNotification('✅ Note saved successfully!' + (useSharePoint ? ' (Synced to SharePoint)' : ''));
+                console.log('💾 Saved note for supplier:', supplierId);
+                alert('✅ Note saved successfully!');
             } else {
-                await storage.saveNote(currentUser, supplierId, '');
                 delete userData.notes[supplierId];
-                showNotification('🗑️ Note deleted');
+                console.log('🗑️ Deleted note for supplier:', supplierId);
+                alert('🗑️ Note deleted');
             }
 
-            await updateNoteButtons();
+            // Save to localStorage
+            localStorage.setItem('supplierPortalUser', JSON.stringify(userData));
+            
+            updateNoteButtons();
             closeNoteModal();
         }
 
-        async function deleteNote(supplierId) {
+        function deleteNote(supplierId) {
+            if (!confirm('Are you sure you want to delete this note?')) return;
+            
             if (userData.notes && userData.notes[supplierId]) {
-                await storage.saveNote(currentUser, supplierId, '');
                 delete userData.notes[supplierId];
-                await updateNoteButtons();
-                showNotification('🗑️ Note deleted');
+                localStorage.setItem('supplierPortalUser', JSON.stringify(userData));
+                updateNoteButtons();
+                alert('🗑️ Note deleted');
             }
 
             closeNoteModal();
@@ -4631,9 +4647,11 @@ async function searchSuppliersFromAPI(query) {
                     console.log('✅ Rendered results');
                 }
                 
-                if (typeof populateFilters === 'function') {
-                    populateFilters();
+                if (typeof initializeFilters === 'function') {
+                    initializeFilters();
                     console.log('✅ Populated filters');
+                } else {
+                    console.error('❌ initializeFilters function not found!');
                 }
                 
                 console.log('✅ Dashboard ready!');
