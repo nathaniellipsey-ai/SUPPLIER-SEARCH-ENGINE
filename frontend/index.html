@@ -3037,13 +3037,16 @@ async function searchSuppliersFromAPI(query) {
             });
             // Categories - show first 10, rest hidden
             const categoryContainer = document.getElementById('categoryFilters');
+            categoryContainer.innerHTML = '';  // CLEAR existing content first!
+            
             const allCategories = Object.keys(productCategories);
             const initialCategoryCount = 10;
             
+            let categoryHTML = '';
             allCategories.forEach((cat, index) => {
                 const count = allSuppliers.filter(s => s.category === cat).length;
                 const isHidden = index >= initialCategoryCount;
-                categoryContainer.innerHTML += `
+                categoryHTML += `
                     <div class="filter-option ${isHidden ? 'hidden-category' : ''}">
                         <input type="checkbox" id="cat-${cat}" value="${cat}" class="category-filter">
                         <label for="cat-${cat}">${cat}</label>
@@ -3053,27 +3056,32 @@ async function searchSuppliersFromAPI(query) {
             });
             
             if (allCategories.length > initialCategoryCount) {
-                categoryContainer.innerHTML += `
+                categoryHTML += `
                     <div class="filter-expand" onclick="toggleCategories()" id="categoryToggle">
                         <span id="categoryToggleIcon">▼</span> Show More (${allCategories.length - initialCategoryCount} more)
                     </div>
                 `;
             }
+            
+            categoryContainer.innerHTML = categoryHTML;
 
             // Product Types - get all unique products from suppliers
             const productContainer = document.getElementById('productTypeFilters');
+            productContainer.innerHTML = '';  // CLEAR existing content first!
+            
             const allProducts = [...new Set(
                 allSuppliers.flatMap(s => s.products || [])
             )].sort();
             
             console.log('   Found', allProducts.length, 'unique products');
             
+            let productHTML = '';
             if (allProducts.length > 0) {
                 allProducts.slice(0, 20).forEach(prod => {
                     const count = allSuppliers.filter(s => s.products && s.products.includes(prod)).length;
                     if (count > 0) {
                         const prodId = prod.replace(/[^a-zA-Z0-9]/g, '');
-                        productContainer.innerHTML += `
+                        productHTML += `
                             <div class="filter-option">
                                 <input type="checkbox" id="prod-${prodId}" value="${prod}" class="product-filter">
                                 <label for="prod-${prodId}">${prod}</label>
@@ -3085,24 +3093,28 @@ async function searchSuppliersFromAPI(query) {
                 
                 // Show "More" button if there are more products
                 if (allProducts.length > 20) {
-                    productContainer.innerHTML += `
+                    productHTML += `
                         <div style="padding: 10px; text-align: center; cursor: pointer; color: #0071ce; font-weight: 600;" onclick="alert('Showing top 20 products. There are ${allProducts.length} total products available.')">
                             + ${allProducts.length - 20} more products
                         </div>
                     `;
                 }
             } else {
-                productContainer.innerHTML = '<p style="color: #999;">No products available</p>';
+                productHTML = '<p style="color: #999;">No products available</p>';
             }
+            productContainer.innerHTML = productHTML;
 
             // Fixtures & Hardware - Get all unique products and organize by first letter/group
             const fixtureContainer = document.getElementById('fixtureFilters');
+            fixtureContainer.innerHTML = '';  // CLEAR existing content first!
+            
             const fixtureProducts = [...new Set(
                 allSuppliers.flatMap(s => s.products || [])
             )].sort();
             
             console.log('   Found', fixtureProducts.length, 'products for fixtures');
             
+            let fixtureHTML = '';
             if (fixtureProducts.length > 0) {
                 // Group products by first letter or common prefix
                 const groupedProducts = {};
@@ -3119,7 +3131,7 @@ async function searchSuppliersFromAPI(query) {
                     const subcatId = 'fixture-' + letter;
                     const isExpanded = index < 2; // First 2 groups expanded by default
                     
-                    fixtureContainer.innerHTML += `
+                    fixtureHTML += `
                         <div class="fixture-subcategory">
                             <div class="fixture-subcategory-title" onclick="toggleFixtureCategory('${subcatId}')">
                                 <span id="icon-${subcatId}">${isExpanded ? '▼' : '▶'}</span>
@@ -3141,6 +3153,7 @@ async function searchSuppliersFromAPI(query) {
                         </div>
                     `;
                 });
+                fixtureContainer.innerHTML = fixtureHTML;
             } else {
                 fixtureContainer.innerHTML = '<p style="color: #999;">No fixtures available</p>';
             }
@@ -4043,29 +4056,46 @@ async function searchSuppliersFromAPI(query) {
         }
 
         function toggleFavorite(supplierId) {
+            console.log('🖤 toggleFavorite called for ID:', supplierId);
+            
             if (!userData) {
-                console.warn('⚠️ No user data loaded');
+                console.error('❌ No user data! userData is null/undefined');
+                alert('Please login first!');
                 return;
             }
+            
+            console.log('📊 Current userData:', userData);
 
-            if (!userData.favorites) userData.favorites = [];
+            if (!userData.favorites) {
+                userData.favorites = [];
+                console.log('📝 Created empty favorites array');
+            }
 
             const index = userData.favorites.indexOf(supplierId);
             if (index > -1) {
                 // Remove favorite
                 userData.favorites.splice(index, 1);
-                console.log('❤️ Removed from favorites:', supplierId);
+                console.log('❌ Removed from favorites:', supplierId);
+                console.log('✅ Favorites now:', userData.favorites);
             } else {
                 // Add favorite
                 userData.favorites.push(supplierId);
-                console.log('❤️ Added to favorites:', supplierId);
+                console.log('✅ Added to favorites:', supplierId);
+                console.log('✅ Favorites now:', userData.favorites);
             }
 
             // Save to localStorage
-            localStorage.setItem('supplierPortalUser', JSON.stringify(userData));
+            try {
+                localStorage.setItem('supplierPortalUser', JSON.stringify(userData));
+                console.log('💾 Saved userData to localStorage:', userData);
+            } catch (e) {
+                console.error('❌ Failed to save to localStorage:', e);
+                return;
+            }
             
             updateFavoriteButtons();
             updateFavoriteCount();
+            console.log('✅ Heart button updated');
         }
 
         function updateFavoriteButtons() {
@@ -4138,25 +4168,49 @@ async function searchSuppliersFromAPI(query) {
         }
 
         function saveNote(supplierId) {
-            const noteText = document.getElementById('noteTextarea').value.trim();
+            console.log('💾 saveNote called for ID:', supplierId);
             
-            if (!userData.notes) userData.notes = {};
+            if (!userData) {
+                console.error('❌ userData is null/undefined');
+                alert('Please login first!');
+                return;
+            }
+            
+            const noteText = document.getElementById('noteTextarea').value.trim();
+            console.log('📝 Note text:', noteText);
+            
+            if (!userData.notes) {
+                userData.notes = {};
+                console.log('📝 Created empty notes object');
+            }
 
             if (noteText) {
                 userData.notes[supplierId] = noteText;
-                console.log('💾 Saved note for supplier:', supplierId);
-                alert('✅ Note saved successfully!');
+                console.log('✅ Saved note for supplier:', supplierId);
+                console.log('📊 Notes now:', userData.notes);
             } else {
                 delete userData.notes[supplierId];
-                console.log('🗑️ Deleted note for supplier:', supplierId);
-                alert('🗑️ Note deleted');
+                console.log('🗑️ Cleared note for supplier:', supplierId);
+                console.log('📊 Notes now:', userData.notes);
             }
 
             // Save to localStorage
-            localStorage.setItem('supplierPortalUser', JSON.stringify(userData));
+            try {
+                localStorage.setItem('supplierPortalUser', JSON.stringify(userData));
+                console.log('💾 Saved userData to localStorage');
+            } catch (e) {
+                console.error('❌ Failed to save to localStorage:', e);
+                return;
+            }
             
             updateNoteButtons();
             closeNoteModal();
+            
+            if (noteText) {
+                alert('✅ Note saved successfully!');
+            } else {
+                alert('🗑️ Note cleared');
+            }
         }
 
         function deleteNote(supplierId) {
