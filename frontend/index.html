@@ -2430,10 +2430,12 @@ async function searchSuppliersFromAPI(query) {
         }
 
         // Load suppliers from API instead of generating locally
-        let allSuppliers = [];
-        let filteredSuppliers = [];
-        let currentPage = 1;
-        const itemsPerPage = 20;
+        // NOTE: Variables already declared above (lines 1827+):
+        // - allSuppliers
+        // - filteredSuppliers  
+        // - currentPage
+        // - itemsPerPage
+        // DO NOT REDECLARE THEM HERE!
         
         // Async function to load suppliers from server
         async function loadSuppliersFromServer() {
@@ -2795,9 +2797,9 @@ async function searchSuppliersFromAPI(query) {
             }
         });
 
-        let compareMode = false;
-        let compareList = [];
-        let currentView = 'list'; // list, grid, or catalog
+        // NOTE: compareList and currentView already declared above (lines 1840-1841)
+        // DO NOT REDECLARE THEM HERE!
+        let compareMode = false;  // This one is unique, keep it
         
         function toggleCompareMode() {
             if (compareList.length < 2) {
@@ -3876,8 +3878,8 @@ async function searchSuppliersFromAPI(query) {
         // USER AUTHENTICATION & FAVORITES SYSTEM
         // ==========================================
         
-        let currentUser = null;
-        let userData = null;
+        // NOTE: currentUser and userData already declared above (lines 1835-1836)
+        // DO NOT REDECLARE THEM HERE!
 
         async function checkUserSession() {
             try {
