@@ -2305,105 +2305,13 @@ async function searchSuppliersFromAPI(query) {
 
         // Initialize SharePoint service
         const spService = new SharePointService(SHAREPOINT_CONFIG);
-        let useSharePoint = false;
+        // Note: useSharePoint declared above, don't redeclare here!
+        // Note: storage object declared above, don't redeclare here!
 
-        // Storage abstraction layer - uses SharePoint or localStorage
-        const storage = {
-            async getUser(email) {
-                if (useSharePoint) {
-                    const profile = await spService.getUserProfile(email);
-                    if (profile) {
-                        const favorites = await spService.getFavorites(email);
-                        const notes = await spService.getNotes(email);
-                        return {
-                            name: profile.FullName,
-                            email: email,
-                            department: profile.Department,
-                            favorites: favorites,
-                            notes: notes,
-                            inbox: [] // Inbox would be loaded separately
-                        };
-                    }
-                    return null;
-                } else {
-                    const users = JSON.parse(localStorage.getItem('supplierPortalUsers') || '{}');
-                    return users[email] || null;
-                }
-            },
-            
-            async saveUser(email, userData) {
-                if (useSharePoint) {
-                    // User profile is managed separately in SharePoint
-                    return true;
-                } else {
-                    const users = JSON.parse(localStorage.getItem('supplierPortalUsers') || '{}');
-                    users[email] = userData;
-                    localStorage.setItem('supplierPortalUsers', JSON.stringify(users));
-                    return true;
-                }
-            },
-            
-            async getFavorites(email) {
-                if (useSharePoint) {
-                    return await spService.getFavorites(email);
-                } else {
-                    const users = JSON.parse(localStorage.getItem('supplierPortalUsers') || '{}');
-                    return users[email]?.favorites || [];
-                }
-            },
-            
-            async addFavorite(email, supplierId) {
-                if (useSharePoint) {
-                    return await spService.addFavorite(email, supplierId);
-                } else {
-                    const users = JSON.parse(localStorage.getItem('supplierPortalUsers') || '{}');
-                    if (!users[email]) return false;
-                    if (!users[email].favorites) users[email].favorites = [];
-                    if (!users[email].favorites.includes(supplierId)) {
-                        users[email].favorites.push(supplierId);
-                    }
-                    localStorage.setItem('supplierPortalUsers', JSON.stringify(users));
-                    return true;
-                }
-            },
-            
-            async removeFavorite(email, supplierId) {
-                if (useSharePoint) {
-                    return await spService.removeFavorite(email, supplierId);
-                } else {
-                    const users = JSON.parse(localStorage.getItem('supplierPortalUsers') || '{}');
-                    if (!users[email]) return false;
-                    if (users[email].favorites) {
-                        users[email].favorites = users[email].favorites.filter(id => id !== supplierId);
-                    }
-                    localStorage.setItem('supplierPortalUsers', JSON.stringify(users));
-                    return true;
-                }
-            },
-            
-            async getNotes(email) {
-                if (useSharePoint) {
-                    return await spService.getNotes(email);
-                } else {
-                    const users = JSON.parse(localStorage.getItem('supplierPortalUsers') || '{}');
-                    return users[email]?.notes || {};
-                }
-            },
-            
-            async saveNote(email, supplierId, noteText) {
-                if (useSharePoint) {
-                    return await spService.saveNote(email, supplierId, noteText);
-                } else {
-                    const users = JSON.parse(localStorage.getItem('supplierPortalUsers') || '{}');
-                    if (!users[email]) return false;
-                    if (!users[email].notes) users[email].notes = {};
-                    users[email].notes[supplierId] = noteText;
-                    localStorage.setItem('supplierPortalUsers', JSON.stringify(users));
-                    return true;
-                }
-            }
-        };
-
+        // ========================================
+        // OLD CODE REMOVED - Using new storage object above
+        // ========================================
+        
         // Generate large supplier dataset
         function generateSuppliers() {
             const suppliers = [];
