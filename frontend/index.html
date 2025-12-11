@@ -3639,13 +3639,13 @@ async function searchSuppliersFromAPI(query) {
         `;
         document.head.appendChild(noteModalStyle);
 
-        // Initialize - Check user session first (async now!)
+        // Initialize - Check user session
         (async function() {
-            const sessionValid = await checkUserSession();
-            if (sessionValid) {
-                initializeFilters();
-                updateStats();
-                renderResults();
+            try {
+                const sessionValid = await checkUserSession();
+                // Session check complete - suppliers already loaded from initializeFromServer()
+            } catch (error) {
+                console.error('Session check failed, but suppliers loaded from server');
             }
         })();
     </script>
