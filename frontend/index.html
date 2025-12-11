@@ -4865,80 +4865,63 @@ async function searchSuppliersFromAPI(query) {
         });
 
         // Auto-login on page load
+        // SIMPLIFIED LOAD - IMMEDIATE
         window.addEventListener('load', async () => {
             console.log('🔄 PAGE LOAD EVENT STARTING...');
             
-            // First, auto-login if no user is set
-            if (!localStorage.getItem('currentUser')) {
-                // Create a default user
-                const defaultUser = 'supplier_user@walmart.com';
-                localStorage.setItem('currentUser', defaultUser);
-                console.log('✅ Created default user:', defaultUser);
-            }
-            
-            // Check user session (this will auto-create user if needed)
+            // IMMEDIATE: Load local data NOW without waiting for anything
             try {
-                console.log('\n👤 Checking user session...');
-                const sessionOk = await checkUserSession();
-                console.log('✅ Session check result:', sessionOk);
-                console.log('📊 userData after session:', userData);
-            } catch (error) {
-                console.error('❌ Session check error:', error);
-            }
-            
-            // Load suppliers - IMMEDIATE LOCAL LOAD, then try server
-            try {
-                console.log('\n📂 Loading supplier data...');
-                
-                // FIRST: Load from local immediately
-                console.log('📂 Loading local seeded data immediately...');
+                console.log('⚡ IMMEDIATE: Loading local seeded data...');
                 allSuppliers = generateSuppliers();
                 filteredSuppliers = [...allSuppliers];
+                console.log(`✅ Loaded ${allSuppliers.length} suppliers`);
+                
+                // Update status
                 const statusElem = document.getElementById('spStatus');
                 if (statusElem) {
-                    statusElem.innerHTML = '💾 Local (Seeded Data)';
+                    statusElem.innerHTML = '💾 Local Data';
                     statusElem.style.color = '#f59e0b';
-                    statusElem.style.opacity = '1';
                 }
-                console.log(`✅ Loaded ${allSuppliers.length} suppliers from LOCAL`);
                 
-                // Initialize UI with local data
-                console.log('\n🎨 Initializing UI with local data...');
-                if (typeof updateStats === 'function') {
-                    updateStats();
-                    console.log('✅ Updated statistics');
-                }
-                if (typeof renderResults === 'function') {
-                    renderResults();
-                    console.log('✅ Rendered results');
-                }
-                if (typeof initializeFilters === 'function') {
-                    initializeFilters();
-                    console.log('✅ Populated filters');
-                }
-                console.log('\n✅ DASHBOARD READY WITH LOCAL DATA!');
-                
-                // THEN: Try to load from server in background (don't wait)
-                console.log('\n🌐 Attempting to fetch live data from server (background)...');
+                // Render UI
+                updateStats();
+                renderResults();
+                initializeFilters();
+                console.log('✅ UI Ready!');
+            } catch (e) {
+                console.error('❌ Immediate load error:', e);
+            }
+            
+            // BACKGROUND: User session (don't wait)
+            try {
+                console.log('\n👤 Checking user session (background)...');
+                const sessionOk = await checkUserSession();
+                console.log('✅ Session check result:', sessionOk);
+            } catch (error) {
+                console.warn('⚠️ Session check failed (ok, continuing):', error.message);
+            }
+            
+            // BACKGROUND: Try to load from server (don't wait for it)
+            try {
+                console.log('\n🌐 Attempting server load (background, non-blocking)...');
+                const statusElem = document.getElementById('spStatus');
                 loadSuppliersFromServer().then(success => {
                     if (success && allSuppliers && allSuppliers.length > 0) {
-                        console.log(`✅ Server data loaded! Updating display...`);
+                        console.log(`✅ Server data loaded!`);
                         if (statusElem) {
-                            statusElem.innerHTML = '☁️ Server (Live Data)';
+                            statusElem.innerHTML = '☁️ Server (Live)';
                             statusElem.style.color = '#4ade80';
-                            statusElem.style.opacity = '1';
                         }
-                        // Refresh the display
+                        // Refresh display with server data
                         currentPage = 1;
                         if (typeof updateStats === 'function') updateStats();
                         if (typeof renderResults === 'function') renderResults();
                     }
                 }).catch(err => {
-                    console.warn('⚠️ Server load failed (local data still showing):', err.message);
+                    console.log('ℹ️ Server not available, using local data');
                 });
             } catch (error) {
-                console.error('❌ Error in data loading:', error);
-                console.error('Stack:', error.stack);
+                console.log('ℹ️ Server load skipped, using local data');
             }
         });
     </script>
