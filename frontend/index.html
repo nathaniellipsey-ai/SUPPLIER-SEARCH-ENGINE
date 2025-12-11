@@ -3577,11 +3577,15 @@ async function searchSuppliersFromAPI(query) {
 
         // Supplier Modal
         function openSupplierModal(supplierId) {
-            console.log('\n' + '='.repeat(60));
-            console.log('🏢 OPENING SUPPLIER MODAL');
-            console.log('='.repeat(60));
-            console.log('Supplier ID:', supplierId, 'Type:', typeof supplierId);
-            console.log('allSuppliers loaded:', allSuppliers ? allSuppliers.length : 'NULL');
+            // SIMPLE ALERT TEST
+            alert('SUPPLIER CLICKED! ID: ' + supplierId);
+            
+            try {
+                console.log('\n' + '='.repeat(60));
+                console.log('🏢 OPENING SUPPLIER MODAL');
+                console.log('='.repeat(60));
+                console.log('Supplier ID:', supplierId, 'Type:', typeof supplierId);
+                console.log('allSuppliers loaded:', allSuppliers ? allSuppliers.length : 'NULL');
             
             if (!allSuppliers || allSuppliers.length === 0) {
                 console.error('❌ FATAL: allSuppliers is empty or null!');
@@ -3728,54 +3732,68 @@ async function searchSuppliersFromAPI(query) {
 
             console.log('\n🖥️  Displaying modal...');
             
+            // SIMPLE DISPLAY - just show what we need to show
             const modal = document.getElementById('supplierModal');
             
             if (!modal) {
-                console.error('❌ FATAL: Modal element with id="supplierModal" not found!');
-                console.error('   Checking for all modals:', document.querySelectorAll('.modal').length);
+                alert('ERROR: Modal element not found. Contact support.');
+                console.error('Modal element not found');
                 return;
             }
             
-            console.log('✅ Modal element found:', modal.id);
-            console.log('   Modal classes before:', modal.className);
-            
-            // Remove any previous 'active' class first
-            modal.classList.remove('active');
-            
-            // Now add the active class
-            modal.classList.add('active');
-            console.log('   Modal classes after:', modal.className);
-            
-            // Set inline display just to be safe
+            // Force it to show with all the power we have
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100%';
+            modal.style.height = '100%';
+            modal.style.backgroundColor = 'rgba(0,0,0,0.7)';
             modal.style.display = 'flex';
             modal.style.alignItems = 'center';
             modal.style.justifyContent = 'center';
+            modal.style.zIndex = '99999';
+            modal.style.visibility = 'visible';
+            modal.style.opacity = '1';
             
-            // Prevent body scroll
+            // Also add class for CSS
+            modal.classList.add('active');
+            
+            // Prevent scrolling
             document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
             
-            // Force a reflow to ensure CSS is applied
-            modal.offsetHeight;
-            
-            console.log('✅ Modal should now be visible');
-            console.log('   Modal display:', window.getComputedStyle(modal).display);
-            console.log('   Modal visibility:', window.getComputedStyle(modal).visibility);
-            console.log('   Modal z-index:', window.getComputedStyle(modal).zIndex);
-            console.log('='.repeat(60));
-            console.log('\n✨ MODAL OPENED FOR: ' + supplier.name);
-            console.log('='.repeat(60) + '\n');
+            console.log('✅ Modal forced to display with inline styles');
+            console.log('✨ MODAL OPENED FOR: ' + supplier.name);
         }
 
         function closeModal() {
-            document.getElementById('supplierModal').classList.remove('active');
+            const modal = document.getElementById('supplierModal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('active');
+            }
             document.body.style.overflow = '';
+            document.body.style.position = '';
+            console.log('✅ Modal closed');
         }
 
-        // Modal close handlers
-        document.getElementById('modalClose').addEventListener('click', closeModal);
-        document.getElementById('supplierModal').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
-        });
+        // Modal close handlers - with safety checks
+        const modalCloseBtn = document.getElementById('modalClose');
+        const supplierModalElem = document.getElementById('supplierModal');
+        
+        if (modalCloseBtn) {
+            modalCloseBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                closeModal();
+            });
+        }
+        
+        if (supplierModalElem) {
+            supplierModalElem.addEventListener('click', function(e) {
+                if (e.target === this) closeModal();
+            });
+        }
+        
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') closeModal();
         });
