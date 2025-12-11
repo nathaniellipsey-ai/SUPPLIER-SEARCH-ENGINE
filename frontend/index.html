@@ -3714,10 +3714,18 @@ async function searchSuppliersFromAPI(query) {
             `;
 
             const modal = document.getElementById('supplierModal');
+            console.log('📱 Modal element:', modal);
+            
+            if (!modal) {
+                console.error('❌ Modal element not found!');
+                return;
+            }
+            
+            modal.classList.add('active');
             modal.style.display = 'flex';
-            modal.style.alignItems = 'center';
-            modal.style.justifyContent = 'center';
             document.body.style.overflow = 'hidden';
+            
+            console.log('✅ Modal displayed for supplier:', supplier.name);
         }
 
         function closeModal() {
@@ -4133,12 +4141,28 @@ async function searchSuppliersFromAPI(query) {
         function updateFavoriteButtons() {
             if (!userData || !userData.favorites) return;
 
+            console.log('🎨 Updating favorite buttons. Favorites:', userData.favorites);
+            
             document.querySelectorAll('.favorite-btn').forEach(btn => {
-                const supplierId = parseInt(btn.id.replace('fav-', ''));
-                if (userData.favorites.includes(supplierId)) {
+                // Extract ID from button ID (e.g., 'fav-SUP-00001' -> 'SUP-00001')
+                const supplierId = btn.id.replace('fav-', '');
+                
+                // Convert favorites to strings for comparison
+                const favoritesAsStrings = userData.favorites.map(f => String(f));
+                const isFavorited = favoritesAsStrings.includes(String(supplierId));
+                
+                console.log(`  Button ID: ${supplierId}, IsFavorited: ${isFavorited}`);
+                
+                if (isFavorited) {
                     btn.classList.add('favorited');
+                    btn.style.color = '#ff1744';
+                    btn.style.textShadow = '0 0 5px rgba(255, 23, 68, 0.5)';
+                    console.log(`  ✅ Added favorited class to ${supplierId}`);
                 } else {
                     btn.classList.remove('favorited');
+                    btn.style.color = '';
+                    btn.style.textShadow = '';
+                    console.log(`  ❌ Removed favorited class from ${supplierId}`);
                 }
             });
         }
@@ -4192,8 +4216,8 @@ async function searchSuppliersFromAPI(query) {
                         <div class="note-modal-body">
                             <textarea id="noteTextarea" placeholder="Add your notes about this supplier..." style="width: 100%; height: 200px; padding: 15px; font-family: var(--body-font); font-size: 1rem; border: 2px solid #ddd; resize: vertical;">${currentNote}</textarea>
                             <div style="margin-top: 15px; display: flex; gap: 10px;">
-                                <button onclick="saveNote(${supplierId})" class="btn btn-primary" style="flex: 1; padding: 12px;">💾 SAVE NOTE</button>
-                                <button onclick="deleteNote(${supplierId})" class="btn btn-secondary" style="padding: 12px;">🗑️ DELETE</button>
+                                <button onclick="saveNote('${supplierId}')" class="btn btn-primary" style="flex: 1; padding: 12px;">💾 SAVE NOTE</button>
+                                <button onclick="deleteNote('${supplierId}')" class="btn btn-secondary" style="padding: 12px;">🗑️ DELETE</button>
                             </div>
                         </div>
                     </div>
@@ -4209,7 +4233,7 @@ async function searchSuppliersFromAPI(query) {
         }
 
         function saveNote(supplierId) {
-            console.log('💾 saveNote called for ID:', supplierId);
+            console.log('💾 saveNote called for ID:', supplierId, 'Type:', typeof supplierId);
             
             if (!userData) {
                 console.error('❌ userData is null/undefined');
@@ -4217,7 +4241,13 @@ async function searchSuppliersFromAPI(query) {
                 return;
             }
             
-            const noteText = document.getElementById('noteTextarea').value.trim();
+            const noteTextarea = document.getElementById('noteTextarea');
+            if (!noteTextarea) {
+                console.error('❌ Textarea not found!');
+                return;
+            }
+            
+            const noteText = noteTextarea.value.trim();
             console.log('📝 Note text:', noteText);
             
             if (!userData.notes) {
@@ -4225,13 +4255,16 @@ async function searchSuppliersFromAPI(query) {
                 console.log('📝 Created empty notes object');
             }
 
+            // Convert supplierId to string for consistency
+            const suppIdStr = String(supplierId);
+            
             if (noteText) {
-                userData.notes[supplierId] = noteText;
-                console.log('✅ Saved note for supplier:', supplierId);
+                userData.notes[suppIdStr] = noteText;
+                console.log('✅ Saved note for supplier:', suppIdStr);
                 console.log('📊 Notes now:', userData.notes);
             } else {
-                delete userData.notes[supplierId];
-                console.log('🗑️ Cleared note for supplier:', supplierId);
+                delete userData.notes[suppIdStr];
+                console.log('🗑️ Cleared note for supplier:', suppIdStr);
                 console.log('📊 Notes now:', userData.notes);
             }
 
@@ -4241,6 +4274,7 @@ async function searchSuppliersFromAPI(query) {
                 console.log('💾 Saved userData to localStorage');
             } catch (e) {
                 console.error('❌ Failed to save to localStorage:', e);
+                alert('❌ Failed to save note!');
                 return;
             }
             
@@ -4248,20 +4282,47 @@ async function searchSuppliersFromAPI(query) {
             closeNoteModal();
             
             if (noteText) {
+                console.log('✅ Alert: Note saved successfully!');
                 alert('✅ Note saved successfully!');
             } else {
+                console.log('🗑️ Alert: Note cleared');
                 alert('🗑️ Note cleared');
             }
         }
 
         function deleteNote(supplierId) {
-            if (!confirm('Are you sure you want to delete this note?')) return;
+            console.log('🗑️ deleteNote called for ID:', supplierId, 'Type:', typeof supplierId);
             
-            if (userData.notes && userData.notes[supplierId]) {
-                delete userData.notes[supplierId];
-                localStorage.setItem('supplierPortalUser', JSON.stringify(userData));
+            if (!confirm('Are you sure you want to delete this note?')) {
+                console.log('User cancelled delete');
+                return;
+            }
+            
+            if (!userData) {
+                console.error('❌ userData is null');
+                return;
+            }
+            
+            // Convert to string for consistency
+            const suppIdStr = String(supplierId);
+            
+            if (userData.notes && userData.notes[suppIdStr]) {
+                delete userData.notes[suppIdStr];
+                console.log('✅ Deleted note for:', suppIdStr);
+                console.log('📊 Notes now:', userData.notes);
+                
+                try {
+                    localStorage.setItem('supplierPortalUser', JSON.stringify(userData));
+                    console.log('💾 Saved to localStorage');
+                } catch (e) {
+                    console.error('❌ Failed to save:', e);
+                    alert('❌ Failed to delete note!');
+                }
+                
                 updateNoteButtons();
                 alert('🗑️ Note deleted');
+            } else {
+                console.log('No note found for ID:', suppIdStr);
             }
 
             closeNoteModal();
@@ -4815,19 +4876,7 @@ async function searchSuppliersFromAPI(query) {
         });
     </script>
 
-    <!-- SUPPLIER PROFILE MODAL -->
-    <div id="supplierModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 2000; overflow-y: auto;">
-        <div class="modal-content" style="background: white; margin: 50px auto; padding: 30px; border-radius: 10px; max-width: 900px; box-shadow: 0 5px 30px rgba(0,0,0,0.3);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <div>
-                    <h2 id="modalTitle" style="margin: 0; color: var(--walmart-blue);">Supplier Name</h2>
-                    <h4 id="modalSubtitle" style="margin: 5px 0 0 0; color: #666;">Category</h4>
-                </div>
-                <button id="modalClose" style="background: none; border: none; font-size: 2rem; cursor: pointer; color: #999;">&times;</button>
-            </div>
-            <div id="modalBody" style="color: #333;"></div>
-        </div>
-    </div>
+
 
     <!-- ADD SUPPLIER MODAL -->
     <div id="addSupplierModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 2000; overflow-y: auto;">
