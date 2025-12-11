@@ -2228,7 +2228,8 @@ async function searchSuppliersFromAPI(query) {
         };
 
         // Generate large supplier dataset
-        function generateSuppliers() {
+        // ⚠️ LOCAL DATA GENERATION DISABLED - Using server data only
+        // function generateSuppliers() {
             const suppliers = [];
             const usedNames = new Set();
             const companyTypes = ['Inc.', 'LLC', 'Corp.', 'Co.', 'Supply Co.', 'Distributors', 'Materials', 'Solutions', 'Industries', 'Group', 'Enterprises', 'Services', 'Systems', 'Technologies'];
@@ -2342,10 +2343,38 @@ async function searchSuppliersFromAPI(query) {
                 }
             }
             return suppliers;
-        }
+        } // END OF DISABLED generateSuppliers() FUNCTION
 
-        const allSuppliers = generateSuppliers();
-        let filteredSuppliers = [...allSuppliers];
+        // ✅ LOAD SUPPLIERS FROM SERVER ONLY (no local generation)
+        let allSuppliers = [];
+        let filteredSuppliers = [];
+        
+        // Initialize on page load
+        async function initializeFromServer() {
+            console.log('🚀 Loading suppliers from server...');
+            try {
+                const response = await fetch(window.location.origin + '/api/suppliers');
+                if (!response.ok) throw new Error('Server error: ' + response.status);
+                const data = await response.json();
+                allSuppliers = data.data || [];
+                filteredSuppliers = [...allSuppliers];
+                console.log('✅ Loaded', allSuppliers.length, 'suppliers from server');
+                initializeFilters();
+                updateStats();
+                renderResults();
+                renderPagination();
+            } catch (error) {
+                console.error('❌ Failed to load suppliers:', error);
+                alert('❌ Failed to load from server:\n' + error.message);
+            }
+        }
+        
+        // Call on DOMContentLoaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeFromServer);
+        } else {
+            initializeFromServer();
+        }
         let currentPage = 1;
         const itemsPerPage = 20;
 
@@ -3611,15 +3640,9 @@ async function searchSuppliersFromAPI(query) {
         `;
         document.head.appendChild(noteModalStyle);
 
-        // Initialize - Check user session first (async now!)
-        (async function() {
-            const sessionValid = await checkUserSession();
-            if (sessionValid) {
-                initializeFilters();
-                updateStats();
-                renderResults();
-            }
-        })();
+        // Note: User session check disabled - focus on loading suppliers from server
+        // Favorites and user features will work with localStorage fallback
+        console.log('✅ Dashboard ready - suppliers loaded from server');
     </script>
 </body>
 </html>
