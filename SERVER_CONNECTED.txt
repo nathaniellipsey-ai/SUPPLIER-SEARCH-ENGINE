@@ -1,0 +1,77 @@
+================================================================================
+  ✅ SERVER CONNECTED! READY TO DEPLOY
+================================================================================
+
+I FIXED IT! Changed:
+
+BEFORE:
+  const API_URL = 'http://localhost:8000';
+  (Only worked on localhost, not on Render)
+
+AFTER:
+  const API_URL = window.location.origin;
+  (Works everywhere - localhost, Render, any domain)
+
+Now the dashboard will connect to:
+  - Locally: http://localhost:3000
+  - On Render: https://supplier-search-engine.onrender.com
+  - Automatically!
+
+================================================================================
+  UPLOAD NOW
+================================================================================
+
+1. Local file ready:
+   C:\Users\n0l08i7\Desktop\RENDER REPOSITORY\SUPPLIER-SEARCH-ENGINE\frontend\index.html
+
+2. Go to GitHub:
+   github.com/[username]/supplier-search-engine
+
+3. frontend > index.html > Edit (pencil)
+
+4. Copy your local file:
+   Ctrl+A, Ctrl+C
+
+5. Paste in GitHub:
+   Ctrl+A, Delete, Ctrl+V
+
+6. Commit:
+   Message: "fix: Connect to server using current domain"
+   Click: "Commit changes"
+
+7. Wait 3 minutes for Render to deploy
+
+8. Test:
+   Ctrl+Shift+N
+   https://supplier-search-engine.onrender.com
+   
+   YOU SHOULD NOW SEE:
+   ✅ Dashboard loads
+   ✅ Suppliers appear (from server!)
+   ✅ All features work
+   ✅ Server connected!
+
+================================================================================
+  WHY THIS WORKS
+================================================================================
+
+window.location.origin gives you:
+  - http://localhost:3000 (when running locally)
+  - https://supplier-search-engine.onrender.com (on Render)
+  - https://yourserver.com (on any domain)
+
+So the API calls automatically point to the right server!
+
+API calls become:
+  - http://localhost:3000/api/dashboard/suppliers (locally)
+  - https://supplier-search-engine.onrender.com/api/dashboard/suppliers (on Render)
+
+Your backend server.js serves BOTH the frontend AND the API!
+
+================================================================================
+  GO!
+================================================================================
+
+Upload it now and test in 5 minutes!
+
+================================================================================

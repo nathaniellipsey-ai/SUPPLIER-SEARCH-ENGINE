@@ -1636,7 +1636,7 @@ Created with ❤️ by Code Puppy 🐶
     <script>
 
 // API URL - point to the Python API server
-const API_URL = 'http://localhost:8000';
+const API_URL = window.location.origin;  // Uses current domain (works on localhost, Render, etc.)
 let USE_API = false; // Set to true to use API instead of local generation
 
 // Function to load suppliers from API
