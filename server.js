@@ -439,15 +439,16 @@ app.use(express.static(__dirname));
 
 // Serve frontend dashboard for all routes (SPA fallback)
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+  // Serve dashboard_with_api.html instead of frontend/index.html
+  res.sendFile(path.join(__dirname, 'dashboard_with_api.html'));
 });
 
-// Catch-all for SPA routing - serve index.html (before error handlers)
+// Catch-all for SPA routing - serve dashboard_with_api.html (before error handlers)
 app.get('*', (req, res) => {
-  // Only serve index.html for non-API routes
+  // Only serve dashboard_with_api.html for non-API routes
   // API routes that reach here are 404s and will be handled below
   if (!req.path.startsWith('/api/') && !req.path.startsWith('/health')) {
-    return res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+    return res.sendFile(path.join(__dirname, 'dashboard_with_api.html'));
   }
   // For API routes that don't exist, let it fall through to error handler
   res.status(404).json({

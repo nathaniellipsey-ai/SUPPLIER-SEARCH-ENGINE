@@ -1,0 +1,100 @@
+================================================================================
+  🚀 QUICK START - UPLOAD YOUR UPDATED FILE IN 5 MINUTES
+================================================================================
+
+Your local changes ARE saved. Just need to push to server.
+
+================================================================================
+  SIMPLEST WAY: GitHub Web Upload
+================================================================================
+
+1. Go to GitHub (sign in if needed):
+   https://github.com/login
+
+2. Find your supplier-search-engine repository
+   Click on it
+
+3. Go to frontend folder
+   Click "frontend" folder
+
+4. Click "index.html"
+
+5. Click the PENCIL ICON (Edit)
+   Top right of the file
+
+6. In your File Explorer, open:
+   C:\Users\n0l08i7\Desktop\RENDER REPOSITORY\SUPPLIER-SEARCH-ENGINE\frontend\index.html
+
+7. Select all text in that file:
+   Ctrl+A
+
+8. Copy it:
+   Ctrl+C
+
+9. Back in GitHub, select all text in the editor:
+   Ctrl+A
+
+10. Delete it:
+    Delete key
+
+11. Paste your file:
+    Ctrl+V
+
+12. Scroll down to "Commit changes"
+
+13. In the message box type:
+    fix: Remove duplicate closeModal, add quotes, improve logging
+
+14. Click "Commit changes"
+
+15. DONE! Now wait 2-3 minutes
+
+16. Test:
+    - Go to: https://supplier-search-engine.onrender.com
+    - Press Ctrl+Shift+Delete (clear cache)
+    - Close browser
+    - Reopen
+    - Open F12 console
+    - Click supplier name
+    - Modal should appear!
+
+================================================================================
+  IF STILL NOT WORKING - USE INCOGNITO (BYPASSES CACHE)
+================================================================================
+
+1. Open Chrome
+2. Press: Ctrl+Shift+N (Opens incognito)
+3. Go to: https://supplier-search-engine.onrender.com
+4. Click supplier name
+5. Modal should appear (no cache in incognito)
+6. If works here, your main browser cache is the issue
+   Clear it with: Ctrl+Shift+Delete > All time > Clear
+
+================================================================================
+  WHAT SHOULD HAPPEN
+================================================================================
+
+BEFORE:
+  Click supplier name
+  → Nothing happens
+  → Modal doesn't appear
+
+AFTER:
+  Click supplier name
+  → Modal APPEARS with company info
+  → Shows name, category, rating, location, products, etc.
+  → Click X button
+  → Modal closes
+
+================================================================================
+  DO THIS RIGHT NOW
+================================================================================
+
+1. Upload the file (steps 1-14 above)
+2. Wait 2-3 minutes
+3. Open incognito: Ctrl+Shift+N
+4. Go to supplier-search-engine.onrender.com
+5. Click supplier name
+6. Report if modal appears or not
+
+================================================================================

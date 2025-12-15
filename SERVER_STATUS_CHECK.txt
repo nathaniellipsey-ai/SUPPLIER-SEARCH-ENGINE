@@ -1,0 +1,145 @@
+================================================================================
+  🔍 CHECK RENDER SERVER STATUS
+================================================================================
+
+When you uploaded the file, Render automatically started deploying.
+The server might be:
+  1. Still building (takes 2-3 minutes)
+  2. Built successfully but service restarting
+  3. Failed to build
+  4. Crashed
+
+Let's check the status!
+
+================================================================================
+  STEP 1: CHECK RENDER DASHBOARD
+================================================================================
+
+1. Go to: https://dashboard.render.com
+
+2. Log in if needed
+
+3. Click on "supplier-search-engine" service
+
+4. Look at the top section:
+   
+   BUILDING: Shows "Building..." or "Deploying..."
+   ✅ If you see this: Wait 2-3 minutes
+   
+   DEPLOYED: Shows "Deployed" with a green checkmark
+   ✅ If you see this: Service is running - API should work
+   
+   FAILED: Shows "Failed" or "Error"
+   ❌ If you see this: Build failed - need to check logs
+   
+   CRASHED: Shows "Crashed" or "Error state"
+   ❌ If you see this: Service crashed - need to restart
+
+5. Look at "Logs" section below
+   ✅ Scroll through the logs
+   ✅ Look for error messages
+   ✅ Copy any red error text
+
+================================================================================
+  STEP 2: IF STATUS IS "BUILDING"
+================================================================================
+
+Just WAIT 2-3 more minutes
+Then refresh dashboard
+Server will finish building
+
+================================================================================
+  STEP 3: IF STATUS IS "DEPLOYED"
+================================================================================
+
+Service should be running.
+But maybe the API isn't connecting properly.
+
+Try:
+1. Go to: https://supplier-search-engine.onrender.com/api/test
+2. Should see JSON response:
+   {"success": true, "message": "Server is running", ...}
+
+If you see that:
+  ✅ Server IS working
+  ✅ Problem is frontend code
+  ✅ Need to check frontend/index.html
+
+If you see error:
+  ❌ Server crashed
+  ❌ Look at Render logs
+  ❌ Need to restart
+
+================================================================================
+  STEP 4: IF STATUS IS "FAILED" OR "CRASHED"
+================================================================================
+
+1. In Render dashboard, click "View Logs"
+
+2. Scroll to find RED error messages
+
+3. Copy the error text
+
+4. Common errors:
+   
+   Error: Cannot find module 'chatbot-service.js'
+   → File missing in GitHub
+   → Need to upload missing files
+   
+   Error: Cannot find module 'data-server/data-generator.js'
+   → File missing in GitHub
+   → Need to upload missing files
+   
+   Port already in use
+   → Service already running
+   → Click "Restart" button
+   
+   Any other error:
+   → Report to me with exact error text
+
+================================================================================
+  STEP 5: RESTART SERVICE
+================================================================================
+
+If service is crashed/failed:
+
+1. Render dashboard > supplier-search-engine
+
+2. Look for "Restart" button (usually top right)
+
+3. Click "Restart service"
+
+4. Wait 1-2 minutes for restart
+
+5. Check status again
+
+6. Try: https://supplier-search-engine.onrender.com/api/test
+
+================================================================================
+  WHAT TO REPORT BACK
+================================================================================
+
+Tell me:
+
+1. Render dashboard status:
+   - Building
+   - Deployed
+   - Failed
+   - Crashed
+   - Unknown
+
+2. If there's a status, what does it say exactly?
+
+3. When you try: https://supplier-search-engine.onrender.com/api/test
+   What do you see?
+   - JSON response with data?
+   - Error page?
+   - Blank page?
+   - Connection refused?
+
+4. Any error messages in Render logs?
+   (Copy exact text if yes)
+
+With this info, I can tell you exactly what's wrong and how to fix it!
+
+================================================================================

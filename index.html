@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Walmart Supplier Portal - Live Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --walmart-blue: #0071ce;
+            --walmart-dark-blue: #004c91;
+            --walmart-yellow: #ffc220;
+            --walmart-red: #e02020;
+            --light-bg: #f5f7fa;
+            --border: #e0e0e0;
+            --text-dark: #1a1a1a;
+            --text-light: #666;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--light-bg);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--walmart-blue) 0%, var(--walmart-dark-blue) 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 20px;
+            padding: 20px 0;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            position: sticky;
+            top: 80px;
+        }
+
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+
+        .sidebar-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-light);
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-item {
+            padding: 10px 12px;
+            margin-bottom: 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-item:hover {
+            background: var(--light-bg);
+            border-left-color: var(--walmart-blue);
+        }
+
+        .sidebar-item.active {
+            background: var(--walmart-blue);
+            color: white;
+            border-left-color: var(--walmart-blue);
+            font-weight: 600;
+        }
+
+        /* Content Area */
+        .content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--walmart-blue);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        /* Search Bar */
+        .search-container {
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--walmart-blue);
+            box-shadow: 0 0 0 3px rgba(0, 113, 206, 0.1);
+        }
+
+        /* Supplier Cards */
+        .suppliers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 15px;
+        }
+
+        .supplier-card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+            border-left: 4px solid var(--border);
+        }
+
+        .supplier-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-left-color: var(--walmart-blue);
+        }
+
+        .supplier-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .supplier-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .supplier-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: var(--walmart-yellow);
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .supplier-meta {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+
+        .supplier-rating {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .star {
+            color: var(--walmart-yellow);
+        }
+
+        .products-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .product-tag {
+            padding: 4px 8px;
+            background: var(--light-bg);
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .supplier-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+            flex: 1;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--walmart-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--walmart-dark-blue);
+        }
+
+        .btn-secondary {
+            background: var(--light-bg);
+            color: var(--text-dark);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn-favorite {
+            background: none;
+            border: 1px solid var(--border);
+            padding: 8px;
+            color: var(--text-dark);
+        }
+
+        .btn-favorite.active {
+            color: var(--walmart-red);
+            border-color: var(--walmart-red);
+        }
+
+        /* Loading State */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--border);
+            border-top-color: var(--walmart-blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-dark);
+        }
+
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--walmart-blue);
+            box-shadow: 0 0 0 3px rgba(0, 113, 206, 0.1);
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--walmart-blue);
+            color: var(--walmart-blue);
+        }
+
+        .filter-btn.active {
+            background: var(--walmart-blue);
+            color: white;
+            border-color: var(--walmart-blue);
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+            }
+
+            .suppliers-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">🛒 Supplier Portal</div>
+                <div class="user-info">
+                    <div class="status-badge">
+                        <div class="status-dot"></div>
+                        <span id="status-text">Connecting...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="main-grid">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Navigation</div>
+                    <div class="sidebar-item active" data-view="dashboard">📊 Dashboard</div>
+                    <div class="sidebar-item" data-view="suppliers">🏢 All Suppliers</div>
+                    <div class="sidebar-item" data-view="favorites">⭐ Favorites</div>
+                    <div class="sidebar-item" data-view="notes">📝 My Notes</div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Categories</div>
+                    <div id="category-list"></div>
+                </div>
+            </aside>
+
+            <!-- Content -->
+            <main class="content">
+                <!-- Dashboard View -->
+                <div id="dashboard-view" class="view active">
+                    <div class="card">
+                        <h2>Live Supplier Dashboard</h2>
+                        <p style="color: var(--text-light); font-size: 13px; margin-top: 5px;">Real-time data from data server • WebSocket enabled</p>
+                    </div>
+
+                    <div class="stats-grid" id="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">-</div>
+                            <div class="stat-label">Total Suppliers</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">-</div>
+                            <div class="stat-label">In Stock</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">-</div>
+                            <div class="stat-label">Verified Suppliers</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">-</div>
+                            <div class="stat-label">Avg Rating</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Suppliers View -->
+                <div id="suppliers-view" class="view" style="display: none;">
+                    <div class="card">
+                        <h2>Supplier Search</h2>
+                        <div style="margin-top: 15px;">
+                            <input type="text" id="search-input" class="search-input" placeholder="Search suppliers by name, location, or product...">
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="filters" id="filters-container"></div>
+                    </div>
+
+                    <div id="suppliers-container" class="card">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading suppliers...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Favorites View -->
+                <div id="favorites-view" class="view" style="display: none;">
+                    <div class="card">
+                        <h2>⭐ Favorite Suppliers</h2>
+                    </div>
+                    <div id="favorites-container" class="card">
+                        <div style="text-align: center; color: var(--text-light); padding: 40px;">
+                            No favorites yet. Add suppliers from the search to see them here.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes View -->
+                <div id="notes-view" class="view" style="display: none;">
+                    <div class="card">
+                        <h2>📝 My Notes</h2>
+                    </div>
+                    <div id="notes-container" class="card">
+                        <div style="text-align: center; color: var(--text-light); padding: 40px;">
+                            No notes yet. Add notes to suppliers to see them here.
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Note Modal -->
+    <div id="note-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>Add/Edit Note</div>
+                <button class="modal-close" onclick="closeNoteModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Supplier</label>
+                <div id="note-supplier-name" style="padding: 10px 0; font-weight: 600;"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Your Notes</label>
+                <textarea id="note-content" class="form-textarea" placeholder="Add your notes about this supplier..."></textarea>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary" onclick="closeNoteModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveNote()">Save Note</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Config
+        const API_BASE = 'http://localhost:3000';
+        const DATA_SERVER_URL = 'http://localhost:3001';
+        const WS_URL = 'ws://localhost:3001';
+        const USER_ID = 'user-' + Math.random().toString(36).substr(2, 9);
+
+        // State
+        let suppliers = [];
+        let favorites = [];
+        let notes = {};
+        let currentFilter = null;
+        let ws = null;
+        let currentNoteId = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', init);
+
+        async function init() {
+            console.log('🐕 Initializing Supplier Portal...');
+            setupEventListeners();
+            connectWebSocket();
+            loadInitialData();
+            loadUserData();
+        }
+
+        function setupEventListeners() {
+            // Navigation
+            document.querySelectorAll('.sidebar-item[data-view]').forEach(item => {
+                item.addEventListener('click', (e) => switchView(e.target.dataset.view));
+            });
+
+            // Search
+            document.getElementById('search-input').addEventListener('input', debounce(handleSearch, 300));
+        }
+
+        function connectWebSocket() {
+            try {
+                ws = new WebSocket(WS_URL);
+
+                ws.onopen = () => {
+                    console.log('✅ WebSocket connected');
+                    updateStatus('Connected', true);
+                };
+
+                ws.onmessage = (event) => {
+                    const message = JSON.parse(event.data);
+                    if (message.type === 'update' || message.type === 'initial') {
+                        suppliers = message.data;
+                        console.log(`📊 Received ${suppliers.length} suppliers from data server`);
+                        renderSuppliers();
+                        updateStats();
+                    }
+                };
+
+                ws.onerror = (error) => {
+                    console.error('❌ WebSocket error:', error);
+                    updateStatus('Connection Error', false);
+                };
+
+                ws.onclose = () => {
+                    console.log('🔌 WebSocket disconnected');
+                    updateStatus('Disconnected', false);
+                    setTimeout(() => connectWebSocket(), 5000); // Reconnect
+                };
+            } catch (error) {
+                console.error('Failed to connect WebSocket:', error);
+                updateStatus('Failed', false);
+            }
+        }
+
+        async function loadInitialData() {
+            try {
+                const response = await fetch(`${DATA_SERVER_URL}/api/suppliers`);
+                const data = await response.json();
+                suppliers = data.data || [];
+                console.log(`✅ Loaded ${suppliers.length} suppliers`);
+                loadCategories();
+                renderSuppliers();
+                updateStats();
+            } catch (error) {
+                console.error('Failed to load suppliers:', error);
+                updateStatus('Failed', false);
+            }
+        }
+
+        async function loadUserData() {
+            try {
+                const headers = { 'X-User-ID': USER_ID };
+                const [favRes, notesRes] = await Promise.all([
+                    fetch(`${API_BASE}/api/user/favorites`, { headers }),
+                    fetch(`${API_BASE}/api/user/notes`, { headers })
+                ]);
+
+                favorites = (await favRes.json()).favorites || [];
+                notes = (await notesRes.json()).notes || {};
+                console.log('📌 Loaded user data');
+            } catch (error) {
+                console.error('Failed to load user data:', error);
+            }
+        }
+
+        function loadCategories() {
+            const categories = [...new Set(suppliers.map(s => s.category))];
+            const html = categories.map(cat => 
+                `<div class="sidebar-item" data-category="${cat}" onclick="filterByCategory('${cat}')">${cat}</div>`
+            ).join('');
+            document.getElementById('category-list').innerHTML = html;
+        }
+
+        function switchView(viewName) {
+            document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+            document.getElementById(`${viewName}-view`).style.display = 'block';
+
+            document.querySelectorAll('.sidebar-item[data-view]').forEach(item => {
+                item.classList.toggle('active', item.dataset.view === viewName);
+            });
+
+            if (viewName === 'suppliers') {
+                renderSuppliers();
+            } else if (viewName === 'favorites') {
+                renderFavorites();
+            } else if (viewName === 'notes') {
+                renderNotes();
+            }
+        }
+
+        async function handleSearch(e) {
+            const query = e.target.value;
+            if (!query) {
+                renderSuppliers();
+                return;
+            }
+
+            try {
+                const response = await fetch(`${DATA_SERVER_URL}/api/suppliers/search`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+                const data = await response.json();
+                renderSuppliers(data.data);
+            } catch (error) {
+                console.error('Search failed:', error);
+            }
+        }
+
+        function filterByCategory(category) {
+            const filtered = suppliers.filter(s => s.category === category);
+            currentFilter = category;
+            renderSuppliers(filtered);
+        }
+
+        function renderSuppliers(data = null) {
+            const toRender = data || suppliers;
+            const html = toRender.map(supplier => `
+                <div class="supplier-card">
+                    <div class="supplier-header">
+                        <div>
+                            <div class="supplier-name">${supplier.name}</div>
+                            <div class="supplier-meta">${supplier.location}</div>
+                        </div>
+                        <button class="btn-favorite ${favorites.includes(supplier.id) ? 'active' : ''}" 
+                                onclick="toggleFavorite('${supplier.id}', '${supplier.name.replace(/'/g, "\\'")}')">♥</button>
+                    </div>
+
+                    <div class="supplier-badge">${supplier.category}</div>
+
+                    <div class="supplier-rating">
+                        <span class="star">★</span>
+                        <span>${supplier.rating}</span>
+                        <span style="color: var(--text-light);">(${supplier.reviews} reviews)</span>
+                    </div>
+
+                    <div style="font-size: 12px; color: var(--text-light); margin-bottom: 10px;">
+                        ${supplier.inStock ? '✅ In Stock' : '❌ Out of Stock'}
+                    </div>
+
+                    <div class="products-list">
+                        ${supplier.products.slice(0, 3).map(p => `<div class="product-tag">${p}</div>`).join('')}
+                    </div>
+
+                    <div class="supplier-actions">
+                        <button class="btn btn-secondary" onclick="openNoteModal('${supplier.id}', '${supplier.name.replace(/'/g, "\\'")}')">📝 Note</button>
+                        <button class="btn btn-primary">View Details</button>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('suppliers-container').innerHTML = html || 
+                '<div style="text-align: center; color: var(--text-light); padding: 40px;">No suppliers found</div>';
+        }
+
+        function renderFavorites() {
+            const favSuppliers = suppliers.filter(s => favorites.includes(s.id));
+            document.getElementById('favorites-container').innerHTML = 
+                favSuppliers.length === 0 
+                    ? '<div style="text-align: center; color: var(--text-light); padding: 40px;">No favorites yet</div>'
+                    : `<div class="suppliers-grid">${favSuppliers.map(s => renderSupplierCard(s)).join('')}</div>`;
+        }
+
+        function renderNotes() {
+            const notesList = Object.entries(notes).map(([supplierId, note]) => `
+                <div class="supplier-card">
+                    <div class="supplier-name" style="margin-bottom: 10px;">${supplierNameById(supplierId)}</div>
+                    <div style="font-size: 13px; line-height: 1.6; color: var(--text-dark); margin-bottom: 10px;">${note.content}</div>
+                    <div style="font-size: 11px; color: var(--text-light);">Updated: ${new Date(note.updatedAt).toLocaleDateString()}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('notes-container').innerHTML = notesList || 
+                '<div style="text-align: center; color: var(--text-light); padding: 40px;">No notes yet</div>';
+        }
+
+        function renderSupplierCard(supplier) {
+            return `
+                <div class="supplier-card">
+                    <div class="supplier-header">
+                        <div>
+                            <div class="supplier-name">${supplier.name}</div>
+                            <div class="supplier-meta">${supplier.location}</div>
+                        </div>
+                        <button class="btn-favorite ${favorites.includes(supplier.id) ? 'active' : ''}" 
+                                onclick="toggleFavorite('${supplier.id}', '${supplier.name.replace(/'/g, "\\'")}')">♥</button>
+                    </div>
+                    <div class="supplier-badge">${supplier.category}</div>
+                    <div class="supplier-rating">
+                        <span class="star">★</span>
+                        <span>${supplier.rating}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function supplierNameById(id) {
+            return suppliers.find(s => s.id === id)?.name || 'Unknown';
+        }
+
+        async function toggleFavorite(supplierId, supplierName) {
+            const headers = { 'X-User-ID': USER_ID, 'Content-Type': 'application/json' };
+            const isFavorite = favorites.includes(supplierId);
+            const endpoint = isFavorite ? 'remove' : 'add';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/user/favorites/${endpoint}`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({ supplierId })
+                });
+                const data = await response.json();
+                favorites = data.favorites;
+                renderSuppliers();
+            } catch (error) {
+                console.error('Failed to update favorite:', error);
+            }
+        }
+
+        function openNoteModal(supplierId, supplierName) {
+            currentNoteId = supplierId;
+            document.getElementById('note-supplier-name').textContent = supplierName;
+            document.getElementById('note-content').value = notes[supplierId]?.content || '';
+            document.getElementById('note-modal').classList.add('active');
+        }
+
+        function closeNoteModal() {
+            document.getElementById('note-modal').classList.remove('active');
+            currentNoteId = null;
+        }
+
+        async function saveNote() {
+            const content = document.getElementById('note-content').value;
+            const headers = { 'X-User-ID': USER_ID, 'Content-Type': 'application/json' };
+
+            try {
+                const response = await fetch(`${API_BASE}/api/user/notes/save`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({ supplierId: currentNoteId, content })
+                });
+                const data = await response.json();
+                notes = data.notes;
+                closeNoteModal();
+                console.log('✅ Note saved');
+            } catch (error) {
+                console.error('Failed to save note:', error);
+            }
+        }
+
+        function updateStats() {
+            const stats = {
+                total: suppliers.length,
+                inStock: suppliers.filter(s => s.inStock).length,
+                verified: suppliers.filter(s => s.verified).length,
+                avgRating: (suppliers.reduce((sum, s) => sum + s.rating, 0) / suppliers.length).toFixed(2)
+            };
+
+            const cards = document.querySelectorAll('.stat-card');
+            cards[0].querySelector('.stat-value').textContent = stats.total;
+            cards[1].querySelector('.stat-value').textContent = stats.inStock;
+            cards[2].querySelector('.stat-value').textContent = stats.verified;
+            cards[3].querySelector('.stat-value').textContent = stats.avgRating;
+        }
+
+        function updateStatus(text, isConnected) {
+            const statusEl = document.getElementById('status-text');
+            const dotEl = document.querySelector('.status-dot');
+            statusEl.textContent = text;
+            dotEl.style.background = isConnected ? '#4ade80' : '#ef4444';
+        }
+
+        function debounce(fn, delay) {
+            let timeoutId;
+            return function(...args) {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => fn.apply(this, args), delay);
+            };
+        }
+    </script>
+</body>
+</html>

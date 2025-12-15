@@ -1,0 +1,72 @@
+================================================================================
+  🐧 DO THIS NOW - 3 SIMPLE STEPS
+================================================================================
+
+STEP 1: UPLOAD THE FILE
+========================================
+
+1. Go to: github.com (log in)
+
+2. Click: supplier-search-engine
+
+3. Click: frontend folder
+
+4. Click: index.html
+
+5. Click: pencil icon (Edit)
+
+6. Open your local file:
+   C:\Users\n0l08i7\Desktop\RENDER REPOSITORY\SUPPLIER-SEARCH-ENGINE\frontend\index.html
+
+7. Select all and copy: Ctrl+A, Ctrl+C
+
+8. In GitHub editor, paste: Ctrl+A, Delete, Ctrl+V
+
+9. Write message: fix: Simplify modal display with aggressive inline styles
+
+10. Click: Commit changes
+
+DONE!
+
+================================================================================
+  STEP 2: WAIT
+========================================
+
+Wait 3 minutes for Render to deploy
+(This is automatic, you don't need to do anything)
+
+================================================================================
+  STEP 3: TEST
+========================================
+
+1. Press: Ctrl+Shift+N (opens incognito mode)
+
+2. Go to: https://supplier-search-engine.onrender.com
+
+3. Press: F12 (opens console)
+
+4. Click on any SUPPLIER NAME (blue text)
+
+5. LOOK FOR ALERT that says:
+   "SUPPLIER CLICKED! ID: SUP-00001"
+
+6. Click OK on alert
+
+7. LOOK FOR:
+   Dark overlay on screen
+   White box in center with company info
+
+8. REPORT BACK:
+   Did you see the alert?
+   Did the modal appear?
+   What's in the console (F12)?
+
+================================================================================
+  THAT'S IT!
+================================================================================
+
+Upload > Wait 3 min > Test > Report
+
+Do this now!
+
+================================================================================

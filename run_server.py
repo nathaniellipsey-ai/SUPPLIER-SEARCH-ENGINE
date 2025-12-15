@@ -118,11 +118,12 @@ class UnifiedHandler(http.server.BaseHTTPRequestHandler):
                 self.send_header('Content-Type', 'text/html')
                 self.send_header('Access-Control-Allow-Origin', '*')
                 self.end_headers()
-                html_file = FRONTEND_DIR / 'index.html'
+                # Serve dashboard_with_api.html instead of index.html
+                html_file = Path(__file__).parent / 'dashboard_with_api.html'
                 if html_file.exists():
                     self.wfile.write(html_file.read_bytes())
                 else:
-                    self.wfile.write(b'<h1>index.html not found</h1>')
+                    self.wfile.write(b'<h1>dashboard_with_api.html not found</h1>')
                 return
             
             else:

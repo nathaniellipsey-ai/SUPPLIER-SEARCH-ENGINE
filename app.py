@@ -55,8 +55,8 @@ def handle_request(client_socket, addr):
         
         # Handle requests
         if path == '/' or path == '/index.html':
-            # Serve HTML file
-            html_file = FRONTEND_DIR / 'index.html'
+            # Serve dashboard_with_api.html instead of frontend/index.html
+            html_file = Path(__file__).parent / 'dashboard_with_api.html'
             if html_file.exists():
                 content = html_file.read_bytes()
                 response = f"""HTTP/1.1 200 OK

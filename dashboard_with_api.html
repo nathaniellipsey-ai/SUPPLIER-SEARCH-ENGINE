@@ -1635,8 +1635,11 @@ Created with ❤️ by Code Puppy 🐶
 
     <script>
 
-// API URL - point to the Node.js Backend API server
-const API_URL = 'http://localhost:3000';
+// API URL - point to the Backend API server
+// Auto-detects if running locally or on Render
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3002'  // Local development
+    : window.location.origin;   // Production (same origin)
 let USE_API = false; // Set to true to use API instead of local generation
 
 // Function to load suppliers from API
